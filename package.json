@@ -4,6 +4,7 @@
   "description": "Realtime API Library",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "start": "node ./build/server/server.js",
     "build": "tsc",
     "dev": "nodemon"
@@ -20,9 +21,31 @@
   "homepage": "https://github.com/markcmlee/synapse#readme",
   "dependencies": {
     "@types/express": "^4.17.6",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.5",
+    "@types/supertest": "^2.0.9",
     "express": "^4.17.1",
+    "jest": "^26.0.1",
     "nodemon": "^2.0.4",
+    "supertest": "^4.0.2",
+    "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
     "typescript": "^3.9.3"
-  }
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "txs",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    }
+  },
+  "devDependencies": {}
 }
