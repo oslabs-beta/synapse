@@ -9,7 +9,7 @@ class Email extends Text {
   constructor(flags = null) {
     super(null, null, null, flags);
 
-    this.assert(REGEX, true, "must be a valid email address");
+    this.assert(REGEX, true, 'must be a valid email address');
   }
 }
 

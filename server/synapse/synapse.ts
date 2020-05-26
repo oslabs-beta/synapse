@@ -74,11 +74,7 @@ const synapse = (dir) => {
 
             throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
           } catch (err) {
-<<<<<<< HEAD
-            console.log('error', err);
-=======
             console.log(err);
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
           }
 
           // send any unhandled errors back to express
