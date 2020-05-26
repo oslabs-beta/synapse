@@ -97,13 +97,8 @@ function validator(schema: typeof Schema) {
       const validated = await schema.validate(data); // use 'schema' to validate input 'data'
 
       // if schema.validate does not return an object, then the data is invalid.
-<<<<<<< HEAD
-      if (typeof validated !== 'object') {
-        return Reply.BAD_REQUEST();
-=======
       if (typeof validated !== "object") {
         return Reply.BAD_REQUEST(schema.lastError);
->>>>>>> 3c80fda9be6370fb4b7acf497a5cd76464e8b5f8
       }
 
       // Otherwise, call the original class method with the validated data.
