@@ -1,7 +1,5 @@
-export { };
+export {};
 
-class Resource {
-
-}
+class Resource {}
 
 module.exports = Resource;

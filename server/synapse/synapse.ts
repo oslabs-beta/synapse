@@ -1,4 +1,4 @@
-export { };
+export {};
 
 const { Router } = require('express');
 
