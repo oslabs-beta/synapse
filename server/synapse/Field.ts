@@ -3,6 +3,7 @@
 export {};
 
 const OPT = 0b001; // optional flag
+const PRV = 0b010; // private flag
 
 /**
  * Creates an instance of 'Field' that has a 'type' of value along with the methods
@@ -13,20 +14,13 @@ class Field {
 
   flags: number;
 
-  /**
-   * Set of rules to validate input.
-   * Filled with the RegExp provided when custom fields are created.
-   */
-  rules = {
-    positive: [],
-    negative: [],
-  };
+  lastError: string;
+
   /**
    * @param defaultVal Value to be used in constructor (null by default).
    * @param flags Custom flags to describe a field. Ex: Private/Optional.
    */
-
-  constructor(defaultVal: any = null, flags: number = 0) {
+  constructor(defaultVal: any = null, flags: number = null) {
     this.default = defaultVal;
     this.flags = flags;
   }
@@ -36,24 +30,8 @@ class Field {
    * @param flag Options being passed into the new fields. Ex: Private/Optional.
    * @returns A boolean determining whether or not the flag is present.
    */
-
   hasFlag(flag) {
     return !!(this.flags & flag);
-  }
-
-  /**
-   * Adds a regular expression to this.rules.
-   * When 'negate' is set to true, the 'parse' function will assert that the regular expression evaluate to false.
-   * @param rule A RegExp rule.-
-   * @param negate A boolean to determine what the RegExp should evaluate to
-   */
-  conform(rule, negate = false) {
-    const regex = rule instanceof RegExp ? rule : new RegExp(rule);
-    if (negate) {
-      this.rules.negative.push(regex);
-    } else {
-      this.rules.positive.push(regex);
-    }
   }
 
   /**
@@ -68,22 +46,8 @@ class Field {
     if (value === undefined || value === null) {
       return this.hasFlag(OPT) ? this.default : undefined;
     }
-    // currently just checks to see if the value is a string
-    if (typeof value === 'string') {
-      for (let i = 0; i < this.rules.positive.length; ++i) {
-        if (!value.match(this.rules.positive[i])) {
-          return undefined;
-        }
-      }
-      for (let i = 0; i < this.rules.negative.length; ++i) {
-        if (value.match(this.rules.negative[i])) {
-          return undefined;
-        }
-      }
-    }
-
     return value;
   }
 }
 
-module.exports = { Field, OPT };
+module.exports = { Field, OPT, PRV };
