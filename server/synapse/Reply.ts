@@ -1,5 +1,8 @@
 export {};
 
+/*
+  Represents a response to the client.
+*/
 class Reply {
   status: number;
 
@@ -8,6 +11,25 @@ class Reply {
   constructor(status: number, payload: any = null) {
     this.status = status;
     this.payload = payload;
+  }
+
+  /*
+    Checks if this.status is a 4xx or 5xx error.
+  */
+  isError() {
+    return ["4", "5"].includes(this.status.toString()[0]);
+  }
+
+  serialize() {
+    if (this.payload === null || this.payload === undefined) {
+      return "";
+    }
+
+    if (typeof this.payload === "string" || typeof this.payload === "number") {
+      return this.payload;
+    }
+
+    return JSON.stringify(this.payload);
   }
 
   static OK(payload: any = null) {

@@ -1,4 +1,5 @@
 /* eslint-disable no-bitwise */
+
 export {};
 
 const OPT = 0b001;
@@ -18,6 +19,10 @@ class Field {
     this.flags = flags;
   }
 
+  hasFlag(flag) {
+    return !!(this.flags & flag);
+  }
+
   conform(rule, negate = false) {
     const regex = rule instanceof RegExp ? rule : new RegExp(rule);
     if (negate) {
@@ -29,7 +34,7 @@ class Field {
 
   async parse(value) {
     if (value === undefined || value === null) {
-      return this.flags | OPT ? this.default : undefined;
+      return this.hasFlag(OPT) ? this.default : undefined;
     }
 
     if (typeof value === "string") {
