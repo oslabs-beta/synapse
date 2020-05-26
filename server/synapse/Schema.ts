@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 export {};
 
-const { Field } = require("./Field");
+const { Field } = require('./Field');
 
 /*
   checks that all values in 'obj' are of type Field,
@@ -11,7 +11,7 @@ const assertIsFieldObject = (obj: object) => {
   const keys = Object.keys(obj);
   for (let i = 0; i < keys.length; ++i) {
     if (!(obj[keys[i]] instanceof Field)) {
-      throw new Error("Expected object containing only values of type Field.");
+      throw new Error('Expected object containing only values of type Field.');
     }
   }
   return true;
@@ -47,10 +47,6 @@ class Schema {
     returns a new Schema containing a subset of the 
     fields of this Schema as specified by 'keys'.
   */
-<<<<<<< HEAD
-
-=======
->>>>>>> 3c80fda9be6370fb4b7acf497a5cd76464e8b5f8
   select(...keys) {
     const result = {};
     keys.forEach((key) => {
