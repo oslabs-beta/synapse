@@ -84,7 +84,7 @@ class Schema {
 
       // if any of the fields are not valid return undefined
       if (value === undefined) {
-        this.lastError = `Unexpected parameter '${key} = ${data[key]}'.`;
+        this.lastError = `Unexpected parameter '${key} = ${data[key]}' - ${field.lastError}`;
         return undefined;
       }
       result[key] = value;

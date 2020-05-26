@@ -6,6 +6,8 @@ const app = express();
 
 const PORT = 3000;
 
+app.use(express.json());
+
 app.use("/api", synapse(path.resolve(__dirname, "./resources")));
 
 app.get("/", (req, res) => {

@@ -3,6 +3,7 @@
 export {};
 
 const OPT = 0b001; // optional flag
+const PRV = 0b010; // private flag
 
 /*
   Represents a type of value. Stores properties which define that type.
@@ -13,12 +14,9 @@ class Field {
 
   flags: number;
 
-  rules = {
-    positive: [],
-    negative: [],
-  };
+  lastError: string;
 
-  constructor(defaultVal: any = null, flags: number = 0) {
+  constructor(defaultVal: any = null, flags: number = null) {
     this.default = defaultVal;
     this.flags = flags;
   }
@@ -32,49 +30,19 @@ class Field {
   }
 
   /*
-    Adds a regular expression to this.rules. When
-    'negate' is set to true, the 'parse' function will
-    assert that the regular expression evaluate to false.
-  */
-  conform(rule, negate = false) {
-    const regex = rule instanceof RegExp ? rule : new RegExp(rule);
-    if (negate) {
-      this.rules.negative.push(regex);
-    } else {
-      this.rules.positive.push(regex);
-    }
-  }
+    The 'parse' function should check if the input is of,
+    or can be converted to, the Field type. The base
+    implementation only checks for empty values.
 
-  /*
-    Checks if the input value is valid.
-    
     If the input is null or undefined and the 'optional'
     flag is set, returns the default value. 
-    
-    If the input is a string, determines if the value 
-    matches matches all the 'positive' regular expressions 
-    and none of the 'negative' ones. 
   */
   async parse(value) {
     if (value === undefined || value === null) {
       return this.hasFlag(OPT) ? this.default : undefined;
     }
-
-    if (typeof value === "string") {
-      for (let i = 0; i < this.rules.positive.length; ++i) {
-        if (!value.match(this.rules.positive[i])) {
-          return undefined;
-        }
-      }
-      for (let i = 0; i < this.rules.negative.length; ++i) {
-        if (value.match(this.rules.negative[i])) {
-          return undefined;
-        }
-      }
-    }
-
     return value;
   }
 }
 
-module.exports = { Field, OPT };
+module.exports = { Field, OPT, PRV };
