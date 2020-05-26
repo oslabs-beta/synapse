@@ -1,4 +1,4 @@
-npm r{
+{
   "name": "synapse",
   "version": "1.0.0",
   "description": "Realtime API Library",
