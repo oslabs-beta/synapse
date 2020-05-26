@@ -1,9 +1,10 @@
-export { };
-const Field = require('../synapse/Field');
+export {};
+const Text = require("./Text");
 
-class Id extends Field {
-  parse(value) {
-    return value;
+class Id extends Text {
+  constructor(length, flags = null) {
+    super(length, length, null, flags);
+    this.conform(/[^\w-]/, true);
   }
 }
 

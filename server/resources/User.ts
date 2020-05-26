@@ -1,18 +1,21 @@
-export { };
-const Resource = require('../synapse/Resource');
-const Id = require('../fields/Id');
+export {};
+const Resource = require("../synapse/Resource");
+const Schema = require("../synapse/Schema");
+const Id = require("../fields/Id");
+const Email = require("../fields/Email");
+
+const { field, endpoint, validator } = require("../synapse/decorators");
+const Reply = require("../synapse/Reply");
 
 class User extends Resource {
-  static fields = {
-    id: new Id()
-  };
+  @field(new Id(3)) id;
 
-  static endpoints = {
-    'GET /:id': User.find
-  };
+  @field(new Email()) email;
 
+  @endpoint("GET /:id")
+  @validator(User.schema.select("id"))
   static find({ id }) {
-
+    return User.create({ id });
   }
 }
 
