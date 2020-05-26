@@ -2,11 +2,11 @@
 
 export {};
 
-const express = require("express");
-const { Field } = require("./Field");
-const Schema = require("./Schema");
-const Reply = require("./Reply");
-const Resource = require("./Resource");
+const express = require('express');
+const { Field } = require('./Field');
+const Schema = require('./Schema');
+const Reply = require('./Reply');
+const Resource = require('./Resource');
 
 function endpoint(path: string, ...middleware) {
   return (target, name, descriptor) => {
@@ -59,7 +59,7 @@ function validator(schema: typeof Schema) {
       const validated = await schema.validate(data); // use 'schema' to validate input 'data'
 
       // if schema.validate does not return an object, then the data is invalid.
-      if (typeof validated !== "object") {
+      if (typeof validated !== 'object') {
         return Reply.BAD_REQUEST();
       }
 

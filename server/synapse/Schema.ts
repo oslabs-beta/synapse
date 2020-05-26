@@ -4,11 +4,6 @@ export {};
   
 */
 class Schema {
-<<<<<<< HEAD
-  constructor(fields) {}
-
-  validate(data) {}
-=======
   fields;
 
   constructor(fields: object = {}) {
@@ -26,7 +21,8 @@ class Schema {
   /* 
     returns a new Schema containing a subset of the 
     fields of this Schema as specified by 'keys'.
-  */ 
+  */
+
   select(...keys) {
     const result = {};
     keys.forEach((key) => {
@@ -66,7 +62,6 @@ class Schema {
     // if all fields are valid return the new object
     return obj;
   }
->>>>>>> 38e5ac8b8b958d6fa382e58978daa755a69d505a
 }
 
 module.exports = Schema;

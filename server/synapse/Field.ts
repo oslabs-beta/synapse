@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-export {};
-
-class Field {}
-
-module.exports = Field;
-=======
 /* eslint-disable no-bitwise */
 export {};
 
@@ -39,7 +32,7 @@ class Field {
       return this.flags | OPT ? this.default : undefined;
     }
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       for (let i = 0; i < this.rules.positive.length; ++i) {
         if (!value.match(this.rules.positive[i])) {
           return undefined;
@@ -57,4 +50,3 @@ class Field {
 }
 
 module.exports = { Field, OPT };
->>>>>>> 38e5ac8b8b958d6fa382e58978daa755a69d505a
