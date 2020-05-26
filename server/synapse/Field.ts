@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-export {};
-
-class Field {}
-
-module.exports = Field;
-=======
 /* eslint-disable no-bitwise */
 export {};
 
@@ -57,4 +50,3 @@ class Field {
 }
 
 module.exports = { Field, OPT };
->>>>>>> 38e5ac8b8b958d6fa382e58978daa755a69d505a
