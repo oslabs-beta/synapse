@@ -5,6 +5,10 @@ export {};
 const { Field } = require("../synapse/Field");
 
 class Text extends Field {
+  /**
+   * Set of rules to validate input.
+   * Filled with the RegExp provided when custom fields are created.
+   */
   rules = [];
 
   constructor(
@@ -23,13 +27,16 @@ class Text extends Field {
     }
   }
 
-  /*
-    Adds a regular expression to this.rules.
-    'expect' refers to the expected result of
-    matching the expression against a string.
-    A human-readable explanation of the rule
-    can be provided as 'message'
-  */
+  // Adds a regular expression to this.rules.
+  // 'expect' refers to the expected result of
+  // matching the expression against a string.
+  // A human-readable explanation of the rule
+  // can be provided as 'message'
+  /**
+   * Adds a regular expression to this.rules.
+   * When 'negate' is set to true, the 'parse' function will assert that the regular expression evaluate to false.
+   * @param rule A RegExp rule.-
+   */
   assert(rule: any, expect: boolean = true, message: string = "") {
     const regex = rule instanceof RegExp ? rule : new RegExp(rule);
     this.rules.push({ regex, expect, message });

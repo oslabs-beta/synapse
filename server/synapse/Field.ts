@@ -5,10 +5,10 @@ export {};
 const OPT = 0b001; // optional flag
 const PRV = 0b010; // private flag
 
-/*
-  Represents a type of value. Stores properties which define that type.
-  Can validate and may transform an input value.
-*/
+/**
+ * Creates an instance of 'Field' that has a 'type' of value along with the methods
+ * that are associated with the class.
+ */
 class Field {
   default: any;
 
@@ -16,27 +16,32 @@ class Field {
 
   lastError: string;
 
+  /**
+   * @param defaultVal Value to be used in constructor (null by default).
+   * @param flags Custom flags to describe a field. Ex: Private/Optional.
+   */
   constructor(defaultVal: any = null, flags: number = null) {
     this.default = defaultVal;
     this.flags = flags;
   }
 
-  /*
-    Checks if the specified flag is set on this.flags.
-    Returns true or false.
-  */
+  /**
+   * Checks if the specified flag is set on this.flags.
+   * @param flag Options being passed into the new fields. Ex: Private/Optional.
+   * @returns A boolean determining whether or not the flag is present.
+   */
   hasFlag(flag) {
     return !!(this.flags & flag);
   }
 
-  /*
-    The 'parse' function should check if the input is of,
-    or can be converted to, the Field type. The base
-    implementation only checks for empty values.
-
-    If the input is null or undefined and the 'optional'
-    flag is set, returns the default value. 
-  */
+  /**
+   * Checks if the input value is valid. Using
+   * If the input is null or undefined and the 'optional'
+   * flag is set, returns the default value.
+   * @param value Input for the specified field
+   * @returns Parsed value if it passed the tests,
+   * "undefined" if any of the tests failed.
+   */
   async parse(value) {
     if (value === undefined || value === null) {
       return this.hasFlag(OPT) ? this.default : undefined;

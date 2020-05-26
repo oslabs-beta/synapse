@@ -1,5 +1,5 @@
 export {};
-const Text = require("./Text");
+const Text = require('./Text');
 
 class Password extends Text {
   constructor(flags = null) {
