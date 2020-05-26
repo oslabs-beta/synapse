@@ -46,23 +46,6 @@ class Field {
     if (value === undefined || value === null) {
       return this.hasFlag(OPT) ? this.default : undefined;
     }
-<<<<<<< HEAD
-
-    if (typeof value === 'string') {
-      for (let i = 0; i < this.rules.positive.length; ++i) {
-        if (!value.match(this.rules.positive[i])) {
-          return undefined;
-        }
-      }
-      for (let i = 0; i < this.rules.negative.length; ++i) {
-        if (value.match(this.rules.negative[i])) {
-          return undefined;
-        }
-      }
-    }
-
-=======
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
     return value;
   }
 }

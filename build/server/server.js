@@ -3,6 +3,7 @@ var express = require('express');
 var synapse = require('./synapse/synapse');
 var app = express();
 var PORT = 3000;
+app.use(express.json());
 app.use('/api', synapse(path.resolve(__dirname, './resources')));
 app.get('/', function (req, res) {
     res.send('hello world');
