@@ -1,7 +1,5 @@
-export { };
+export {};
 
-class Field {
-
-}
+class Field {}
 
 module.exports = Field;

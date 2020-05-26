@@ -1,13 +1,9 @@
-export { };
+export {};
 
 class Schema {
-  constructor(fields) {
+  constructor(fields) {}
 
-  }
-
-  validate(data) {
-
-  }
+  validate(data) {}
 }
 
 module.exports = Schema;
