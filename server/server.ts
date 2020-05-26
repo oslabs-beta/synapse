@@ -1,3 +1,4 @@
+export {};
 const path = require("path");
 const express = require("express");
 const synapse = require("./synapse/synapse");

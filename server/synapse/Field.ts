@@ -1,10 +1,7 @@
 /* eslint-disable no-bitwise */
+
 export {};
 
-<<<<<<< HEAD
-const OPT = 0b001;
-
-=======
 const OPT = 0b001; // optional flag
 const PRV = 0b010; // private flag
 
@@ -12,7 +9,6 @@ const PRV = 0b010; // private flag
  * Creates an instance of 'Field' that has a 'type' of value along with the methods
  * that are associated with the class.
  */
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
 class Field {
   default: any;
 
@@ -29,17 +25,6 @@ class Field {
     this.flags = flags;
   }
 
-<<<<<<< HEAD
-  conform(rule, negate = false) {
-    const regex = rule instanceof RegExp ? rule : new RegExp(rule);
-    if (negate) {
-      this.rules.negative.push(regex);
-    } else {
-      this.rules.positive.push(regex);
-    }
-  }
-
-=======
   /**
    * Checks if the specified flag is set on this.flags.
    * @param flag Options being passed into the new fields. Ex: Private/Optional.
@@ -57,10 +42,9 @@ class Field {
    * @returns Parsed value if it passed the tests,
    * "undefined" if any of the tests failed.
    */
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
   async parse(value) {
     if (value === undefined || value === null) {
-      return this.flags | OPT ? this.default : undefined;
+      return this.hasFlag(OPT) ? this.default : undefined;
     }
     return value;
   }

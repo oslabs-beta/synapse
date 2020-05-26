@@ -1,10 +1,6 @@
+/* eslint-disable no-await-in-loop */
 export {};
 
-<<<<<<< HEAD
-/*
-  
-*/
-=======
 const { Field } = require("./Field");
 
 /**
@@ -28,11 +24,14 @@ const assertIsFieldObject = (obj: object) => {
  * given object meets its requirements.
  * @param fields An empty object by default. Look into the decorator "fields" (link: ***somelink***) for more details on adding fields to Schema.
  */
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
 class Schema {
-  fields;
+  fields: object;
+
+  lastError: string;
 
   constructor(fields: object = {}) {
+    assertIsFieldObject(fields);
+
     this.fields = fields;
   }
 
@@ -42,22 +41,16 @@ class Schema {
    * @returns A new Schema containing all the fields of this schema, plus additional fields.
    */
   extend(fields: object) {
+    assertIsFieldObject(fields);
+
     return new Schema({ ...this.fields, ...fields });
   }
 
-<<<<<<< HEAD
-  /* 
-    returns a new Schema containing a subset of the 
-    fields of this Schema as specified by 'keys'.
-  */
-
-=======
   /**
    * Creates a new Schema made of selected fields.
    * @param keys List of keys to select.
    * @return A new Schema containing a subset of the fields of this Schema as specified by 'keys'.
    */
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
   select(...keys) {
     const result = {};
     keys.forEach((key) => {
@@ -89,21 +82,6 @@ class Schema {
    */
 
   async validate(data: object) {
-<<<<<<< HEAD
-    const keys = Object.keys(this.fields);
-    const obj = {};
-    // validate the data's types within the object
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      const field = this.fields[key]; // new Id() => some object
-      // if any of the fields is not valid return undefined
-      const result = await field.parse(data[key]);
-      if (result === undefined) return undefined;
-      obj[key] = result;
-    }
-    // if all fields are valid return the new object
-    return obj;
-=======
     const result = {};
     // data ={id: '123', pass: 'lolol', email: '@gmail.com'}
     const keys = Object.keys(this.fields);
@@ -121,14 +99,13 @@ class Schema {
       // field.parse(@gmail.com)
       // if any of the fields are not valid return undefined
       if (value === undefined) {
-        this.lastError = `Unexpected parameter '${key} = ${data[key]}' - ${field.lastError}`;
+        this.lastError = `Unexpected parameter '${key} = ${data[key]}'.`;
         return undefined;
       }
       // result = {id: parsedId, pass: hashedPass, email: email.toLowerCase()}
       result[key] = value;
     }
     return result; // if all fields are valid return the new object
->>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
   }
 }
 
