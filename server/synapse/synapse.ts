@@ -7,10 +7,12 @@ const { Router } = require("express");
 const Resource = require("./Resource");
 const Reply = require("./Reply");
 
-/*
-  verifies that all elements in 'arr'
-  are of the type Resource.
-*/
+/**
+ * Verifies that all elements of the input are of type Resource, so that they can access its methods.
+ * Invoked after the router method is called to check its result
+ * @param arr The array that is returned after calling a router method
+ * @returns A boolean that is used for a conditional check
+ */
 const isResourceArray = (arr) => {
   for (let i = 0; i < arr.length; ++i) {
     if (!(arr[i] instanceof Resource)) {
@@ -20,10 +22,12 @@ const isResourceArray = (arr) => {
   return true;
 };
 
-/*
-  Returns an express router exposing all available Resource 
-  endpoints defined in the specified directory 'dir'.
-*/
+/**
+ * Dynamically creates an express router for any method and
+ * exposes all available Resource endpoints that are defined in the specified directory.
+ * @param dir The specified directory used to create the express router(s) according to their endpoints.
+ * @returns An express router
+ */
 const synapse = (dir) => {
   const router = Router();
 
@@ -72,7 +76,7 @@ const synapse = (dir) => {
               `Unexpected result from endpoint '${method} ${path}'.`
             );
           } catch (err) {
-            console.log("error", err);
+            console.log(err);
           }
 
           // send any unhandled errors back to express

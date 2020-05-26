@@ -17,15 +17,15 @@ class Reply {
     Checks if this.status is a 4xx or 5xx error.
   */
   isError() {
-    return ["4", "5"].includes(this.status.toString()[0]);
+    return ['4', '5'].includes(this.status.toString()[0]);
   }
 
   serialize() {
     if (this.payload === null || this.payload === undefined) {
-      return "";
+      return '';
     }
 
-    if (typeof this.payload === "string" || typeof this.payload === "number") {
+    if (typeof this.payload === 'string' || typeof this.payload === 'number') {
       return this.payload;
     }
 
