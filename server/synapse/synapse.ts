@@ -2,10 +2,10 @@
 /* eslint-disable global-require */
 export {};
 
-const fs = require("fs");
-const { Router } = require("express");
-const Resource = require("./Resource");
-const Reply = require("./Reply");
+const fs = require('fs');
+const { Router } = require('express');
+const Resource = require('./Resource');
+const Reply = require('./Reply');
 
 const isResourceArray = (arr) => {
   for (let i = 0; i < arr.length; ++i) {
@@ -25,12 +25,12 @@ const synapse = (dir) => {
   files.forEach((file) => {
     const Class = require(`${dir}/${file}`);
     const isResource = Class.prototype instanceof Resource;
-    const hasEndpoints = typeof Class.endpoints === "object";
+    const hasEndpoints = typeof Class.endpoints === 'object';
 
     // if file contains a Resource class, add each of its endpoints to the router
     if (isResource && hasEndpoints) {
       Object.keys(Class.endpoints).forEach((key) => {
-        let [method, path] = key.split(" "); // ex. 'GET /:id => [ 'GET, '/:id' ]
+        let [method, path] = key.split(' '); // ex. 'GET /:id => [ 'GET, '/:id' ]
         method = method.toLowerCase(); // ex. 'GET' => 'get'
         path = `/${Class.name.toLowerCase()}${path}`; // ex. '/:id' => '/user/:id'
 
@@ -45,13 +45,11 @@ const synapse = (dir) => {
             } else if (result instanceof Resource || isResourceArray(result)) {
               res.status(200).json(result);
             } else {
-              throw new Error(
-                `Unexpected result from endpoint ${Class.name}::${key}.`
-              );
+              throw new Error(`Unexpected result from endpoint ${Class.name}::${key}.`);
             }
           } catch (err) {
             console.log(err);
-            res.status(500).send("Internal Server Error");
+            res.status(500).send('Internal Server Error');
           }
         });
       });

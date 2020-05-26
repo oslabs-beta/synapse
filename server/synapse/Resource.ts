@@ -1,5 +1,5 @@
 export {};
-const Schema = require("./Schema");
+const Schema = require('./Schema');
 
 class Resource {
   static async create(data: object) {

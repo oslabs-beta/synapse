@@ -1,5 +1,5 @@
 export {};
-const { Field } = require("../synapse/Field");
+const { Field } = require('../synapse/Field');
 
 class Text extends Field {
   constructor(

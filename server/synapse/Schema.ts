@@ -21,7 +21,8 @@ class Schema {
   /* 
     returns a new Schema containing a subset of the 
     fields of this Schema as specified by 'keys'.
-  */ 
+  */
+
   select(...keys) {
     const result = {};
     keys.forEach((key) => {

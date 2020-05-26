@@ -32,7 +32,7 @@ class Field {
       return this.flags | OPT ? this.default : undefined;
     }
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       for (let i = 0; i < this.rules.positive.length; ++i) {
         if (!value.match(this.rules.positive[i])) {
           return undefined;
