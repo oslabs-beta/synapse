@@ -7,7 +7,8 @@
     "test": "jest",
     "start": "node ./build/server/server.js",
     "build": "tsc",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "doc": "npx typedoc --out docs server/synapse"
   },
   "repository": {
     "type": "git",
@@ -47,5 +48,7 @@
       }
     }
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "typedoc": "^0.17.7"
+  }
 }
