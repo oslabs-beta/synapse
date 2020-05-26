@@ -3,62 +3,50 @@
 export {};
 
 const OPT = 0b001; // optional flag
+const PRV = 0b010; // private flag
 
-/*
-  Represents a type of value. Stores properties which define that type.
-  Can validate and may transform an input value.
-*/
+/**
+ * Creates an instance of 'Field' that has a 'type' of value along with the methods
+ * that are associated with the class.
+ */
 class Field {
   default: any;
 
   flags: number;
 
-  rules = {
-    positive: [],
-    negative: [],
-  };
+  lastError: string;
 
-  constructor(defaultVal: any = null, flags: number = 0) {
+  /**
+   * @param defaultVal Value to be used in constructor (null by default).
+   * @param flags Custom flags to describe a field. Ex: Private/Optional.
+   */
+  constructor(defaultVal: any = null, flags: number = null) {
     this.default = defaultVal;
     this.flags = flags;
   }
 
-  /*
-    Checks if the specified flag is set on this.flags.
-    Returns true or false.
-  */
+  /**
+   * Checks if the specified flag is set on this.flags.
+   * @param flag Options being passed into the new fields. Ex: Private/Optional.
+   * @returns A boolean determining whether or not the flag is present.
+   */
   hasFlag(flag) {
     return !!(this.flags & flag);
   }
 
-  /*
-    Adds a regular expression to this.rules. When
-    'negate' is set to true, the 'parse' function will
-    assert that the regular expression evaluate to false.
-  */
-  conform(rule, negate = false) {
-    const regex = rule instanceof RegExp ? rule : new RegExp(rule);
-    if (negate) {
-      this.rules.negative.push(regex);
-    } else {
-      this.rules.positive.push(regex);
-    }
-  }
-
-  /*
-    Checks if the input value is valid.
-    
-    If the input is null or undefined and the 'optional'
-    flag is set, returns the default value. 
-    
-    If the input is a string, determines if the value 
-    matches matches all the 'positive' regular expressions 
-    and none of the 'negative' ones. 
-  */
+  /**
+   * Checks if the input value is valid. Using
+   * If the input is null or undefined and the 'optional'
+   * flag is set, returns the default value.
+   * @param value Input for the specified field
+   * @returns Parsed value if it passed the tests,
+   * "undefined" if any of the tests failed.
+   */
   async parse(value) {
     if (value === undefined || value === null) {
       return this.hasFlag(OPT) ? this.default : undefined;
     }
+<<<<<<< HEAD
 
     if (typeof value === 'string') {
       for (let i = 0; i < this.rules.positive.length; ++i) {
@@ -73,8 +61,10 @@ class Field {
       }
     }
 
+=======
+>>>>>>> 0ff72496acf4a7b48a69e0b48c48c15ee486f85c
     return value;
   }
 }
 
-module.exports = { Field, OPT };
+module.exports = { Field, OPT, PRV };

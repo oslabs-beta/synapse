@@ -31,7 +31,8 @@
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "bcrypt": "^4.0.1"
   },
   "jest": {
     "moduleFileExtensions": [
