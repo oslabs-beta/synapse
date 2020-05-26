@@ -27,15 +27,11 @@ class Text extends Field {
     }
   }
 
-  // Adds a regular expression to this.rules.
-  // 'expect' refers to the expected result of
-  // matching the expression against a string.
-  // A human-readable explanation of the rule
-  // can be provided as 'message'
   /**
-   * Adds a regular expression to this.rules.
-   * When 'negate' is set to true, the 'parse' function will assert that the regular expression evaluate to false.
-   * @param rule A RegExp rule.-
+   * Adds a rule to the Text instance.
+   * @param rule A regular expression rule
+   * @param expect The expected result of matching a string against the regular expression
+   * @param message A human-readable explanation of the rule
    */
   assert(rule: any, expect: boolean = true, message: string = "") {
     const regex = rule instanceof RegExp ? rule : new RegExp(rule);
@@ -43,13 +39,10 @@ class Text extends Field {
   }
 
   /*
-    If the input is null or undefined, obtains the default
-    value, if one exists.
-
-    If the input is a string, determines if the value 
-    matches matches all the 'positive' regular expressions 
-    and none of the 'negative' ones. 
-  */
+   * Overrides Field.prototype.parse.
+   * If the input value is null or undefined, obtains the default value, if one exists.
+   * If the input value is a string, determines if the value matches matches all the 'positive' regular expressions and none of the 'negative' ones.
+   */
   async parse(value: any) {
     if (!value) {
       return super.parse(value);
