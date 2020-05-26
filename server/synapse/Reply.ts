@@ -1,8 +1,8 @@
 export {};
 
-/*
-  Represents a response to the client.
-*/
+/**
+ * Represents a response to the client.
+ */
 class Reply {
   status: number;
 
