@@ -1,5 +1,5 @@
 export {};
-const Text = require("./Text");
+const Text = require('./Text');
 
 class Id extends Text {
   constructor(length, flags = null) {
