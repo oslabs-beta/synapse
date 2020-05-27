@@ -11,7 +11,7 @@ mongoose
   })
   .then(() => console.log("Connected to Mongo DB."))
   .catch((err) => console.log(err));
-
+const schema = new mongoose.Schema({}, { strict: false });
 module.exports = (model) => {
-  return mongoose.model(model, new mongoose.Schema({}, { strict: false }));
+  return mongoose.model(model, schema);
 };
