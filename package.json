@@ -26,10 +26,6 @@
     "@types/node": "^14.0.5",
     "@types/supertest": "^2.0.9",
     "bcrypt": "^4.0.1",
-<<<<<<< HEAD
-    "dotenv": "^8.2.0",
-=======
->>>>>>> b826f753624daf4a092b077e7ad97ba5faff2041
     "express": "^4.17.1",
     "jest": "^26.0.1",
     "mongoose": "^5.9.16",

@@ -3,11 +3,11 @@
 
 export {};
 
-const express = require("express");
-const { Field } = require("./Field");
-const Schema = require("./Schema");
-const Reply = require("./Reply");
-const Resource = require("./Resource");
+const express = require('express');
+const { Field } = require('./Field');
+const Schema = require('./Schema');
+const Reply = require('./Reply');
+const Resource = require('./Resource');
 
 /**
  * An instance of Resource will have an "endpoints" property(object) that contains endpoint methods.
@@ -57,7 +57,7 @@ function endpoint(path: string, ...middleware) {
 
         if (!Array.isArray(currentArguments)) {
           // otherwise throw an error.
-          throw new Error("Expected instance of Reply or Array");
+          throw new Error('Expected instance of Reply or Array');
         }
       }
 
@@ -99,7 +99,7 @@ function validator(schema: typeof Schema) {
       const validated = await schema.validate(data); // use 'schema' to validate input 'data'
 
       // if schema.validate does not return an object, then the data is invalid.
-      if (typeof validated !== "object") {
+      if (typeof validated !== 'object') {
         return Reply.BAD_REQUEST(schema.lastError);
       }
 
