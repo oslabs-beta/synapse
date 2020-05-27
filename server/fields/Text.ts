@@ -47,7 +47,9 @@ class Text extends Field {
     if (!value) {
       return super.parse(value);
     }
-
+    if (typeof value === "object" && value.toString) {
+      value = value.toString();
+    }
     if (typeof value === "string") {
       for (let i = 0; i < this.rules.length; ++i) {
         const { regex, expect, message } = this.rules[i];
@@ -58,7 +60,6 @@ class Text extends Field {
       }
       return value;
     }
-
     return undefined;
   }
 }
