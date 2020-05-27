@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 export {};
 
-const { Field } = require("./Field");
+const { Field } = require('./Field');
 
 /**
  * Checks that all values of the input are of type Field.
@@ -12,7 +12,7 @@ const assertIsFieldObject = (obj: object) => {
   const keys = Object.keys(obj);
   for (let i = 0; i < keys.length; ++i) {
     if (!(obj[keys[i]] instanceof Field)) {
-      throw new Error("Expected object containing only values of type Field.");
+      throw new Error('Expected object containing only values of type Field.');
     }
   }
   return true;

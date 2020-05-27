@@ -2,10 +2,10 @@
 /* eslint-disable global-require */
 export {};
 
-const fs = require("fs");
-const { Router } = require("express");
-const Resource = require("./Resource");
-const Reply = require("./Reply");
+const fs = require('fs');
+const { Router } = require('express');
+const Resource = require('./Resource');
+const Reply = require('./Reply');
 
 /**
  * Verifies that all elements of the input are of type Resource, so that they can access its methods.
@@ -37,12 +37,12 @@ const synapse = (dir) => {
   files.forEach((file) => {
     const Class = require(`${dir}/${file}`);
     const isResource = Class.prototype instanceof Resource;
-    const hasEndpoints = typeof Class.endpoints === "object";
+    const hasEndpoints = typeof Class.endpoints === 'object';
 
     // if file contains a Resource class, add each of its endpoints to the router
     if (isResource && hasEndpoints) {
       Object.keys(Class.endpoints).forEach((key) => {
-        let [method, path] = key.split(" "); // ex. 'GET /:id => [ 'GET, '/:id' ]
+        let [method, path] = key.split(' '); // ex. 'GET /:id => [ 'GET, '/:id' ]
         method = method.toLowerCase(); // ex. 'GET' => 'get'
         path = `/${Class.name.toLowerCase()}${path}`; // ex. '/:id' => '/user/:id'
 
@@ -68,13 +68,11 @@ const synapse = (dir) => {
             }
 
             if (result instanceof Resource || isResourceArray(result)) {
-              const status = method === "post" ? 201 : 200;
+              const status = method === 'post' ? 201 : 200;
               return res.status(status).json(result);
             }
 
-            throw new Error(
-              `Unexpected result from endpoint '${method} ${path}'.`
-            );
+            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
           } catch (err) {
             console.log(err);
           }
