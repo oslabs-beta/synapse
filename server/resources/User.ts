@@ -1,12 +1,8 @@
 /* eslint-disable lines-between-class-members */
 
-import { userInfo } from "os";
-
 export {};
 
-const mongoose = require("mongoose");
-
-const { Schema } = mongoose;
+const UserDB = require("../database")("User");
 const Resource = require("../synapse/Resource");
 const Reply = require("../synapse/Reply");
 const { OPT } = require("../synapse/Field");
@@ -16,9 +12,6 @@ const Hash = require("../fields/Hash");
 const Word = require("../fields/Word");
 const Text = require("../fields/Text");
 const { field, endpoint, validator } = require("../synapse/decorators");
-// db setup -> will move later if needed
-const Any = new Schema({}, { strict: false });
-const UserDB = mongoose.model("User", Any);
 
 class User extends Resource {
   @field(new Id(24)) _id;
@@ -29,18 +22,16 @@ class User extends Resource {
   @endpoint("GET /:_id")
   @validator(User.schema.select("_id"))
   static async find({ _id }) {
-    // return Reply.NOT_FOUND('No user with the specified id exists.');
     const ourUser = await UserDB.findById({ _id });
     if (!ourUser) {
       return Reply.NOT_FOUND();
     }
     return User.create(ourUser.toObject());
   }
-  // id format from moongo:   _id: 5ecd9462dcc78b9672a88aac
+
   @endpoint("POST /")
   @validator(User.schema.exclude("_id"))
   static async register({ username, email, password }) {
-    // const newUsers = await User.create({ id: '123', username, email, password });
     const ourUser = await UserDB.create({ username, email, password });
     return User.create(ourUser.toObject());
   }
@@ -53,8 +44,6 @@ class User extends Resource {
       const hash = user.password;
       return Hash.validate(password, hash);
     });
-    // find the user by username and get its hashed password
-    // then compare to the plain-text password
   }
 }
 
