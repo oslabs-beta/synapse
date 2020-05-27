@@ -1,5 +1,7 @@
 /* eslint-disable lines-between-class-members */
 
+import { userInfo } from 'os';
+
 export {};
 
 const mongoose = require('mongoose');
@@ -28,11 +30,11 @@ class User extends Resource {
   @validator(User.schema.select('_id'))
   static async find({ _id }) {
     // return Reply.NOT_FOUND('No user with the specified id exists.');
-    UserDB.findById({ _id }, (err, user) => {
-      if (err) return Reply.INTERNAL_SERVER_ERROR();
-      if (!user) return Reply.NOT_FOUND();
-      return User.create({ ...user });
-    });
+    const ourUser = await UserDB.findById({ _id });
+    if (!ourUser) {
+      return Reply.NOT_FOUND();
+    }
+    return User.create(ourUser.toObject());
   }
   // id format from moongo:   _id: 5ecd9462dcc78b9672a88aac
   @endpoint('POST /')
@@ -40,7 +42,7 @@ class User extends Resource {
   static async register({ username, email, password }) {
     // const newUsers = await User.create({ id: '123', username, email, password });
     const ourUser = await UserDB.create({ username, email, password });
-    return User.create(ourUser);
+    return User.create(ourUser.toObject());
   }
 
   @validator(User.schema.select('username').extend({ password: new Text() }))
