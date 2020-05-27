@@ -71,7 +71,9 @@ const synapse = (dir) => {
               return res.status(status).json(result);
             }
 
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
+            throw new Error(
+              `Unexpected result from endpoint '${method} ${path}'.`
+            );
           } catch (err) {
             console.log(err);
           }
