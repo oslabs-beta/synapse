@@ -22,8 +22,7 @@ class Number extends Field {
   }
 
   async parse(value: any) {
-    const number =
-      typeof value === "number" ? value : <any>super.parse(value) - 0;
+    const number = typeof value === "number" ? value : <any>super.parse(value) - 0;
 
     if (typeof value !== "number" || number < this.min || number > this.max) {
       return undefined;

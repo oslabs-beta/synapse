@@ -14,7 +14,6 @@ class Resource {
   static async create(data: object) {
     // 'this' represents the class constructor in a static method.
     const Type: any = this;
-
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
