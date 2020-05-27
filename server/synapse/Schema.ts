@@ -4,7 +4,7 @@ export {};
 const { Field } = require("./Field");
 
 /**
- * Checks that all values of the input are of type Field.
+ * Verifies that all values of the input are of type Field.
  * @param obj An object containing the fields(rules) of its class
  * @returns True if all values are of correct type, and an error if not.
  */
@@ -74,7 +74,7 @@ class Schema {
   }
 
   /**
-   * Verifies that the object 'data' meets all the requirements defined by this schemas fields.
+   * Verifies that the object 'data' meets all the requirements defined by this schema's fields.
    * @param data the object that we want to validate
    * @returns an object that has been parsed through
    * by calling the parse method on field and had

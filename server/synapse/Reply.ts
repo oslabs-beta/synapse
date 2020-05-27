@@ -1,7 +1,8 @@
 export {};
 
 /**
- * Represents a response to the client.
+ * A Class that contains potential responses to the client when certain conditions are met.
+ * The responses are methods that are called to provide a status and/or message.
  */
 class Reply {
   status: number;
@@ -13,19 +14,23 @@ class Reply {
     this.payload = payload;
   }
 
-  /*
-    Checks if this.status is a 4xx or 5xx error.
-  */
+  /**
+   * Checks if this.status is a 4xx or 5xx error.
+   */
   isError() {
-    return ['4', '5'].includes(this.status.toString()[0]);
+    return ["4", "5"].includes(this.status.toString()[0]);
   }
 
+  /**
+   * Serializes its inputs by turning them into a string.
+   * @returns The input if it is a string, an empty string if the input is null or undefined, or a stringified version of the input.
+   */
   serialize() {
     if (this.payload === null || this.payload === undefined) {
-      return '';
+      return "";
     }
 
-    if (typeof this.payload === 'string' || typeof this.payload === 'number') {
+    if (typeof this.payload === "string" || typeof this.payload === "number") {
       return this.payload;
     }
 

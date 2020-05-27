@@ -22,7 +22,6 @@ const Resource = require("./Resource");
  * @returns A decorator function which adds a new endpoint method to the class's static 'endpoints' object.
  */
 function endpoint(path: string, ...middleware) {
-  // return a decorator function
   return (target, name, descriptor) => {
     if (!target.endpoints) {
       target.endpoints = {};
@@ -68,6 +67,8 @@ function endpoint(path: string, ...middleware) {
 }
 
 /**
+ * Creates a schema property on its target's class if there is not already one.
+ * This schema will extend an object that has a key of its name and value of the inputted argument.
  * @param fieldInst An instance of field that will be added to schema.
  * @returns A decorator function which adds the specified Field to the
  * target class's schema, using the name of the targeted property.
@@ -83,12 +84,11 @@ function field(fieldInst: typeof Field) {
 }
 
 /**
- * When invoked, the validator function
- * uses the specified schema to validate the input arguments
+ * Uses the specified schema to validate the input arguments
  * before calling the original target method.
  * @param schema Specific schema that will be used to validate
  * the field that the decorator is wrapped around.
- * @returns Returns a decorator function which wraps the target class method
+ * @returns A decorator function which wraps the target class method
  * in a validator function. If validation fails - return an instance of Reply class(read more: ***somelink***).
  */
 function validator(schema: typeof Schema) {

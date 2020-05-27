@@ -17,6 +17,12 @@ class Hash extends Text {
     this.saltRounds = saltRounds;
   }
 
+  /**
+   * Checks to see if a user's input is in the correct format and if so, hashes it using bcrypt.
+   * @param value A user's input.
+   * @returns A hashed version of the input if it passed its tests or undefined if it did not.
+   */
+
   async parse(value: any) {
     if (await super.parse(value)) {
       return bcrypt.hash(value, this.saltRounds);
