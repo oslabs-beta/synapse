@@ -20,13 +20,9 @@ class Manager {
     this.generator = async (method, path, data) => {
       return new Promise((resolve, reject) => {
         try {
-          router.runMiddleware(
-            path,
-            { method, body: data },
-            (status, body, cookies) => {
-              resolve({ status, body, cookies });
-            }
-          );
+          router.runMiddleware(path, { method, body: data }, (status, body, cookies) => {
+            resolve({ status, body, cookies });
+          });
         } catch (err) {
           reject(err);
         }
