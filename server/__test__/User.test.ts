@@ -9,7 +9,10 @@ const DBUrl = MONGO_URI;
 
 beforeAll(async () => {
   const url = DBUrl;
-  await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 });
 
 afterAll(() => {
