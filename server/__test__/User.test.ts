@@ -1,71 +1,55 @@
 /* eslint-disable no-undef */
 const request = require("supertest");
 const mongoose = require("mongoose");
+const UserDB = require("../database")("User");
+const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
-const dbUrl = "test";
+const DBUrl = MONGO_URI;
 
 beforeAll(async () => {
-  const url = dbUrl;
-  await mongoose.connect(url, { useNewUrlParser: true });
+  const url = DBUrl;
+  await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 });
 
-async function removeAll() {
-  db.getCollectionNames().forEach((collection) => {
-    db[collection].drop();
-  });
-}
-
-afterEach(async () => {
-  await removeAll();
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
-});
-
-describe("GET /:id", () => {
-  it("User API request", async () => {
-    const result = await request(app).get("/api/user");
-    expect(result.text).toEqual("forbidden");
-    expect(result.status).toEqual(403);
-  });
+afterAll(() => {
+  mongoose.connection.close();
+  app.close();
 });
 
 describe("Basic operations", () => {
+  let id;
   it("Should post user to database", async () => {
     const result = await request(app).post("/api/user").send({
-      name: "bob",
-      password: "123",
+      username: "bob",
+      password: "123456",
       email: "testing@gmail.com",
     });
-    expect(result.status).toEqual(200);
-    expect(result.text).toEqual("OK");
+    id = result.body._id;
+    expect(result).toBeTruthy();
+    expect(result.status).toEqual(201);
   });
-  it("Should find user in db", async () => {
+  it("Should return an instance of User", async () => {
+    const result = await request(app).get(`/api/user/${id}`);
+    expect(result.body.username).toEqual("bob");
+    expect(result.body.email).toEqual("testing@gmail.com");
+    expect(result.status).toEqual(200);
+  });
+  it("Returns with a Reply when the an improper email is used", async () => {
     const result = await request(app).post("/api/user").send({
-      name: "billy",
-      password: "456",
-      email: "testing2@gmail.com",
+      username: "jack",
+      password: "qweerr",
+      email: "testing3",
     });
-    const user = await db.findOne({ name: "billy" });
-    expect(user.name).toBeTruthy();
-    expect(user.password).toBeTruthy();
-    expect(user.email).toBeTruthy();
-  });
-  it("Should delete user by id", async () => {
-    const result = await db.deleteOne({ id: id });
-    expect(result.status).toEqual(200);
-  });
-  it("Should update an id", async () => {
-    const result = await db.updateOne(
-      { id: id },
-      { name: "timmy" },
-      { password: "789" },
-      { email: "testing3@gmail.com" }
+    expect(result.text).toEqual(
+      "Unexpected parameter 'email = testing3' - must be a valid email address"
     );
-    expect(result.name).toEqual("timmy");
-    expect(result.password).toEqual("789");
-    expect(result.email).toEqual("testing3@gmail.com");
+    expect(result.status).toEqual(400);
+    expect(result.res.statusMessage).toEqual("Bad Request");
+  });
+  it("Returns with a Reply when the id cannot be found", async () => {
+    const result = await request(app).get("/api/user/qwertyqwertyqwertyqwerty");
+    expect(result.status).toEqual(400);
+    expect(result.res.statusMessage).toEqual("Bad Request");
   });
 });
