@@ -37,6 +37,7 @@
     "typescript": "^3.9.3"
   },
   "jest": {
+    "testEnvironment": "node",
     "moduleFileExtensions": [
       "ts",
       "txs",
