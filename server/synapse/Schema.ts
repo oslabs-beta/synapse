@@ -93,8 +93,9 @@ class Schema {
       const field = this.fields[key];
       // User.schema.fields.id   = new Id() {dasf.parse}
       // field = new Id(asdf)
-
       // eslint-disable-next-line no-await-in-loop
+      console.log("asasdasdd", key, data);
+      console.log(data[key]);
       const value = await field.parse(data[key]);
       // field.parse(@gmail.com)
       // if any of the fields are not valid return undefined

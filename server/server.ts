@@ -1,11 +1,29 @@
 export {};
+<<<<<<< HEAD
 const path = require('path');
 const express = require('express');
 const synapse = require('./synapse/synapse');
+=======
+const path = require("path");
+const mongoose = require("mongoose");
+const express = require("express");
+const synapse = require("./synapse/synapse");
+>>>>>>> b826f753624daf4a092b077e7ad97ba5faff2041
 
 const app = express();
 
 const PORT = 3000;
+const mongoURI =
+  "mongodb+srv://denskarlet:DS090295170837@cluster0-cwr1z.mongodb.net/test?retryWrites=true&w=majority";
+
+mongoose
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    dbName: "synapse",
+  })
+  .then(() => console.log("Connected to Mongo DB."))
+  .catch((err) => console.log(err));
 
 app.use(express.json());
 

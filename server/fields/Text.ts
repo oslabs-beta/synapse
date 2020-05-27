@@ -54,8 +54,15 @@ class Text extends Field {
     if (!value) {
       return super.parse(value);
     }
+<<<<<<< HEAD
 
     if (typeof value === 'string') {
+=======
+    if (typeof value === "object" && value.toString) {
+      value = value.toString();
+    }
+    if (typeof value === "string") {
+>>>>>>> b826f753624daf4a092b077e7ad97ba5faff2041
       for (let i = 0; i < this.rules.length; ++i) {
         const { regex, expect, message } = this.rules[i];
         if (!!value.match(regex) !== expect) {
@@ -65,7 +72,6 @@ class Text extends Field {
       }
       return value;
     }
-
     return undefined;
   }
 }

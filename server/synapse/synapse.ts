@@ -66,7 +66,6 @@ const synapse = (dir) => {
 
               return res.status(result.status).send(result.serialize());
             }
-
             if (result instanceof Resource || isResourceArray(result)) {
               const status = method === 'post' ? 201 : 200;
               return res.status(status).json(result);
