@@ -80,30 +80,23 @@ class Schema {
    * by calling the parse method on field and had
    * its key value pairs confirmed as being valid
    */
-
   async validate(data: object) {
     const result = {};
-    // data ={id: '123', pass: 'lolol', email: '@gmail.com'}
-    const keys = Object.keys(this.fields);
 
-    // fields = [id: new Id, pass: new Pass, email: new Email]
+    const keys = Object.keys(this.fields);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      // id    / pass    /email
       const field = this.fields[key];
-      // User.schema.fields.id   = new Id() {dasf.parse}
-      // field = new Id(asdf)
+
       // eslint-disable-next-line no-await-in-loop
-      console.log("asasdasdd", key, data);
-      console.log(data[key]);
       const value = await field.parse(data[key]);
-      // field.parse(@gmail.com)
+
       // if any of the fields are not valid return undefined
       if (value === undefined) {
         this.lastError = `Unexpected parameter '${key} = ${data[key]}'.`;
         return undefined;
       }
-      // result = {id: parsedId, pass: hashedPass, email: email.toLowerCase()}
+
       result[key] = value;
     }
     return result; // if all fields are valid return the new object
