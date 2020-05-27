@@ -1,5 +1,6 @@
-import * as request from 'supertest';
-import app from './server.ts';
+const request = require('supertest');
+
+const app = require('../server');
 
 describe('GET /:id', () => {
   it('User API request', async () => {

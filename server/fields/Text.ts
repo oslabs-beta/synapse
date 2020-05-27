@@ -2,7 +2,7 @@
 
 export {};
 
-const { Field } = require('../synapse/Field');
+const { Field } = require("../synapse/Field");
 
 class Text extends Field {
   /**
@@ -37,7 +37,7 @@ class Text extends Field {
    * When 'negate' is set to true, the 'parse' function will assert that the regular expression evaluate to false.
    * @param rule A RegExp rule.-
    */
-  assert(rule: any, expect: boolean = true, message: string = '') {
+  assert(rule: any, expect: boolean = true, message: string = "") {
     const regex = rule instanceof RegExp ? rule : new RegExp(rule);
     this.rules.push({ regex, expect, message });
   }
@@ -54,10 +54,10 @@ class Text extends Field {
     if (!value) {
       return super.parse(value);
     }
-    if (typeof value === 'object' && value.toString) {
+    if (typeof value === "object" && value.toString) {
       value = value.toString();
     }
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       for (let i = 0; i < this.rules.length; ++i) {
         const { regex, expect, message } = this.rules[i];
         if (!!value.match(regex) !== expect) {

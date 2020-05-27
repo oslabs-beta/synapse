@@ -2,7 +2,7 @@
 
 export {};
 
-const { Number } = require('./Number');
+const { Number } = require("./Number");
 
 class Float extends Number {
   async parse(value: any) {

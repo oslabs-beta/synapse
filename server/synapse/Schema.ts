@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 export {};
 
-const { Field } = require('./Field');
+const { Field } = require("./Field");
 
 /**
  * Checks that all values of the input are of type Field.
@@ -12,7 +12,7 @@ const assertIsFieldObject = (obj: object) => {
   const keys = Object.keys(obj);
   for (let i = 0; i < keys.length; ++i) {
     if (!(obj[keys[i]] instanceof Field)) {
-      throw new Error('Expected object containing only values of type Field.');
+      throw new Error("Expected object containing only values of type Field.");
     }
   }
   return true;
@@ -93,8 +93,9 @@ class Schema {
       const field = this.fields[key];
       // User.schema.fields.id   = new Id() {dasf.parse}
       // field = new Id(asdf)
-
       // eslint-disable-next-line no-await-in-loop
+      console.log("asasdasdd", key, data);
+      console.log(data[key]);
       const value = await field.parse(data[key]);
       // field.parse(@gmail.com)
       // if any of the fields are not valid return undefined

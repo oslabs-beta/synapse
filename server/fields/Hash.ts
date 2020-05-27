@@ -1,7 +1,7 @@
 export {};
 
-const bcrypt = require('bcrypt');
-const Text = require('./Text');
+const bcrypt = require("bcrypt");
+const Text = require("./Text");
 
 class Hash extends Text {
   saltRounds: number;
