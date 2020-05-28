@@ -67,9 +67,7 @@ const synapse = (dir) => {
               return res.send(result);
             }
 
-            throw new Error(
-              `Unexpected result from endpoint '${method} ${path}'.`
-            );
+            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
           } catch (err) {
             console.log(err);
           }
@@ -107,7 +105,6 @@ const synapse = (dir) => {
         const data = JSON.parse(msg);
         Object.keys(data).forEach(async (endpoint) => {
           const [method, path] = endpoint.split(" ");
-
           manager[method.toLowerCase()](path, data[endpoint])
             .then((result) => ws.send(JSON.stringify(result.payload)))
             .catch((err) => ws.send(err.serialize()));
