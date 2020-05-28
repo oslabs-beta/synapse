@@ -19,7 +19,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./src/index.html"));
 });
 
-app.use((err, req, res, next) => res.status(err.status).send(err.serialize()));
+app.use((err, req, res, next) => {
+  console.log(err);
+  res
+    .status(err.status || 500)
+    .json(err.serialize ? err.serialize() : "Internal Server Error");
+});
 app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 
 module.exports = app;
