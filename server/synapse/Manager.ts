@@ -1,7 +1,5 @@
 export {};
 
-const expose = require("run-middleware");
-
 class Manager {
   /**
    * Maps resources by paths to their last known values.
@@ -26,28 +24,11 @@ class Manager {
   /**
    * @param router An Express router which will handle uncached requests.
    */
-  constructor(router) {
+  constructor(generator: Function) {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
-
-    expose(router);
-
-    this.generator = async (method, path, data) => {
-      return new Promise((resolve, reject) => {
-        try {
-          router.runMiddleware(
-            path,
-            { method, body: data },
-            (status, body, cookies) => {
-              resolve({ status, body, cookies });
-            }
-          );
-        } catch (err) {
-          reject(err);
-        }
-      });
-    };
+    this.generator = generator;
   }
 
   /**
