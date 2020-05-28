@@ -14,7 +14,6 @@ beforeAll(async () => {
 
 afterAll(() => {
   mongoose.connection.close();
-  app.close();
 });
 
 describe("Basic operations", () => {

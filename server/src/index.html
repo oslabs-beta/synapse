@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="form" name="publish">
+      <input id="input" type="text" name="message" />
+      <input type="submit" value="Send" />
+    </form>
+    <div id="incoming"></div>
+  </body>
+  <script>
+    const webSocket = new WebSocket("ws://localhost:3000");
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.querySelector("#form");
+      form.onsubmit = function (e) {
+        e.preventDefault();
+        const elem = document.querySelector("#input");
+        const input = elem.value;
+        console.log("SENDING: ", input);
+        webSocket.send(input);
+        elem.value = "";
+        return false;
+      };
+      webSocket.onopen = (event) => {
+        webSocket.send("WE ARE NOW OPEN!");
+      };
+      webSocket.onmessage = (event) => {
+        const msg = event.data;
+        const msgElem = document.createElement("div");
+        msgElem.textContent = msg;
+        console.log("INCOMING MSG: ", msg);
+        document.querySelector("#incoming").prepend(msgElem);
+      };
+    });
+  </script>
+</html>
