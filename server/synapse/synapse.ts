@@ -82,6 +82,7 @@ const synapse = (dir) => {
 
   return {
     http: async (req, res, next) => {
+      console.log("DAASDADADS", req.path);
       const data = {
         ...req.query,
         ...req.body,

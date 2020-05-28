@@ -14,6 +14,7 @@
         <option value="PATCH">PATCH</option>
         <option value="DELETE">DELETE</option>
         <option value="SUBSCRIBE">SUBSCRIBE</option>
+        <option value="UNSUBSCRIBE">UNSUBSCRIBE</option>
       </select>
       <input id="path" placeholder="Path" type="text"></input>
       <button id="add">Add key/value</button>
@@ -48,6 +49,7 @@
         const request = {
           [key]:payload
         }
+        console.log(request)
         webSocket.send(JSON.stringify(request));
         return false;
       };
@@ -77,8 +79,8 @@
       };
       webSocket.onmessage = (event) => {
         const data = JSON.parse(event.data)
-        const [path, payload] = data;
-        state[path] = data
+        const { path } = data
+        state[JSON.stringify(path)] = JSON.stringify(data)
         Object.keys(state).forEach((key) => {
           let resource = document.createElement('div');
           resource.classList.add('resource')
