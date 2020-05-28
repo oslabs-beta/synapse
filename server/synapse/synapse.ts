@@ -6,6 +6,7 @@ const fs = require("fs");
 const { Router } = require("express");
 const Resource = require("./Resource");
 const Reply = require("./Reply");
+const Manager = require("./Manager");
 
 /**
  * Verifies that all elements of the input are of type Resource, so that they can access its methods.
@@ -30,9 +31,7 @@ const isResourceArray = (arr) => {
  */
 const synapse = (dir) => {
   const router = Router();
-
   const files = fs.readdirSync(dir); // get all files from 'dir' as array
-
   // require each file in array
   files.forEach((file) => {
     const Class = require(`${dir}/${file}`);
@@ -60,15 +59,16 @@ const synapse = (dir) => {
 
             // the result should be either a Reply, Resource or array of Resources
             if (result instanceof Reply) {
-              if (result.isError()) {
-                return next(result); // if the reply has an error status return the error to express.
-              }
+              // fix
+              // if (result.isError()) {
+              //   next(result); // if the reply has an error status return the error to express.
+              // }
 
               return res.status(result.status).send(result.serialize());
             }
             if (result instanceof Resource || isResourceArray(result)) {
               const status = method === "post" ? 201 : 200;
-              return res.status(status).json(result);
+              return res.status(status).send(JSON.stringify(result)); // FIX: json method undefined
             }
 
             throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
@@ -76,13 +76,37 @@ const synapse = (dir) => {
             console.log(err);
           }
 
-          // send any unhandled errors back to express
-          return next(Reply.INTERNAL_SERVER_ERROR());
+          // fix: send any unhandled errors back to express
+          // next(Reply.INTERNAL_SERVER_ERROR());
         });
       });
     }
   });
-  return router;
+
+  const manager = new Manager(router);
+
+  return {
+    http: async (req, res) => {
+      const result = await manager[req.method.toLowerCase()](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
+      });
+      res.status(result.status).send(result.body);
+    },
+    ws: (ws, req) => {
+      ws.on("message", (msg) => {
+        const data = JSON.parse(msg);
+        console.log(data);
+        Object.keys(data).forEach(async (endpoint) => {
+          const [method, path] = endpoint.split(" ");
+
+          const result = await manager[method.toLowerCase()](path, data[endpoint]);
+          ws.send(result.body);
+        });
+      });
+    },
+  };
 };
 
 module.exports = synapse;

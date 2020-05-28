@@ -35,9 +35,8 @@ class Field {
   }
 
   /**
-   * Checks if the input value is valid. Using
-   * If the input is null or undefined and the 'optional'
-   * flag is set, returns the default value.
+   * Checks if the input value is valid.
+   * If the input is null or undefined and the 'optional' flag is set, returns the default value.
    * @param value Input for the specified field
    * @returns Parsed value if it passed the tests,
    * "undefined" if any of the tests failed.

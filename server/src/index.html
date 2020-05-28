@@ -7,13 +7,13 @@
   </head>
   <body>
     <form id="form" name="publish">
-      <input id="input" type="text" name="message" />
+      <textarea id="input" name="message"></textarea>
       <input type="submit" value="Send" />
     </form>
     <div id="incoming"></div>
   </body>
   <script>
-    const webSocket = new WebSocket("ws://localhost:3000");
+    const webSocket = new WebSocket("ws://localhost:3000/api");
     document.addEventListener("DOMContentLoaded", function () {
       const form = document.querySelector("#form");
       form.onsubmit = function (e) {
@@ -25,9 +25,7 @@
         elem.value = "";
         return false;
       };
-      webSocket.onopen = (event) => {
-        webSocket.send("WE ARE NOW OPEN!");
-      };
+      webSocket.onopen = (event) => {};
       webSocket.onmessage = (event) => {
         const msg = event.data;
         const msgElem = document.createElement("div");
