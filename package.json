@@ -27,6 +27,7 @@
     "@types/supertest": "^2.0.9",
     "bcrypt": "^4.0.1",
     "express": "^4.17.1",
+    "express-ws": "^4.0.0",
     "jest": "^26.0.1",
     "mongoose": "^5.9.16",
     "nodemon": "^2.0.4",

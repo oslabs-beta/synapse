@@ -3,8 +3,8 @@ export {};
 const Id = require("./Id");
 
 class MongoId extends Id {
-  constructor(length, flags = null) {
-    super(length);
+  constructor(flags = null) {
+    super();
 
     this.assert(
       /^[0-9a-f]{24}$/i,

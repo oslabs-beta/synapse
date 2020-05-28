@@ -109,4 +109,10 @@ function validator(schema: typeof Schema) {
   };
 }
 
+/**
+ * Denotes that calling the target class method invalidates cached responses from the specified endpoints.
+ * @param endpoints
+ */
+function affect(...endpoints: string) {}
+
 module.exports = { endpoint, field, validator };

@@ -39,7 +39,7 @@ class Manager {
    * Subscriptions are many-to-many relationships between clients and resources.
    * Client-to-resource associations are stored in Manager.prototype.subscriptions.
    * Resource-to-client associations are stored in Manager.prototype.dependents.
-   * @param client A function representing the client that requested the resource. Will be invoked when teh resource changes state.
+   * @param client A function representing the client that requested the resource. Will be invoked when the resource changes state.
    * @param path A resource path
    */
   subscribe(client: Function, path: string) {
@@ -78,8 +78,8 @@ class Manager {
     });
   }
 
-  update(resource) {
-    const dependents = this.dependents.get(resource);
+  update(path: string) {
+    const dependents = this.dependents.get(path);
     if (dependents) {
       dependents.forEach((client) => {});
     }
