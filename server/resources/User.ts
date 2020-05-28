@@ -15,7 +15,7 @@ const Text = require("../fields/Text");
 const { field, endpoint, validator } = require("../synapse/decorators");
 
 class User extends Resource {
-  @field(new MongoId(24)) _id;
+  @field(new MongoId()) _id;
   @field(new Word(3, 16)) username;
   @field(new Email(OPT)) email;
   @field(new Hash(6)) password;

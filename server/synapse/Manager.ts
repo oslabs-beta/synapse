@@ -1,22 +1,38 @@
 export {};
 
-const runMiddleware = require("run-middleware");
+const expose = require("run-middleware");
 
 class Manager {
+  /**
+   * Maps resources by paths to their last known values.
+   */
   cache: Map<string, any>;
 
-  dependents: Map<string, Array<any>>;
+  /**
+   * Maps resources by path to subscribers (clients). Clients are represented by callback functions.
+   */
+  dependents: Map<string, Array<Function>>;
 
-  subscriptions: Map<Function, Array<any>>;
+  /**
+   * Maps clients (represented by callback functions) to subscriptions (resource paths).
+   */
+  subscriptions: Map<Function, Array<string>>;
 
+  /**
+   * The function which will be invoked to to execute requests when a cached resource is invalidated or unavailable.
+   */
   generator: Function;
 
+  /**
+   * @param router An Express router which will handle uncached requests.
+   */
   constructor(router) {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
 
-    runMiddleware(router);
+    expose(router);
+
     this.generator = async (method, path, data) => {
       return new Promise((resolve, reject) => {
         try {
@@ -39,7 +55,7 @@ class Manager {
    * Subscriptions are many-to-many relationships between clients and resources.
    * Client-to-resource associations are stored in Manager.prototype.subscriptions.
    * Resource-to-client associations are stored in Manager.prototype.dependents.
-   * @param client A function representing the client that requested the resource. Will be invoked when teh resource changes state.
+   * @param client A function representing the client that requested the resource. Will be invoked when the resource changes state.
    * @param path A resource path
    */
   subscribe(client: Function, path: string) {
@@ -78,12 +94,13 @@ class Manager {
     });
   }
 
-  update(resource) {
-    const dependents = this.dependents.get(resource);
-    if (dependents) {
-      dependents.forEach((client) => {});
-    }
-  }
+  /**
+   * Recalculates the cached value of a given resource.
+   * Invokes all subscriber functions with the new value.
+   * @param path A resource path
+   * @returns The new value of the resource.
+   */
+  update(path: string) {}
 
   get(path, data, client = null) {
     return this.generator("get", path, data);
