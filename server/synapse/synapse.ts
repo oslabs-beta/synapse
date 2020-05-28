@@ -106,14 +106,9 @@ const synapse = (dir) => {
         Object.keys(data).forEach(async (endpoint) => {
           const [method, path] = endpoint.split(" ");
 
-<<<<<<< HEAD
-          const result = await manager[method.toLowerCase()](path, data[endpoint]);
-          ws.send(result.body);
-=======
           manager[method.toLowerCase()](path, data[endpoint])
             .then((result) => ws.send(JSON.stringify(result.payload)))
             .catch((err) => ws.send(err.serialize()));
->>>>>>> bddc3df24d07ce5e4424c18366adcb5a42543615
         });
       });
     },
