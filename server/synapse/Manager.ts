@@ -1,5 +1,7 @@
 export {};
 
+const Controller = require("./Controller");
+
 class Manager {
   /**
    * Maps resources by paths to their last known values.
@@ -22,13 +24,13 @@ class Manager {
   generator: Function;
 
   /**
-   * @param router An Express router which will handle uncached requests.
+   * @param generator Function which will fulfill uncached requests.
    */
-  constructor(generator: Function) {
+  constructor(controller: typeof Controller) {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
-    this.generator = generator;
+    this.generator = (...args) => controller.request(...args);
   }
 
   /**

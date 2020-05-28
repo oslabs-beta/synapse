@@ -8,6 +8,7 @@ const { Router } = require("express");
 const Resource = require("./Resource");
 const Reply = require("./Reply");
 const Manager = require("./Manager");
+const Controller = require("./Controller");
 
 /**
  * Verifies that all elements of the input are of type Resource, so that they can access its methods.
@@ -34,11 +35,12 @@ const isResourceArray = (arr: Array<typeof Resource>) => {
  * @returns An express router
  */
 const synapse = (dir) => {
-  const router = Router();
-  const files = fs.readdirSync(dir); // get all files from 'dir' as array
-  // require each file in array
+  const controller = new Controller();
+
+  // get all files from 'dir' as array
+  const files = fs.readdirSync(dir);
   files.forEach((file) => {
-    const Class = require(`${dir}/${file}`);
+    const Class = require(`${dir}/${file}`); // require each file
     const isResource = Class.prototype instanceof Resource;
     const hasEndpoints = typeof Class.endpoints === "object";
 
@@ -50,21 +52,18 @@ const synapse = (dir) => {
         path = `/${Class.name.toLowerCase()}${path}`; // ex. '/:id' => '/user/:id'
 
         // add route to router: ex. router.get('/user/:id', ...
-        router[method](path, async (req, res, next) => {
+        controller.declare(method, path, async (args) => {
           try {
-            let result = await Class.endpoints[key](req, res); // invoke the endpoint method
+            let result = await Class.endpoints[key](args); // invoke the endpoint method
 
-            // if the result is a Resource or array of Resources, convert it to a reply
             if (result instanceof Resource || isResourceArray(result)) {
+              // if the result is a Resource or array of Resources, convert it to a reply
               result = new Reply(method === "post" ? 201 : 200, result);
             }
 
-            // the result should now be an instance of Reply
             if (result instanceof Reply) {
-              if (result.isError()) {
-                return next(result);
-              }
-              return res.send(result);
+              // the result should now be an instance of Reply
+              return result;
             }
 
             throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
@@ -73,21 +72,13 @@ const synapse = (dir) => {
           }
 
           // any unhandled errors produce generic 500
-          return next(Reply.INTERNAL_SERVER_ERROR());
+          return Reply.INTERNAL_SERVER_ERROR();
         });
       });
     }
   });
 
-  const manager = new Manager(async (method, path, args) => {
-    return new Promise((resolve, reject) => {
-      router(
-        { method: method.toUpperCase(), url: path, body: args },
-        { send: (success) => resolve(success) },
-        (error) => reject(error)
-      );
-    });
-  });
+  const manager = new Manager(controller);
 
   return {
     http: async (req, res, next) => {
