@@ -59,9 +59,10 @@ const synapse = (dir) => {
 
             // the result should be either a Reply, Resource or array of Resources
             if (result instanceof Reply) {
-              if (result.isError()) {
-                return next(result); // if the reply has an error status return the error to express.
-              }
+              // fix
+              // if (result.isError()) {
+              //   next(result); // if the reply has an error status return the error to express.
+              // }
 
               return res.status(result.status).send(result.serialize());
             }
@@ -77,8 +78,8 @@ const synapse = (dir) => {
             console.log(err);
           }
 
-          // send any unhandled errors back to express
-          return next(Reply.INTERNAL_SERVER_ERROR());
+          // fix: send any unhandled errors back to express
+          // next(Reply.INTERNAL_SERVER_ERROR());
         });
       });
     }
@@ -96,7 +97,6 @@ const synapse = (dir) => {
       res.status(result.status).send(result.body);
     },
     ws: (ws, req) => {
-      console.log("new client");
       ws.on("message", (msg) => {
         const data = JSON.parse(msg);
         console.log(data);

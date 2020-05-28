@@ -16,8 +16,6 @@ app.ws("/api", api.ws);
 app.use("/api", api.http);
 
 app.get("/", (req, res) => {
-  console.log("");
-  // res.send("hello world");
   res.sendFile(path.resolve(__dirname, "./src/index.html"));
 });
 

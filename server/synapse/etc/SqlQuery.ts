@@ -1,14 +1,15 @@
 /* eslint-disable prefer-destructuring */
-module.exports = class Query {
-  table;
 
-  columns;
+class SqlQuery {
+  table: string;
 
-  values;
+  columns: string;
 
-  conditions;
+  values: Array<any>;
 
-  action;
+  conditions: Array<any>;
+
+  action: string;
 
   static $(frags = null, ...values) {
     if (!frags) {
@@ -26,19 +27,36 @@ module.exports = class Query {
     return [result, values];
   }
 
-  from(table: string) {
-    this.table = table;
+  from(table: any) {
+    this.table = Array.isArray(table) ? table[0] : table;
     return this;
   }
 
+  into(table: any) {
+    return this.from(table);
+  }
+
   where(...args: any) {
-    this.conditions = Query.$(...args);
+    if (Array.isArray(args[0])) {
+      this.conditions = SqlQuery.$(...args);
+    } else if (typeof args[0] === "object") {
+      const data = args[0];
+      const text = [];
+      Object.keys(data).forEach((key, i) => {
+        text.push(`${key}=$${i + 1}`);
+      });
+      this.conditions = [text.join(", "), Object.values(data)];
+    }
     return this;
   }
 
   select(...columns) {
-    if (Array.isArray(columns[0])) {
-      this.columns = Query.$(...columns)[0];
+    if (!columns.length) {
+      this.columns = "*";
+    } else if (Array.isArray(columns[0])) {
+      this.columns = SqlQuery.$(...columns)[0];
+    } else if (typeof columns[0] === "object") {
+      this.columns = Object.keys(columns[0]).join(", ");
     } else {
       this.columns = columns.join(", ");
     }
@@ -54,7 +72,7 @@ module.exports = class Query {
     return this;
   }
 
-  toString() {
+  evaluate() {
     if (this.action === "SELECT") {
       let query = `SELECT ${this.columns} FROM ${this.table}`;
       let values = [];
@@ -72,4 +90,13 @@ module.exports = class Query {
     }
     return "";
   }
-};
+}
+
+const select = new SqlQuery().select`name, password`.from`users`.where`id=${3}`;
+const insert = new SqlQuery()
+  .insert({ name: "bill", password: "secret" })
+  .into("users");
+
+console.log(select.evaluate());
+
+module.exports = SqlQuery;

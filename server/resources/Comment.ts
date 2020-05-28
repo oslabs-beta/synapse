@@ -10,7 +10,7 @@ const Integer = require("../fields/Integer");
 
 const ledger = [];
 
-export default class Comment extends Resource {
+class Comment extends Resource {
   @field(new Id(8)) id;
   @field(new Text()) text;
 
