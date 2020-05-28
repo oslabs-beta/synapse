@@ -31,7 +31,6 @@
     "jest": "^26.0.1",
     "mongoose": "^5.9.16",
     "nodemon": "^2.0.4",
-    "run-middleware": "^0.9.10",
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",

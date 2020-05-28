@@ -1,5 +1,6 @@
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
+
 export {};
 
 const fs = require("fs");
@@ -14,7 +15,10 @@ const Manager = require("./Manager");
  * @param arr The array that is returned after calling a router method
  * @returns A boolean that is used for a conditional check
  */
-const isResourceArray = (arr) => {
+const isResourceArray = (arr: Array<typeof Resource>) => {
+  if (!Array.isArray(arr)) {
+    return false;
+  }
   for (let i = 0; i < arr.length; ++i) {
     if (!(arr[i] instanceof Resource)) {
       return false;
@@ -48,27 +52,19 @@ const synapse = (dir) => {
         // add route to router: ex. router.get('/user/:id', ...
         router[method](path, async (req, res, next) => {
           try {
-            // create a copy of 'res' with certain methods disabled
-            const limitedRes = {
-              ...res,
-              send: undefined,
-              json: undefined,
-              status: undefined,
-            };
-            const result = await Class.endpoints[key](req, limitedRes); // invoke the endpoint method
+            let result = await Class.endpoints[key](req, res); // invoke the endpoint method
 
-            // the result should be either a Reply, Resource or array of Resources
-            if (result instanceof Reply) {
-              // fix
-              // if (result.isError()) {
-              //   next(result); // if the reply has an error status return the error to express.
-              // }
-
-              return res.status(result.status).send(result.serialize());
-            }
+            // if the result is a Resource or array of Resources, convert it to a reply
             if (result instanceof Resource || isResourceArray(result)) {
-              const status = method === "post" ? 201 : 200;
-              return res.status(status).send(JSON.stringify(result)); // FIX: json method undefined
+              result = new Reply(method === "post" ? 201 : 200, result);
+            }
+
+            // the result should now be an instance of Reply
+            if (result instanceof Reply) {
+              if (result.isError()) {
+                return next(result);
+              }
+              return res.send(result);
             }
 
             throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
@@ -76,33 +72,48 @@ const synapse = (dir) => {
             console.log(err);
           }
 
-          // fix: send any unhandled errors back to express
-          // next(Reply.INTERNAL_SERVER_ERROR());
+          // any unhandled errors produce generic 500
+          return next(Reply.INTERNAL_SERVER_ERROR());
         });
       });
     }
   });
 
-  const manager = new Manager(router);
+  const manager = new Manager(async (method, path, args) => {
+    return new Promise((resolve, reject) => {
+      router(
+        { method: method.toUpperCase(), url: path, body: args },
+        { send: (success) => resolve(success) },
+        (error) => reject(error)
+      );
+    });
+  });
 
   return {
-    http: async (req, res) => {
-      const result = await manager[req.method.toLowerCase()](req.path, {
+    http: async (req, res, next) => {
+      const data = {
         ...req.query,
         ...req.body,
         ...req.params,
-      });
-      res.status(result.status).send(result.body);
+      };
+      manager[req.method.toLowerCase()](req.path, data)
+        .then((result) => res.status(result.status).json(result.payload))
+        .catch((err) => next(err));
     },
     ws: (ws, req) => {
       ws.on("message", (msg) => {
         const data = JSON.parse(msg);
-        console.log(data);
         Object.keys(data).forEach(async (endpoint) => {
           const [method, path] = endpoint.split(" ");
 
+<<<<<<< HEAD
           const result = await manager[method.toLowerCase()](path, data[endpoint]);
           ws.send(result.body);
+=======
+          manager[method.toLowerCase()](path, data[endpoint])
+            .then((result) => ws.send(JSON.stringify(result.payload)))
+            .catch((err) => ws.send(err.serialize()));
+>>>>>>> bddc3df24d07ce5e4424c18366adcb5a42543615
         });
       });
     },
