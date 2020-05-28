@@ -2,7 +2,7 @@
 
 export {};
 
-const { Number } = require("./Number");
+const Number = require("./Number");
 
 class Integer extends Number {
   /**

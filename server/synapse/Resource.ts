@@ -5,9 +5,9 @@ export {};
  */
 class Resource {
   /**
-   * Creates an instance of the derived class using
-   * a plain object 'data'. Validates the data using
-   * the derived class's schema.
+   * Creates an instance of the derived class using a plain object 'data'.
+   * Validates the data using the derived class's schema.
+   *
    * @param data A plain object that contains "raw" information that will be used to make a resource. Ex: User.create({name: 'Jay', pass: 'password'})
    * @returns An instance of the derived class. Ex: User object with [name] validated, and [password] hashed: {name: 'Jay', pass: '$2b$10$3euPcmQFCiblsZeEu5s7p'}
    */

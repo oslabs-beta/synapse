@@ -15,8 +15,6 @@ const Resource = require("./Resource");
  * arguments obtained by passing the input arguments through the specified chain of functions 'middleware'.
  * If any middleware functions return an instance of Reply(more info on Reply class here: (***somelink***),
  * the chain will be broken and the target class method will not be invoked.
- * If no middlware functions are provided, a default one will be invoked that condenses the 'query', 'body', and 'params' properties
- * from the express 'request' object into a single object and passes it to the target class method(business logic).
  * @param path Primary HTTP verb + URL endpoint. Ex: 'GET /:id'
  * @param middleware A list of middleware functions(comma separated) to be invoked when receiving a request to a specific endpoint.
  * @returns A decorator function which adds a new endpoint method to the class's static 'endpoints' object.
@@ -25,19 +23,6 @@ function endpoint(path: string, ...middleware) {
   return (target, name, descriptor) => {
     if (!target.endpoints) {
       target.endpoints = {};
-    }
-
-    // if no middleware functions are provided, add the default one.
-    if (middleware.length === 0) {
-      middleware.push((req) => {
-        return [
-          {
-            ...req.query,
-            ...req.body,
-            ...req.params,
-          },
-        ];
-      });
     }
 
     // add a new function to the target class's 'endpoints' object.
@@ -109,4 +94,10 @@ function validator(schema: typeof Schema) {
   };
 }
 
-module.exports = { endpoint, field, validator };
+/**
+ * Denotes that calling the target class method invalidates cached responses from the specified endpoints.
+ * @param endpoints
+ */
+function affect(...endpoints: Array<string>) {}
+
+module.exports = { endpoint, field, validator, affect };
