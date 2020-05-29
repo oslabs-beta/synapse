@@ -7,7 +7,11 @@
   </head>
   <body>
     <form id="form" name="publish">
-      <select name="methods" id="methods">
+      <select name="protocol" id="protocol">
+        <option value="WS">WS</option>
+        <option value="HTTP">HTTP</option>
+      </select>
+        <select name="methods" id="methods">
         <option value="GET">GET</option>
         <option value="POST">POST</option>
         <option value="PUT">PUT</option>
@@ -38,18 +42,45 @@
         const path = document.querySelector("#path").value
         const keys = document.querySelectorAll(".key")
         const values = document.querySelectorAll(".value")
-        const payload = {
-        }
+        const flag = document.querySelector("#protocol").value
+        const payload = {}
         keys.forEach((key, index) => {
           payload[key.value] = values[index].value
           keys.value = '';
           values[index].value = '';
         })
-        const key = `${method} ${path}`
-        const request = {
+        const body = JSON.stringify(payload)
+        if (flag === "WS") {
+          const key = `${method} ${path}`
+          const request = {
           [key]:payload
         }
         webSocket.send(JSON.stringify(request));
+        } else {
+
+          const reqObj = {
+          method,
+          headers: {
+              'Content-Type': 'application/json',
+            },
+        };
+        if (method !== 'GET') reqObj.body = body
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => response.json())
+          .then((data)=>{
+            document.querySelector("#incoming").innerHTML = '';
+            console.log(data)
+            state[path] = JSON.stringify(data)
+            Object.keys(state).forEach((key) => {
+          let resource = document.createElement('div');
+          resource.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+          resource.classList.add('resource')
+          resource.textContent = `${key} : ${state[key]}`
+          document.querySelector("#incoming").prepend(resource);
+        })
+          })
+        }
+        
         return false;
       };
       const addButton = document.querySelector("#add")
@@ -75,9 +106,11 @@
         console.log('WS connection is open.')
       };
       webSocket.onmessage = (event) => {
+        // make them render by key/value pairs
         const data = JSON.parse(event.data)
         const { path } = data
         state[JSON.stringify(path)] = JSON.stringify(data)
+        document.querySelector("#incoming").innerHTML = '';
         Object.keys(state).forEach((key) => {
           let resource = document.createElement('div');
           resource.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
@@ -87,5 +120,18 @@
         })
       };
     });
+    // create a terminal to dislay 10 last commands
+    // just a div that will post the response, if length > 10 - kill one
+
+    // ONLY create state[path] for subscribe
+    // for unsub - kill the path on the state obj
+
+    // when receive WS - check if im subscribed - update state if i am,
+    // ignore if im not, dont forget to post in the terminal
+
+    // if what i received IS smth im subbed to but value is undefined - it was deleted,
+    // im not subbed anymore - kill the key of this path from my obj
+
   </script>
 </html>
+

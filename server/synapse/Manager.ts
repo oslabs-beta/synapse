@@ -1,10 +1,7 @@
 export {};
-<<<<<<< HEAD
-=======
 
 const Reply = require("./Reply");
 
->>>>>>> fa6f864dd63446c7520230c74235ed9c56a7ae30
 const Controller = require("./Controller");
 
 class Manager {
