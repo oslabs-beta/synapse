@@ -37,18 +37,11 @@ class Field {
   }
 
   /**
-<<<<<<< HEAD
-   * Checks to see if the inputted value is undefined or null.
-   * If so, it will check if the input is optional and assign it a default value if it is, and undefined if not.
-   * @param value The user's inputted value.
-   * @returns The value itself if it is not undefined/null, a default value if the input is undefined/null AND it is optional, or undefined if the input is undefined/null AND it is not optional.
-=======
    * Checks if the input value is valid.
    * If the input is null or undefined and the 'optional' flag is set, returns the default value.
    * @param value Input for the specified field
    * @returns Parsed value if it passed the tests,
    * "undefined" if any of the tests failed.
->>>>>>> 80f2d4a9f2fcdeea4f70749fd11222df5f4f362b
    */
   async parse(value) {
     if (value === undefined || value === null) {
