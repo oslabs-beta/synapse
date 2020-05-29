@@ -86,9 +86,9 @@ class Manager {
   async update(method: string, path: string, data: object = null) {
     this.cache[path] = await this.generator(method, path, data);
 
-    if (this.dependents[path] !== undefined || this.dependents[path].length) {
+    if (this.dependents[path] !== undefined && this.dependents[path].length) {
       this.dependents[path].forEach((client) => {
-        client(path);
+        client({ path: this.cache[path] });
       });
     }
   }
