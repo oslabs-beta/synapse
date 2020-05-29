@@ -49,7 +49,9 @@ function synapse(dir) {
 
           // the result should now be an instance of Reply
           if (!(result instanceof Reply)) {
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
+            throw new Error(
+              `Unexpected result from endpoint '${method} ${path}'.`
+            );
           }
 
           return result;
