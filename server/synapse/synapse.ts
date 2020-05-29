@@ -99,7 +99,7 @@ const synapse = (dir) => {
 
           manager[method.toLowerCase()](path, data[endpoint])
             .then((result) => ws.send(JSON.stringify(result.payload)))
-            .catch((err) => ws.send(err.serialize()));
+            .catch((err) => ws.send(JSON.stringify(err)));
         });
       });
     },
