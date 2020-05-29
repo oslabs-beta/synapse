@@ -85,6 +85,7 @@ class Manager {
    * @returns The new value of the resource.
    */
   async update(path: string) {
+    console.log("!!!!!!!!!!!", path);
     // the generator always returns an instance of Reply
     const result = await this.generator("get", path);
 
