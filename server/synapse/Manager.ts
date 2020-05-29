@@ -80,15 +80,6 @@ class Manager {
    * @returns The new value of the resource.
    */
   async update(path: string) {
-<<<<<<< HEAD
-    this.cache[path] = await this.generator("get", path);
-    if (this.dependents[path] !== undefined && this.dependents[path].length) {
-      this.dependents[path].forEach((client) => {
-        client({ path: this.cache[path] });
-      });
-    }
-    if (this.cache[path] instanceof Reply && this.cache[path].status === 404) {
-=======
     // the generator always returns an instance of Reply
     const result = await this.generator("get", path);
 
@@ -104,7 +95,6 @@ class Manager {
       // otherwise, if the resource was not found, remove the resource from the cache,
       // unsubscribe all subscribers and alert them with the new state (undefined).
       this.cache.delete(path);
->>>>>>> d256445010d30353b31b3db78ba77872d23470dd
       this.dependents[path].forEach((client) => {
         this.unsubscribe(client, path);
         client(path, undefined);
@@ -121,20 +111,11 @@ class Manager {
     return this.update(path);
   }
 
-<<<<<<< HEAD
-  async post(path, data, client = null) {
-    if (client) {
-      this.subscribe(client, path);
-    }
-    const result = await this.generator("post", path, data);
-    this.update(path);
-=======
   async post(path, data) {
     const result = await this.generator("post", path, data);
     if (!result.isError()) {
       this.update(path);
     }
->>>>>>> d256445010d30353b31b3db78ba77872d23470dd
     return result;
   }
 
@@ -155,16 +136,11 @@ class Manager {
   }
 
   async delete(path) {
-<<<<<<< HEAD
-    await this.generator("delete", path, null);
-    this.update(path);
-=======
     const result = await this.generator("delete", path, null);
     if (!result.isError()) {
       this.update(path);
     }
     return result;
->>>>>>> d256445010d30353b31b3db78ba77872d23470dd
   }
 }
 
