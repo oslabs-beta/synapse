@@ -7,7 +7,11 @@
   </head>
   <body>
     <form id="form" name="publish">
-      <select name="methods" id="methods">
+      <select name="protocol" id="protocol">
+        <option value="WS">WS</option>
+        <option value="HTTP">HTTP</option>
+      </select>
+        <select name="methods" id="methods">
         <option value="GET">GET</option>
         <option value="POST">POST</option>
         <option value="PUT">PUT</option>
@@ -24,34 +28,80 @@
       </ul>
       <input type="submit" value="Send" />
     </form>
-    <div id="incoming">
+    <div style="display: flex; flex-direction: row; justify-content: space-evenly;" id="screen">
+      <div id="incoming">
+      </div>
+      <div id="terminal">
+        TERMINAL
+      </div>
     </div>
+    
   </body>
   <script>
     const webSocket = new WebSocket("ws://localhost:3000/api");
     document.addEventListener("DOMContentLoaded", function () {
-      const state = {};
+      const state = {
+        '/user/5ed177e2b0918f30bc51d544': true,
+        '/user/5ed177cfb0918f30bc51d543': true,
+      };
       const form = document.querySelector("#form");
       form.onsubmit = function (e) {
         e.preventDefault();
+
+        // declare variables to use for HTTP and WS
         const method = document.querySelector("#methods").value
         const path = document.querySelector("#path").value
         const keys = document.querySelectorAll(".key")
         const values = document.querySelectorAll(".value")
-        const payload = {
-        }
+        const protocol = document.querySelector("#protocol").value
+        const payload = {}
+        
+        // iterate over our html inputs and attach values to the payload
+        // clear the fields after
         keys.forEach((key, index) => {
           payload[key.value] = values[index].value
           keys.value = '';
           values[index].value = '';
         })
-        const key = `${method} ${path}`
-        const request = {
+        // stringfiy payload
+        const body = JSON.stringify(payload)
+
+        // if we're sending a WS msg
+        if (protocol === "WS") {
+          if (method === 'SUBSCRIBE'){
+            state[path] = true;
+          }
+          const key = `${method} ${path}`
+          const request = {
           [key]:payload
         }
         webSocket.send(JSON.stringify(request));
+
+        // if sending HTTP
+        } else {
+          // construct request object
+          const reqObj = {
+          method,
+          headers: {
+              'Content-Type': 'application/json',
+            },
+        };
+        // add body IF its not a GET request
+        if (method !== 'GET') reqObj.body = body
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => response.json())
+          .then((data)=>{
+            // display incoming data in "terminal"
+            let terminalPost = document.createElement('div');
+            terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+            terminalPost.classList.add('terminalPost')
+            terminalPost.textContent = JSON.stringify(data)
+            document.querySelector("#terminal").append(terminalPost);
+          })
+        }
         return false;
       };
+
       const addButton = document.querySelector("#add")
       addButton.onclick = function (e) {
         e.preventDefault()
@@ -65,27 +115,73 @@
         newLi.append(newKey, newValue);
         document.querySelector("#list").append(newLi)
       }
+
       const removeButton = document.querySelector("#remove")
       removeButton.onclick = function (e) {
         e.preventDefault()
         const listItems = document.querySelectorAll('li')
         listItems[listItems.length-1].remove()
       }
+
+
       webSocket.onopen = (event) => {
         console.log('WS connection is open.')
       };
+
       webSocket.onmessage = (event) => {
+        // parse the data
         const data = JSON.parse(event.data)
-        const { path } = data
-        state[JSON.stringify(path)] = JSON.stringify(data)
-        Object.keys(state).forEach((key) => {
+        const key = Object.keys(data)[0]
+        const path = key.split(' ')[1]
+        // if we're subscribed - update the local state
+        // if we are but data is undefined - clear the local state(data was deleted, we're unsubbed now)
+        if (state[path]) {
+          if(data[key] === undefined) {
+            delete state[path]
+          }
+          // render local state 
+          state[path] = data[key].payload
+          document.querySelector("#incoming").innerHTML = '';
+          Object.keys(state).forEach((key) => {
+          let resourceHeader = document.createElement('div');
+          resourceHeader.textContent = key;
+          resourceHeader.style = "max-width: 300px; border: solid 1px red;"
+          const newline = "\r\n";
           let resource = document.createElement('div');
-          resource.style = "height: 100px; max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+          resource.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word; overflow:hidden; white-space: pre;"
           resource.classList.add('resource')
-          resource.textContent = `${key} : ${state[key]}`
-          document.querySelector("#incoming").prepend(resource);
-        })
+
+            Object.keys(state[path]).forEach((subkey) => {
+              resource.textContent += `${subkey}: ${JSON.stringify(state[key][subkey])} ${newline}`
+              document.querySelector("#incoming").append(resourceHeader,resource);
+            })
+        
+          })
+        }
+        // if we arent subbed - just post incoming data in the terminal
+        let terminalPost = document.createElement('div');
+        terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+        terminalPost.classList.add('terminalPost')
+        terminalPost.textContent = `${event.data}`
+        document.querySelector("#terminal").append(terminalPost);
+        const length = document.querySelectorAll(".terminalPost").length
+        if (length >= 10) {
+          document.querySelector("#terminal").firstChild.remove();
+        }
       };
     });
+    // create a terminal to dislay 10 last commands
+    // just a div that will post the response, if length > 10 - kill one
+
+    // ONLY create state[path] for subscribe
+    // for unsub - kill the path on the state obj
+
+    // when receive WS - check if im subscribed - update state if i am,
+    // ignore if im not, dont forget to post in the terminal
+
+    // if what i received IS smth im subbed to but value is undefined - it was deleted,
+    // im not subbed anymore - kill the key of this path from my obj
+
   </script>
 </html>
+
