@@ -1,22 +1,9 @@
 /* eslint-disable no-await-in-loop */
+
 export {};
 
-const { Field } = require("./Field");
-
-/**
- * Verifies that all values of the input are of type Field.
- * @param obj An object containing the fields(rules) of its class
- * @returns True if all values are of correct type, and an error if not.
- */
-const assertIsFieldObject = (obj: object) => {
-  const keys = Object.keys(obj);
-  for (let i = 0; i < keys.length; ++i) {
-    if (!(obj[keys[i]] instanceof Field)) {
-      throw new Error("Expected object containing only values of type Field.");
-    }
-  }
-  return true;
-};
+const Field = require("./Field");
+const { isCollectionOf } = require("./etc/util");
 
 /**
  * Defines a type of object as a set of key names
@@ -30,7 +17,8 @@ class Schema {
   lastError: string;
 
   constructor(fields: object = {}) {
-    assertIsFieldObject(fields);
+    // assert that the input is a collection of fields
+    isCollectionOf(Field, fields, true);
 
     this.fields = fields;
   }
@@ -41,7 +29,8 @@ class Schema {
    * @returns A new Schema containing all the fields of this schema, plus additional fields.
    */
   extend(fields: object) {
-    assertIsFieldObject(fields);
+    // assert that the input is a collection of fields
+    isCollectionOf(Field, fields, true);
 
     return new Schema({ ...this.fields, ...fields });
   }

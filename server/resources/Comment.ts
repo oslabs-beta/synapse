@@ -3,10 +3,9 @@
 export {};
 
 const Resource = require("../synapse/Resource");
-const { field, endpoint, validator, affect } = require("../synapse/decorators");
-const Id = require("../fields/Id");
-const Text = require("../fields/Text");
-const Integer = require("../fields/Integer");
+const { Id, Text, Integer } = require("../synapse/fields");
+
+const { field, endpoint, validator, affect } = Resource.Decorators;
 
 const ledger = [];
 

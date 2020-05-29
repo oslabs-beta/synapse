@@ -2,14 +2,16 @@
 
 export {};
 
-const OPT = 0b001; // optional flag
-const PRV = 0b010; // private flag
-
 /**
  * Creates an instance of 'Field' that has a 'type' of value along with the methods
  * that are associated with the class.
  */
 class Field {
+  static Flags = {
+    OPT: 0b001,
+    PRV: 0b010,
+  };
+
   default: any;
 
   flags: number;
@@ -50,10 +52,10 @@ class Field {
    */
   async parse(value) {
     if (value === undefined || value === null) {
-      return this.hasFlag(OPT) ? this.default : undefined;
+      return this.hasFlag(Field.Flags.OPT) ? this.default : undefined;
     }
     return value;
   }
 }
 
-module.exports = { Field, OPT, PRV };
+module.exports = Field;

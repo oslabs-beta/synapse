@@ -9,31 +9,16 @@ const Resource = require("./Resource");
 const Reply = require("./Reply");
 const Manager = require("./Manager");
 const Controller = require("./Controller");
-
-/**
- * Verifies that all elements of the input are of type Resource, so that they can access its methods.
- * Invoked after the router method is called to check its result
- * @param arr The array that is returned after calling a router method
- * @returns A boolean that is used for a conditional check
- */
-const isResourceArray = (arr: Array<typeof Resource>) => {
-  if (!Array.isArray(arr)) {
-    return false;
-  }
-  for (let i = 0; i < arr.length; ++i) {
-    if (!(arr[i] instanceof Resource)) {
-      return false;
-    }
-  }
-  return true;
-};
+const Schema = require("./Schema");
+const Field = require("./Field");
+const { isCollectionOf } = require("./etc/util");
 
 /**
  * Initializes API request handlers from Resource definitions in the given directory 'dir'.
  * @param dir A directory containing Resource definitions.
  * @returns An object containing properties 'ws' and 'http', whose values are request handlers for the respective protocol.
  */
-const synapse = (dir) => {
+function synapse(dir) {
   const controller = new Controller();
 
   // get all file names in 'dir'
@@ -58,7 +43,7 @@ const synapse = (dir) => {
           let result = await Class.endpoints[key](args); // invoke the endpoint method
 
           // if the result is a Resource or array of Resources, convert it to a reply
-          if (result instanceof Resource || isResourceArray(result)) {
+          if (result instanceof Resource || isCollectionOf(Resource, result)) {
             result = new Reply(method === "post" ? 201 : 200, result);
           }
 
@@ -83,49 +68,75 @@ const synapse = (dir) => {
   }
 
   return {
-    http: async (req, res, next) => {
+    // express middleware function to handle HTTP requests
+    http: async (req: any, res: any, next: Function) => {
       try {
+        // attempt to execute the request by calling the appropriate method on the manager object
         const result = await manager[req.method.toLowerCase()](req.path, {
           ...req.query,
           ...req.body,
           ...req.params,
         });
 
-        res.status(result.status).json(result.payload);
+        // if no errors occurred, send the result to the client
+        return res.status(result.status).json(result.payload);
       } catch (err) {
+        // otherwise, if the error is not a Reply object, convert it to one
         if (!(err instanceof Reply)) {
-          console.log(err);
-          err = Reply.INTERNAL_SERVER_ERROR();
+          console.log((err = Reply.INTERNAL_SERVER_ERROR()));
         }
+        // then send the error back to express
         return next(err);
       }
     },
-    ws: (ws, req) => {
+
+    // express-ws middleware function to handle new WebSocket connections
+    ws: (ws: any, req: any) => {
+      // when a new connection is received, create a function to handle updates to that client
+      const client = (path: string, state: any) => {
+        ws.send(JSON.stringify({ [path]: state }));
+      };
+
+      // whenever a message is received from the client
       ws.on("message", async (msg) => {
         try {
+          // attempt to parse the message as json
           const data = JSON.parse(msg);
 
+          // the result should be an object whose keys represent endpoints
+          // in the form of METHOD /path and whose values are objects containing
+          // the arguments to be passed to the associated endpoint method.
           Object.keys(data).forEach(async (endpoint) => {
             const [method, path] = endpoint.split(" ");
 
+            // attempt to execute each request by calling the appropriate method on the manager object
             const result = await manager[method.toLowerCase()](
               path,
               data[endpoint],
-              (state) => ws.send(JSON.stringify({ [path]: state }))
+              client // pass the client updater function to subscribe the client to the requested resource
             );
 
-            ws.send(JSON.stringify({ [endpoint]: result }));
+            // if no errors occurred, send the result to the client
+            client(endpoint, result);
           });
         } catch (err) {
+          // otherwise, if the error is not a Reply object, convert it to one
           if (!(err instanceof Reply)) {
-            console.log(err);
-            err = Reply.INTERNAL_SERVER_ERROR();
+            console.log((err = Reply.INTERNAL_SERVER_ERROR()));
           }
-          ws.send(JSON.stringify(err));
+          // then send the error to the client
+          client(err.status, err.payload);
         }
       });
     },
   };
-};
+}
+
+synapse.Field = Field;
+synapse.Schema = Schema;
+synapse.Resource = Resource;
+synapse.Reply = Reply;
+synapse.Controller = Controller;
+synapse.Manager = Manager;
 
 module.exports = synapse;

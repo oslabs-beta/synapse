@@ -1,8 +1,9 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
 export {};
 
-const { Field } = require("../synapse/Field");
+const Field = require("../Field");
 
 class Text extends Field {
   /**
