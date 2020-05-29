@@ -37,7 +37,6 @@ class Comment extends Resource {
   static async Post({ text }) {
     const comment = await Comment.create({ id: ledger.length, text });
     ledger.push(comment);
-    console.log(ledger);
     return comment;
   }
 }
