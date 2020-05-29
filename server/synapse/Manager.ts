@@ -53,7 +53,6 @@ class Manager {
 
     const dependents = this.dependents.get(path);
     dependents.add(client);
-    console.log(dependents);
 
     const subscriptions = this.subscriptions.get(client);
     subscriptions.add(path);
@@ -74,8 +73,6 @@ class Manager {
       const dependents = this.dependents.get(target);
       dependents.delete(client);
     });
-
-    console.log(this.subscriptions);
   }
 
   /**
