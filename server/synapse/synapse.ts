@@ -1,10 +1,10 @@
+/* eslint-disable no-ex-assign */
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
 
 export {};
 
 const fs = require("fs");
-const { Router } = require("express");
 const Resource = require("./Resource");
 const Reply = require("./Reply");
 const Manager = require("./Manager");
@@ -29,15 +29,14 @@ const isResourceArray = (arr: Array<typeof Resource>) => {
 };
 
 /**
- * Dynamically creates an express router for any method and
- * exposes all available Resource endpoints that are defined in the specified directory.
- * @param dir The specified directory used to create the express router(s) according to their endpoints.
- * @returns An express router
+ * Initializes API request handlers from Resource definitions in the given directory 'dir'.
+ * @param dir A directory containing Resource definitions.
+ * @returns An object containing properties 'ws' and 'http', whose values are request handlers for the respective protocol.
  */
 const synapse = (dir) => {
   const controller = new Controller();
 
-  // get all files from 'dir' as array
+  // get all file names in 'dir'
   const files = fs.readdirSync(dir);
   const classes = []; // each file will be required and stored in an array
   files.forEach((file) => {
@@ -56,26 +55,21 @@ const synapse = (dir) => {
 
         // add route to router: ex. router.get('/user/:id', ...
         controller.declare(method, path, async (args) => {
-          try {
-            let result = await Class.endpoints[key](args); // invoke the endpoint method
+          let result = await Class.endpoints[key](args); // invoke the endpoint method
 
-            if (result instanceof Resource || isResourceArray(result)) {
-              // if the result is a Resource or array of Resources, convert it to a reply
-              result = new Reply(method === "post" ? 201 : 200, result);
-            }
-
-            if (result instanceof Reply) {
-              // the result should now be an instance of Reply
-              return result;
-            }
-
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
-          } catch (err) {
-            console.log(err);
+          // if the result is a Resource or array of Resources, convert it to a reply
+          if (result instanceof Resource || isResourceArray(result)) {
+            result = new Reply(method === "post" ? 201 : 200, result);
           }
 
-          // any unhandled errors produce generic 500
-          return Reply.INTERNAL_SERVER_ERROR();
+          // the result should now be an instance of Reply
+          if (!(result instanceof Reply)) {
+            throw new Error(
+              `Unexpected result from endpoint '${method} ${path}'.`
+            );
+          }
+
+          return result;
         });
       });
     }
@@ -90,25 +84,45 @@ const synapse = (dir) => {
 
   return {
     http: async (req, res, next) => {
-      const data = {
-        ...req.query,
-        ...req.body,
-        ...req.params,
-      };
-      manager[req.method.toLowerCase()](req.path, data)
-        .then((result) => res.status(result.status).json(result.payload))
-        .catch((err) => next(err));
+      try {
+        const result = await manager[req.method.toLowerCase()](req.path, {
+          ...req.query,
+          ...req.body,
+          ...req.params,
+        });
+
+        res.status(result.status).json(result.payload);
+      } catch (err) {
+        if (!(err instanceof Reply)) {
+          console.log(err);
+          err = Reply.INTERNAL_SERVER_ERROR();
+        }
+        return next(err);
+      }
     },
     ws: (ws, req) => {
-      ws.on("message", (msg) => {
-        const data = JSON.parse(msg);
-        Object.keys(data).forEach(async (endpoint) => {
-          const [method, path] = endpoint.split(" ");
+      ws.on("message", async (msg) => {
+        try {
+          const data = JSON.parse(msg);
 
-          manager[method.toLowerCase()](path, data[endpoint])
-            .then((result) => ws.send(JSON.stringify(result.payload)))
-            .catch((err) => ws.send(err.serialize()));
-        });
+          Object.keys(data).forEach(async (endpoint) => {
+            const [method, path] = endpoint.split(" ");
+
+            const result = await manager[method.toLowerCase()](
+              path,
+              data[endpoint],
+              (state) => ws.send(JSON.stringify({ [path]: state }))
+            );
+
+            ws.send(JSON.stringify({ [endpoint]: result }));
+          });
+        } catch (err) {
+          if (!(err instanceof Reply)) {
+            console.log(err);
+            err = Reply.INTERNAL_SERVER_ERROR();
+          }
+          ws.send(JSON.stringify(err));
+        }
       });
     },
   };

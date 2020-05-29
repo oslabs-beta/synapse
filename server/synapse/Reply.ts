@@ -20,7 +20,7 @@ class Reply {
     return ["4", "5"].includes(this.status.toString()[0]);
   }
 
-  serialize() {
+  toString() {
     if (this.payload === null || this.payload === undefined) {
       return "";
     }
