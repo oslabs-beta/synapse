@@ -160,9 +160,7 @@ class Manager {
     this.update(path);
     // console.log("FALSE IF KEY ISNT THERE", this.cache.delete(path));
     // console.log("this is the path", path);
-
     // console.log('should be false if this works', this.cache.has(path));
-
     // this.update(path);
   }
 }

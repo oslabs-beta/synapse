@@ -3,19 +3,18 @@
 export {};
 
 const Resource = require("../synapse/Resource");
-const { field, endpoint, validator, affect } = require("../synapse/decorators");
-const Id = require("../fields/Id");
-const Text = require("../fields/Text");
-const Integer = require("../fields/Integer");
+const { Id, Text, Integer } = require("../synapse/fields");
+
+const { field, endpoint, validator, affect } = Resource.Decorators;
 
 const ledger = [];
 
 class Comment extends Resource {
-  @field(new Id(8)) id;
+  @field(new Id()) id;
   @field(new Text()) text;
 
   @endpoint("GET /:id")
-  @validator("id")
+  @validator(Comment.schema.select("id"))
   static Find({ id }) {
     return ledger[id];
   }
@@ -34,10 +33,11 @@ class Comment extends Resource {
 
   @endpoint("POST /")
   @affect("/last", "/page/*")
-  @validator("text")
-  static Post({ text }) {
-    const comment = Comment.create({ text });
+  @validator(Comment.schema.select("text"))
+  static async Post({ text }) {
+    const comment = await Comment.create({ id: ledger.length, text });
     ledger.push(comment);
+    console.log(ledger);
     return comment;
   }
 }
