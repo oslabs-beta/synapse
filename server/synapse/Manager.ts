@@ -56,6 +56,8 @@ class Manager {
 
     const subscriptions = this.subscriptions.get(client);
     subscriptions.add(path);
+
+    console.log(this.subscriptions);
   }
 
   /**
@@ -82,6 +84,7 @@ class Manager {
    * @returns The new value of the resource.
    */
   async update(path: string) {
+    console.log(this.dependents.get(path));
     // the generator always returns an instance of Reply
     const result = await this.generator("get", path);
 
