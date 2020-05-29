@@ -31,6 +31,14 @@ class User extends Resource {
     return User.create(ourUser.toObject());
   }
 
+  @endpoint("GET /")
+  static async findAll() {
+    const users = await UserDB.find();
+    Promise.all(users.map((user) => User.create(user.toObject()))).then((res) =>
+      console.log(res)
+    );
+  }
+
   @endpoint("POST /")
   @validator(
     User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
