@@ -49,7 +49,6 @@
         const request = {
           [key]:payload
         }
-        console.log(request)
         webSocket.send(JSON.stringify(request));
         return false;
       };
