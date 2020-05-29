@@ -84,7 +84,18 @@ class Manager {
    */
   async update(method: string, path: string, data: object = null) {
     this.cache[path] = await this.generator(method, path, data);
+<<<<<<< HEAD
   }
+=======
+
+    if (this.dependents[path] !== undefined || this.dependents[path].length) {
+      this.dependents[path].forEach((client) => {
+        client(path);
+      });
+    }
+  }
+
+>>>>>>> 7f414f8cc8a287b568bd37392cea4df30b6bc371
   async get(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
@@ -93,20 +104,36 @@ class Manager {
     return this.cache[path];
   }
 
-  post(path, data, client = null) {
-    return this.generator("post", path, data);
+  async post(path, data, client = null) {
+    if (client) {
+      this.subscribe(client, path);
+    }
+    await this.update("post", path, data);
+    return this.cache[path];
   }
 
-  put(path, data, client = null) {
-    return this.generator("put", path, data);
+  async put(path, data, client = null) {
+    if (client) {
+      this.subscribe(client, path);
+    }
+    await this.update("put", path, data);
+    return this.cache[path];
   }
 
-  patch(path, data, client = null) {
-    return this.generator("patch", path, data);
+  async patch(path, data, client = null) {
+    if (client) {
+      this.subscribe(client, path);
+    }
+    await this.update("patch", path, data);
+    return this.cache[path];
   }
 
   delete(path, data, client = null) {
-    return this.generator("delete", path, data);
+    if (client) {
+      this.unsubscribe(client, path);
+    }
+    return `${this.cache[path]} was deleted`;
+    // return this.cache[path];
   }
 }
 
