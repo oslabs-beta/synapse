@@ -57,6 +57,7 @@ function synapse(dir) {
               throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
             }
           } catch (err) {
+            console.log(err);
             result = Reply.INTERNAL_SERVER_ERROR();
           }
 
@@ -108,10 +109,11 @@ function synapse(dir) {
           return client("/", Reply.BAD_REQUEST());
         }
 
-        // attempt to execute each request by calling the appropriate method on the manager object
+        // attempt to execute each request
         Object.keys(data).forEach(async (endpoint: string) => {
           let [method, path] = endpoint.split(" ");
 
+          // there are two special methods to handle:
           method = method.toLowerCase();
           if (method === "unsubscribe") {
             manager.unsubscribe(client, path);
@@ -119,9 +121,10 @@ function synapse(dir) {
           }
           if (method === "subscribe") {
             manager.subscribe(client, path);
-            method = "get";
+            return client(endpoint, Reply.OK());
           }
 
+          // the rest are handled by the manager object
           const result = await manager[method](
             path,
             data[endpoint],
@@ -131,6 +134,12 @@ function synapse(dir) {
           // send the result to the client
           client(endpoint, result);
         });
+      });
+
+      // when a client disconnects, cancel all their subscriptions
+      ws.on("close", () => {
+        manager.unsubscribe(client);
+        console.log(manager.subscriptions);
       });
     },
   };
