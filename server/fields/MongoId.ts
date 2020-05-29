@@ -1,6 +1,6 @@
 export {};
 
-const Id = require("./Id");
+const { Id } = require("../synapse/fields");
 
 class MongoId extends Id {
   constructor(flags = null) {
