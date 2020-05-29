@@ -60,17 +60,9 @@
         const newKey = document.createElement('input');
         newKey.setAttribute('placeholder', 'key')
         newKey.classList.add("key");
-<<<<<<< HEAD
-
         const newValue = document.createElement('input');
         newValue.classList.add('value')
         newValue.setAttribute('placeholder', 'value')
-
-=======
-        const newValue = document.createElement('input');
-        newValue.classList.add('value')
-        newValue.setAttribute('placeholder', 'value')
->>>>>>> 7f414f8cc8a287b568bd37392cea4df30b6bc371
         newLi.append(newKey, newValue);
         document.querySelector("#list").append(newLi)
       }
@@ -87,10 +79,6 @@
         const data = JSON.parse(event.data)
         const { path } = data
         state[JSON.stringify(path)] = JSON.stringify(data)
-<<<<<<< HEAD
-        document.querySelector("#incoming").innerHTML = '';
-=======
->>>>>>> 7f414f8cc8a287b568bd37392cea4df30b6bc371
         Object.keys(state).forEach((key) => {
           let resource = document.createElement('div');
           resource.style = "height: 100px; max-width: 300px; border: solid 1px grey; word-wrap: break-word"

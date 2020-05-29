@@ -84,18 +84,14 @@ class Manager {
    */
   async update(method: string, path: string, data: object = null) {
     this.cache[path] = await this.generator(method, path, data);
-<<<<<<< HEAD
-  }
-=======
 
-    if (this.dependents[path] !== undefined || this.dependents[path].length) {
+    if (this.dependents[path] !== undefined && this.dependents[path].length) {
       this.dependents[path].forEach((client) => {
         client(path);
       });
     }
   }
 
->>>>>>> 7f414f8cc8a287b568bd37392cea4df30b6bc371
   async get(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
