@@ -44,9 +44,7 @@ class User extends Resource {
   }
 
   @endpoint("POST /")
-  @validator(
-    User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
-  )
+  @validator(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
   static async register({ username, email, password }) {
     const ourUser = await UserDB.create({ username, email, password });
     return User.create(ourUser.toObject());
