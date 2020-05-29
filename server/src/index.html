@@ -75,6 +75,7 @@
         console.log('WS connection is open.')
       };
       webSocket.onmessage = (event) => {
+        console.log(event.data)
         const data = JSON.parse(event.data)
         const { path } = data
         state[JSON.stringify(path)] = JSON.stringify(data)
