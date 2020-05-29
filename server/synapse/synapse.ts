@@ -39,10 +39,13 @@ const synapse = (dir) => {
 
   // get all files from 'dir' as array
   const files = fs.readdirSync(dir);
+  const classes = []; // each file will be required and stored in an array
   files.forEach((file) => {
-    const Class = require(`${dir}/${file}`); // require each file
+    const Class = require(`${dir}/${file}`);
     const isResource = Class.prototype instanceof Resource;
     const hasEndpoints = typeof Class.endpoints === "object";
+
+    classes.push(Class);
 
     // if file contains a Resource class, add each of its endpoints to the router
     if (isResource && hasEndpoints) {
@@ -81,6 +84,11 @@ const synapse = (dir) => {
   });
 
   const manager = new Manager(controller);
+
+  // attach the manager to each class
+  for (let i = 0; i < classes.length; ++i) {
+    classes[i].manager = manager;
+  }
 
   return {
     http: async (req, res, next) => {

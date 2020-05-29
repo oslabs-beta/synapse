@@ -24,9 +24,11 @@ function endpoint(path: string, ...middleware) {
   return (target, name, descriptor) => {
     if (!target.endpoints) {
       target.endpoints = {};
+      target.map = {};
     }
 
     // add a new function to the target class's 'endpoints' object.
+    target.map[name] = path;
     target.endpoints[path] = async (...args) => {
       // pass the input arguments to the first function in the chain
       let currentArguments = args;
@@ -95,9 +97,25 @@ function validator(schema: typeof Schema) {
 }
 
 /**
- * Denotes that calling the target class method invalidates cached responses from the specified endpoints.
- * @param endpoints
+ * Used as a decorator to wrap the target class method in a function which, when invoked,
+ * attempts to invalidate cached values for specified resource 'paths'.
+ * @param paths the paths of resources whose state depends on this resource
+ * @returns A decorator function
  */
-function affect(...endpoints: Array<string>) {}
+function affect(...paths: Array<string>) {
+  return (target, name, descriptor) => {
+    const method = descriptor.value; // store reference to original class method
+
+    descriptor.value = (...args) => {
+      method(...args); // call original class method
+
+      // if a Manager object is attached to the class, use it to update the affected resource paths
+      if (target.manager) {
+        console.log("update", paths, target.manager);
+        // paths.forEach((path) => target.manager.update(path));
+      }
+    };
+  };
+}
 
 module.exports = { endpoint, field, validator, affect };
