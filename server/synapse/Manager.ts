@@ -1,4 +1,5 @@
 export {};
+const Controller = require("./Controller");
 
 class Manager {
   /**
@@ -24,11 +25,11 @@ class Manager {
   /**
    * @param router An Express router which will handle uncached requests.
    */
-  constructor(generator: Function) {
+  constructor(controller: typeof Controller) {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
-    this.generator = generator;
+    this.generator = (...args) => controller.request(...args);
   }
 
   /**
@@ -84,8 +85,7 @@ class Manager {
   update(path: string) {}
 
   async get(path, data, client = null) {
-    this.cache[path] = await this.generator("get", path, data);
-    return this.cache[path];
+    await this.generator("get", path, data);
   }
 
   post(path, data, client = null) {

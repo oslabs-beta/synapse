@@ -81,8 +81,10 @@
         const data = JSON.parse(event.data)
         const { path } = data
         state[JSON.stringify(path)] = JSON.stringify(data)
+        document.querySelector("#incoming").innerHTML = '';
         Object.keys(state).forEach((key) => {
           let resource = document.createElement('div');
+          resource.style = "height: 100px; max-width: 300px; border: solid 1px grey; word-wrap: break-word"
           resource.classList.add('resource')
           resource.textContent = `${key} : ${state[key]}`
           document.querySelector("#incoming").prepend(resource);
