@@ -16,11 +16,6 @@ class User extends Resource {
   @field(new Email(OPT)) email;
   @field(new Text()) password;
 
-  @endpoint("GET /")
-  static async all() {
-    return Reply.OK("updated");
-  }
-
   @endpoint("GET /:_id")
   @validator(User.schema.select("_id"))
   static async find({ _id }) {
@@ -29,6 +24,17 @@ class User extends Resource {
       return Reply.NOT_FOUND();
     }
     return User.create(ourUser.toObject());
+  }
+
+  @endpoint("GET /")
+  static async getAll() {
+    const users = await UserDB.find();
+    const result = await Promise.all(
+      users.map((user) => User.create(user.toObject()))
+    ).then((res) => {
+      return res;
+    });
+    return result;
   }
 
   @endpoint("POST /")

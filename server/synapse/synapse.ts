@@ -48,16 +48,20 @@ function synapse(dir) {
             result = await Class.endpoints[key](args); // invoke the endpoint method
 
             // if the result is a Resource or array of Resources, convert it to a reply
-            if (result instanceof Resource || isCollectionOf(Resource, result)) {
+            if (
+              result instanceof Resource ||
+              isCollectionOf(Resource, result)
+            ) {
               result = new Reply(method === "post" ? 201 : 200, result);
             }
 
             // the result should now be an instance of Reply
             if (!(result instanceof Reply)) {
-              throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
+              throw new Error(
+                `Unexpected result from endpoint '${method} ${path}'.`
+              );
             }
           } catch (err) {
-            console.log(err);
             result = Reply.INTERNAL_SERVER_ERROR();
           }
 
@@ -109,11 +113,10 @@ function synapse(dir) {
           return client("/", Reply.BAD_REQUEST());
         }
 
-        // attempt to execute each request
+        // attempt to execute each request by calling the appropriate method on the manager object
         Object.keys(data).forEach(async (endpoint: string) => {
           let [method, path] = endpoint.split(" ");
 
-          // there are two special methods to handle:
           method = method.toLowerCase();
           if (method === "unsubscribe") {
             manager.unsubscribe(client, path);
@@ -121,10 +124,9 @@ function synapse(dir) {
           }
           if (method === "subscribe") {
             manager.subscribe(client, path);
-            return client(endpoint, Reply.OK());
+            method = "get";
           }
 
-          // the rest are handled by the manager object
           const result = await manager[method](
             path,
             data[endpoint],
@@ -134,12 +136,6 @@ function synapse(dir) {
           // send the result to the client
           client(endpoint, result);
         });
-      });
-
-      // when a client disconnects, cancel all their subscriptions
-      ws.on("close", () => {
-        manager.unsubscribe(client);
-        console.log(manager.subscriptions);
       });
     },
   };
