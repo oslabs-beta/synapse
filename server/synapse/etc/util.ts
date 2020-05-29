@@ -15,9 +15,7 @@ module.exports = {
     for (let i = 0; i < col.length; ++i) {
       if (!(col[i] instanceof Type)) {
         if (assert) {
-          throw new Error(
-            `Expected collection containing only values of type ${Type.name}.`
-          );
+          throw new Error(`Expected collection containing only values of type ${Type.name}.`);
         }
         return false;
       }

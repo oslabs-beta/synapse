@@ -1,5 +1,7 @@
 export {};
 
+const Reply = require("./Reply");
+
 const Controller = require("./Controller");
 
 class Manager {
@@ -83,21 +85,31 @@ class Manager {
    * @param path A resource path
    * @returns The new value of the resource.
    */
-  async update(method: string, path: string, data: object = null) {
-    this.cache[path] = await this.generator(method, path, data);
 
+  async update(path: string) {
+    this.cache[path] = await this.generator("get", path);
     if (this.dependents[path] !== undefined && this.dependents[path].length) {
       this.dependents[path].forEach((client) => {
         client({ path: this.cache[path] });
       });
     }
+    if (this.cache[path] instanceof Reply && this.cache[path].status === 404) {
+      this.dependents[path].forEach((client) => {
+        this.unsubscribe(client, path);
+      });
+      this.cache.delete(path);
+    }
+    return this.cache[path];
   }
 
   async get(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("get", path);
+    if (this.cache[path]) {
+      return this.cache[path];
+    }
+    this.cache[path] = await this.generator("get", path);
     return this.cache[path];
   }
 
@@ -105,32 +117,38 @@ class Manager {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("post", path, data);
-    return this.cache[path];
+    const result = await this.generator("post", path, data);
+    this.update(path);
+    return result;
   }
+
+  // put - user sends entire new object to use instead ex{ name: denis, email: newemail}
+  // instead of {name dennis; email old email}
 
   async put(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("put", path, data);
-    return this.cache[path];
+    const result = await this.generator("put", path, data);
+    this.update(path);
+    return result;
   }
 
+  // patch - only changes the given key
+  // ex {email: new email}
+  // wont erase other properties.args
   async patch(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("patch", path, data);
-    return this.cache[path];
+    const result = await this.generator("patch", path, data);
+    this.update(path);
+    return result;
   }
 
-  delete(path, data, client = null) {
-    if (client) {
-      this.unsubscribe(client, path);
-    }
-    return `${this.cache[path]} was deleted`;
-    // return this.cache[path];
+  async delete(path) {
+    await this.generator("delete", path, null);
+    this.update(path);
   }
 }
 
