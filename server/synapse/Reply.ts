@@ -21,11 +21,7 @@ class Reply {
     return ["4", "5"].includes(this.status.toString()[0]);
   }
 
-  /**
-   * Serializes its inputs by turning them into a string.
-   * @returns The input if it is a string, an empty string if the input is null or undefined, or a stringified version of the input.
-   */
-  serialize() {
+  toString() {
     if (this.payload === null || this.payload === undefined) {
       return "";
     }
