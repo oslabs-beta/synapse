@@ -6,6 +6,7 @@ export {};
 const Field = require("./Field");
 const Schema = require("./Schema");
 const Reply = require("./Reply");
+const { isCollectionOf } = require("./etc/util");
 
 /**
  * An instance of Resource will have an "endpoints" property(object) that contains endpoint methods.
@@ -18,6 +19,13 @@ const Reply = require("./Reply");
  * @returns A decorator function which adds a new endpoint method to the class's static 'endpoints' object.
  */
 function endpoint(path: string, ...middleware) {
+  if (typeof path !== "string") {
+    throw new Error("Expected argument 1 to be a string");
+  }
+  if (!isCollectionOf(Function, middleware)) {
+    throw new Error("Middleware must be functions");
+  }
+
   // return a decorator function
   return (target, name, descriptor) => {
     if (!target.endpoints) {
@@ -58,6 +66,10 @@ function endpoint(path: string, ...middleware) {
  * target class's schema, using the name of the targeted property.
  */
 function field(fieldInst: typeof Field) {
+  if (!(fieldInst instanceof Field)) {
+    throw new Error("Expected intsance of Field");
+  }
+
   return (target, name) => {
     const Class = target.constructor;
     if (!Class.schema) {
@@ -77,6 +89,10 @@ function field(fieldInst: typeof Field) {
  * in a validator function. If validation fails - return an instance of Reply class(read more: ***somelink***).
  */
 function validator(schema: typeof Schema) {
+  if (!(schema instanceof Schema)) {
+    schema = new Schema(schema);
+  }
+
   return (target, name, descriptor) => {
     const method = descriptor.value; // store reference to original class method
 
@@ -105,13 +121,16 @@ function affect(...paths: Array<string>) {
     const method = descriptor.value; // store reference to original class method
 
     descriptor.value = (...args) => {
-      method(...args); // call original class method
+      const result = method(...args); // call original class method
 
       // if a Manager object is attached to the class, use it to update the affected resource paths
       if (target.manager) {
-        console.log("update", paths, target.manager);
-        // paths.forEach((path) => target.manager.update(path));
+        paths.forEach((path) =>
+          target.manager.update(`/${target.name.toLowerCase()}${path}`)
+        );
       }
+
+      return result;
     };
   };
 }
