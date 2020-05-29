@@ -28,27 +28,7 @@ class User extends Resource {
     if (!ourUser) {
       return Reply.NOT_FOUND();
     }
-    const newUser = await User.create(ourUser.toObject());
-    console.log(newUser);
     return User.create(ourUser.toObject());
-  }
-  @endpoint("GET /")
-  static async getAll() {
-    const users = await UserDB.find();
-    const result = await Promise.all(users.map((user) => User.create(user.toObject()))).then(
-      (res) => {
-        return res;
-      }
-    );
-    return result;
-  }
-
-  @endpoint("GET /")
-  static async findAll() {
-    const users = await UserDB.find();
-    Promise.all(users.map((user) => User.create(user.toObject()))).then((res) =>
-      console.log(res)
-    );
   }
 
   @endpoint("POST /")
