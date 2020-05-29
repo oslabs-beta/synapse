@@ -26,7 +26,7 @@ class Manager {
   generator: Function;
 
   /**
-   * @param generator Function which will fulfill uncached requests.
+   * @param router An Express router which will handle uncached requests.
    */
   constructor(controller: typeof Controller) {
     this.cache = new Map();
