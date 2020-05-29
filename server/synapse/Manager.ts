@@ -1,4 +1,10 @@
 export {};
+<<<<<<< HEAD
+=======
+
+const Reply = require("./Reply");
+
+>>>>>>> fa6f864dd63446c7520230c74235ed9c56a7ae30
 const Controller = require("./Controller");
 
 class Manager {
@@ -82,54 +88,83 @@ class Manager {
    * @param path A resource path
    * @returns The new value of the resource.
    */
-  async update(method: string, path: string, data: object = null) {
-    this.cache[path] = await this.generator(method, path, data);
 
+  async update(path: string) {
+    // console.log("PATH FROM FUCKING UPDATE", path);
+    // console.log("RESULT FROM UPDATE METHOD1", this.cache[path]);
+    this.cache[path] = await this.generator("get", path);
+    // console.log("RESULT FROM UPDATE METHOD2", this.cache[path]);
     if (this.dependents[path] !== undefined && this.dependents[path].length) {
       this.dependents[path].forEach((client) => {
-        client(path);
+        client({ path: this.cache[path] });
       });
     }
+    if (this.cache[path] instanceof Reply && this.cache[path].status === 404) {
+      this.dependents[path].forEach((client) => {
+        this.unsubscribe(client, path);
+      });
+      this.cache.delete(path);
+    }
+    return this.cache[path];
   }
 
   async get(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("get", path);
+    if (this.cache[path]) {
+      return this.cache[path];
+    }
+    this.cache[path] = await this.generator("get", path);
     return this.cache[path];
   }
 
   async post(path, data, client = null) {
+    // console.log(path);
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("post", path, data);
-    return this.cache[path];
+    const result = await this.generator("post", path, data);
+    // console.log(this.cache[path]);
+    this.update(path);
+    return result;
+    // this.update(`${path}/${result[0].payload.User._id}`);
   }
+
+  // put - user sends entire new object to use instead ex{ name: denis, email: newemail}
+  // instead of {name dennis; email old email}
 
   async put(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("put", path, data);
-    return this.cache[path];
+    const result = await this.generator("put", path, data);
+    this.update(path);
+    return result;
   }
 
+  // patch - only changes the given key
+  // ex {email: new email}
+  // wont erase other properties.args
   async patch(path, data, client = null) {
     if (client) {
       this.subscribe(client, path);
     }
-    await this.update("patch", path, data);
-    return this.cache[path];
+    const result = await this.generator("patch", path, data);
+    this.update(path);
+    return result;
   }
 
-  delete(path, data, client = null) {
-    if (client) {
-      this.unsubscribe(client, path);
-    }
-    return `${this.cache[path]} was deleted`;
-    // return this.cache[path];
+  async delete(path) {
+    await this.generator("delete", path, null);
+    // console.log("this is the cache", this.cache[path]);
+    // console.log("this is the path", path);
+    // console.log("does the cache have this key?", this.cache.has(path));
+    this.update(path);
+    // console.log("FALSE IF KEY ISNT THERE", this.cache.delete(path));
+    // console.log("this is the path", path);
+    // console.log('should be false if this works', this.cache.has(path));
+    // this.update(path);
   }
 }
 
