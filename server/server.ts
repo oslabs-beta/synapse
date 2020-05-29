@@ -21,10 +21,10 @@ app.get("/", (req, res) => {
 
 app.use((err, req, res, next) => {
   console.log(err);
-  res
-    .status(err.status || 500)
-    .json(err.serialize ? err.serialize() : "Internal Server Error");
+  res.status(err.status || 500).json(err.serialize ? err.serialize() : "Internal Server Error");
 });
-app.listen(PORT, () => console.log(`listening on port ${PORT}`));
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => console.log(`listening on port ${PORT}`));
+}
 
 module.exports = app;
