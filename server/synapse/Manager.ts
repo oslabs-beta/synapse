@@ -82,10 +82,15 @@ class Manager {
    * @param path A resource path
    * @returns The new value of the resource.
    */
-  update(path: string) {}
-
+  async update(method: string, path: string, data: object = null) {
+    this.cache[path] = await this.generator(method, path, data);
+  }
   async get(path, data, client = null) {
-    await this.generator("get", path, data);
+    if (client) {
+      this.subscribe(client, path);
+    }
+    await this.update("get", path);
+    return this.cache[path];
   }
 
   post(path, data, client = null) {
