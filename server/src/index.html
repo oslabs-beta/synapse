@@ -164,6 +164,10 @@
         terminalPost.classList.add('terminalPost')
         terminalPost.textContent = `${event.data}`
         document.querySelector("#terminal").append(terminalPost);
+        const length = document.querySelectorAll(".terminalPost").length
+        if (length >= 10) {
+          document.querySelector("#terminal").firstChild.remove();
+        }
       };
     });
     // create a terminal to dislay 10 last commands
