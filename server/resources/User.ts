@@ -14,7 +14,12 @@ class User extends Resource {
   @field(new MongoId()) _id;
   @field(new Word(3, 16)) username;
   @field(new Email(OPT)) email;
-  @field(new Hash(6)) password;
+  @field(new Text()) password;
+
+  @endpoint("GET /")
+  static async all() {
+    return Reply.OK("updated");
+  }
 
   @endpoint("GET /:_id")
   @validator(User.schema.select("_id"))
@@ -27,7 +32,9 @@ class User extends Resource {
   }
 
   @endpoint("POST /")
-  @validator(User.schema.exclude("_id"))
+  @validator(
+    User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
+  )
   static async register({ username, email, password }) {
     const ourUser = await UserDB.create({ username, email, password });
     return User.create(ourUser.toObject());
