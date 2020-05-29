@@ -50,8 +50,11 @@ class Manager {
     if (!this.dependents.has(path)) {
       this.dependents.set(path, new Set());
     }
+
     const dependents = this.dependents.get(path);
     dependents.add(client);
+    console.log(dependents);
+
     const subscriptions = this.subscriptions.get(client);
     subscriptions.add(path);
   }
@@ -71,6 +74,8 @@ class Manager {
       const dependents = this.dependents.get(target);
       dependents.delete(client);
     });
+
+    console.log(this.subscriptions);
   }
 
   /**
@@ -85,28 +90,30 @@ class Manager {
 
     if (!result.isError()) {
       // if it's not an error, update the cache and send the new state to all subscribers
-      if (this.dependents[path] && this.dependents[path].length) {
-        this.cache[path] = result.payload;
-        this.dependents[path].forEach((client) => {
-          client(path, this.cache[path]);
+      this.cache.set(path, result.payload);
+      if (this.dependents.has(path)) {
+        this.dependents.get(path).forEach((client) => {
+          client(path, this.cache.get(path));
         });
       }
     } else if (result.status === 404) {
       // otherwise, if the resource was not found, remove the resource from the cache,
       // unsubscribe all subscribers and alert them with the new state (undefined).
       this.cache.delete(path);
-      this.dependents[path].forEach((client) => {
-        this.unsubscribe(client, path);
-        client(path, undefined);
-      });
+      if (this.dependents.has(path)) {
+        this.dependents.get(path).forEach((client) => {
+          this.unsubscribe(client, path);
+          client(path, undefined);
+        });
+      }
     }
 
     return result;
   }
 
   async get(path, data) {
-    if (this.cache[path]) {
-      return Reply.OK(this.cache[path]);
+    if (this.cache.has(path)) {
+      return Reply.OK(this.cache.get(path));
     }
     return this.update(path);
   }
