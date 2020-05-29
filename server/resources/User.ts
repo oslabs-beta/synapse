@@ -2,17 +2,13 @@
 
 export {};
 
-const UserDB = require("../database")("User");
-const Resource = require("../synapse/Resource");
+const { Resource, Reply, Field } = require("../synapse/synapse");
+const { Email, Hash, Word, Text } = require("../synapse/fields");
 const MongoId = require("../fields/MongoId");
-const Reply = require("../synapse/Reply");
-const { OPT } = require("../synapse/Field");
-const Id = require("../fields/Id");
-const Email = require("../fields/Email");
-const Hash = require("../fields/Hash");
-const Word = require("../fields/Word");
-const Text = require("../fields/Text");
-const { field, endpoint, validator } = require("../synapse/decorators");
+const UserDB = require("../database")("User");
+
+const { field, endpoint, validator } = Resource.Decorators;
+const { OPT } = Field.Flags;
 
 class User extends Resource {
   @field(new MongoId()) _id;
