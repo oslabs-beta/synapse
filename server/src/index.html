@@ -81,7 +81,7 @@
         state[JSON.stringify(path)] = JSON.stringify(data)
         Object.keys(state).forEach((key) => {
           let resource = document.createElement('div');
-          resource.style = "height: 100px; max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+          resource.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
           resource.classList.add('resource')
           resource.textContent = `${key} : ${state[key]}`
           document.querySelector("#incoming").prepend(resource);

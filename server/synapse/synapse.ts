@@ -68,27 +68,6 @@ function synapse(dir) {
   }
 
   return {
-<<<<<<< HEAD
-    http: async (req, res, next) => {
-      console.log("DAASDADADS", req.path);
-      const data = {
-        ...req.query,
-        ...req.body,
-        ...req.params,
-      };
-      manager[req.method.toLowerCase()](req.path, data)
-        .then((result) => res.status(result.status).json(result.payload))
-        .catch((err) => next(err));
-    },
-    ws: (ws, req) => {
-      ws.on("message", (msg) => {
-        const data = JSON.parse(msg);
-        Object.keys(data).forEach(async (endpoint) => {
-          const [method, path] = endpoint.split(" ");
-          manager[method.toLowerCase()](path, data[endpoint])
-            .then((result) => ws.send(JSON.stringify(result.payload)))
-            .catch((err) => ws.send(err.serialize()));
-=======
     // express middleware function to handle HTTP requests
     http: async (req: any, res: any, next: Function) => {
       try {
@@ -97,7 +76,6 @@ function synapse(dir) {
           ...req.query,
           ...req.body,
           ...req.params,
->>>>>>> b6779ab7850208a9a216010a505e422a4e1d3e7a
         });
 
         // if no errors occurred, send the result to the client
