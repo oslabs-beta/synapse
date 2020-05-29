@@ -11,7 +11,9 @@ class Controller {
   }
 
   declare(method: string, path: string, callback: Function) {
-    this.router[method.toLowerCase()](path, (req, res) => res.send(callback, req.params));
+    this.router[method.toLowerCase()](path, (req, res) =>
+      res.send(callback, req.params)
+    );
   }
 
   async request(method: string, path: string, args: object = null) {
