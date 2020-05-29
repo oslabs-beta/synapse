@@ -48,18 +48,13 @@ function synapse(dir) {
             result = await Class.endpoints[key](args); // invoke the endpoint method
 
             // if the result is a Resource or array of Resources, convert it to a reply
-            if (
-              result instanceof Resource ||
-              isCollectionOf(Resource, result)
-            ) {
+            if (result instanceof Resource || isCollectionOf(Resource, result)) {
               result = new Reply(method === "post" ? 201 : 200, result);
             }
 
             // the result should now be an instance of Reply
             if (!(result instanceof Reply)) {
-              throw new Error(
-                `Unexpected result from endpoint '${method} ${path}'.`
-              );
+              throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
             }
           } catch (err) {
             result = Reply.INTERNAL_SERVER_ERROR();
