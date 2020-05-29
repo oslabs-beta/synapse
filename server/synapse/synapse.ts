@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable consistent-return */
 /* eslint-disable no-ex-assign */
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
@@ -11,7 +13,7 @@ const Manager = require("./Manager");
 const Controller = require("./Controller");
 const Schema = require("./Schema");
 const Field = require("./Field");
-const { isCollectionOf } = require("./etc/util");
+const { isCollectionOf, tryParseJSON } = require("./etc/util");
 
 /**
  * Initializes API request handlers from Resource definitions in the given directory 'dir'.
@@ -33,23 +35,34 @@ function synapse(dir) {
 
     // if file contains a Resource class, add each of its endpoints to the router
     if (isResource && hasEndpoints) {
-      Object.keys(Class.endpoints).forEach((key) => {
+      Object.keys(Class.endpoints).forEach((key: string) => {
         let [method, path] = key.split(" "); // ex. 'GET /:id => [ 'GET, '/:id' ]
         method = method.toLowerCase(); // ex. 'GET' => 'get'
         path = `/${Class.name.toLowerCase()}${path}`; // ex. '/:id' => '/user/:id'
 
         // add route to router: ex. router.get('/user/:id', ...
-        controller.declare(method, path, async (args) => {
-          let result = await Class.endpoints[key](args); // invoke the endpoint method
+        controller.declare(method, path, async (args: object) => {
+          let result;
 
-          // if the result is a Resource or array of Resources, convert it to a reply
-          if (result instanceof Resource || isCollectionOf(Resource, result)) {
-            result = new Reply(method === "post" ? 201 : 200, result);
-          }
+          try {
+            result = await Class.endpoints[key](args); // invoke the endpoint method
 
-          // the result should now be an instance of Reply
-          if (!(result instanceof Reply)) {
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
+            // if the result is a Resource or array of Resources, convert it to a reply
+            if (
+              result instanceof Resource ||
+              isCollectionOf(Resource, result)
+            ) {
+              result = new Reply(method === "post" ? 201 : 200, result);
+            }
+
+            // the result should now be an instance of Reply
+            if (!(result instanceof Reply)) {
+              throw new Error(
+                `Unexpected result from endpoint '${method} ${path}'.`
+              );
+            }
+          } catch (err) {
+            result = Reply.INTERNAL_SERVER_ERROR();
           }
 
           return result;
@@ -68,24 +81,17 @@ function synapse(dir) {
   return {
     // express middleware function to handle HTTP requests
     http: async (req: any, res: any, next: Function) => {
-      try {
-        // attempt to execute the request by calling the appropriate method on the manager object
-        const result = await manager[req.method.toLowerCase()](req.path, {
-          ...req.query,
-          ...req.body,
-          ...req.params,
-        });
+      const method = req.method.toLowerCase();
 
-        // if no errors occurred, send the result to the client
-        return res.status(result.status).json(result.payload);
-      } catch (err) {
-        // otherwise, if the error is not a Reply object, convert it to one
-        if (!(err instanceof Reply)) {
-          console.log((err = Reply.INTERNAL_SERVER_ERROR()));
-        }
-        // then send the error back to express
-        return next(err);
-      }
+      // attempt to execute the request by calling the appropriate method on the manager object
+      const result = await manager[method](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
+      });
+
+      // send the result to the client
+      res.status(result.status).json(result.payload);
     },
 
     // express-ws middleware function to handle new WebSocket connections
@@ -96,35 +102,40 @@ function synapse(dir) {
       };
 
       // whenever a message is received from the client
-      ws.on("message", async (msg) => {
-        try {
-          // attempt to parse the message as json
-          const data = JSON.parse(msg);
+      ws.on("message", async (msg: string) => {
+        // attempt to parse the message as json
+        const data = tryParseJSON(msg);
 
-          // the result should be an object whose keys represent endpoints
-          // in the form of METHOD /path and whose values are objects containing
-          // the arguments to be passed to the associated endpoint method.
-          Object.keys(data).forEach(async (endpoint) => {
-            const [method, path] = endpoint.split(" ");
-
-            // attempt to execute each request by calling the appropriate method on the manager object
-            const result = await manager[method.toLowerCase()](
-              path,
-              data[endpoint],
-              client // pass the client updater function to subscribe the client to the requested resource
-            );
-
-            // if no errors occurred, send the result to the client
-            client(endpoint, result);
-          });
-        } catch (err) {
-          // otherwise, if the error is not a Reply object, convert it to one
-          if (!(err instanceof Reply)) {
-            console.log((err = Reply.INTERNAL_SERVER_ERROR()));
-          }
-          // then send the error to the client
-          client(err.status, err.payload);
+        // the result should be an object whose keys represent endpoints
+        // in the form of 'METHOD /path' and whose values are objects containing
+        // the arguments to be passed to the associated endpoint.
+        if (typeof data !== "object") {
+          return client("/", Reply.BAD_REQUEST());
         }
+
+        // attempt to execute each request by calling the appropriate method on the manager object
+        Object.keys(data).forEach(async (endpoint: string) => {
+          let [method, path] = endpoint.split(" ");
+
+          method = method.toLowerCase();
+          if (method === "unsubscribe") {
+            manager.unsubscribe(client, path);
+            return client(endpoint, Reply.OK());
+          }
+          if (method === "subscribe") {
+            manager.subscribe(client, path);
+            method = "get";
+          }
+
+          const result = await manager[method](
+            path,
+            data[endpoint],
+            client // pass the client updater function to subscribe the client to the requested resource
+          );
+
+          // send the result to the client
+          client(endpoint, result);
+        });
       });
     },
   };

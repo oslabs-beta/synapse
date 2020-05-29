@@ -13,12 +13,12 @@ class Manager {
   /**
    * Maps resources by path to subscribers (clients). Clients are represented by callback functions.
    */
-  dependents: Map<string, Array<Function>>;
+  dependents: Map<string, Set<Function>>;
 
   /**
    * Maps clients (represented by callback functions) to subscriptions (resource paths).
    */
-  subscriptions: Map<Function, Array<string>>;
+  subscriptions: Map<Function, Set<string>>;
 
   /**
    * The function which will be invoked to to execute requests when a cached resource is invalidated or unavailable.
@@ -32,7 +32,7 @@ class Manager {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
-    this.generator = (...args) => controller.request(...args);
+    this.generator = (...args): typeof Reply => controller.request(...args);
   }
 
   /**
@@ -45,15 +45,15 @@ class Manager {
    */
   subscribe(client: Function, path: string) {
     if (!this.subscriptions.has(client)) {
-      this.subscriptions.set(client, []);
+      this.subscriptions.set(client, new Set());
     }
     if (!this.dependents.has(path)) {
-      this.dependents.set(path, []);
+      this.dependents.set(path, new Set());
     }
     const dependents = this.dependents.get(path);
-    dependents.push(client);
+    dependents.add(client);
     const subscriptions = this.subscriptions.get(client);
-    subscriptions.push(path);
+    subscriptions.add(path);
   }
 
   /**
@@ -66,16 +66,10 @@ class Manager {
     const subscriptions = this.subscriptions.get(client);
     const remove = path ? [path] : subscriptions;
     remove.forEach((target) => {
-      const i = subscriptions.indexOf(target);
-      if (i !== -1) {
-        subscriptions.splice(i, 1);
-      }
+      subscriptions.delete(target);
 
       const dependents = this.dependents.get(target);
-      const j = dependents.indexOf(client);
-      if (j !== -1) {
-        dependents.splice(j, 1);
-      }
+      dependents.delete(client);
     });
   }
 
@@ -85,83 +79,68 @@ class Manager {
    * @param path A resource path
    * @returns The new value of the resource.
    */
-
   async update(path: string) {
-    // console.log("PATH FROM FUCKING UPDATE", path);
-    // console.log("RESULT FROM UPDATE METHOD1", this.cache[path]);
-    this.cache[path] = await this.generator("get", path);
-    // console.log("RESULT FROM UPDATE METHOD2", this.cache[path]);
-    if (this.dependents[path] !== undefined && this.dependents[path].length) {
-      this.dependents[path].forEach((client) => {
-        client({ path: this.cache[path] });
-      });
-    }
-    if (this.cache[path] instanceof Reply && this.cache[path].status === 404) {
+    // the generator always returns an instance of Reply
+    const result = await this.generator("get", path);
+
+    if (!result.isError()) {
+      // if it's not an error, update the cache and send the new state to all subscribers
+      if (this.dependents[path] && this.dependents[path].length) {
+        this.cache[path] = result.payload;
+        this.dependents[path].forEach((client) => {
+          client(path, this.cache[path]);
+        });
+      }
+    } else if (result.status === 404) {
+      // otherwise, if the resource was not found, remove the resource from the cache,
+      // unsubscribe all subscribers and alert them with the new state (undefined).
+      this.cache.delete(path);
       this.dependents[path].forEach((client) => {
         this.unsubscribe(client, path);
+        client(path, undefined);
       });
-      this.cache.delete(path);
     }
-    return this.cache[path];
+
+    return result;
   }
 
-  async get(path, data, client = null) {
-    if (client) {
-      this.subscribe(client, path);
-    }
+  async get(path, data) {
     if (this.cache[path]) {
-      return this.cache[path];
+      return Reply.OK(this.cache[path]);
     }
-    this.cache[path] = await this.generator("get", path);
-    return this.cache[path];
+    return this.update(path);
   }
 
-  async post(path, data, client = null) {
-    // console.log(path);
-    if (client) {
-      this.subscribe(client, path);
-    }
+  async post(path, data) {
     const result = await this.generator("post", path, data);
-    // console.log(this.cache[path]);
-    this.update(path);
+    if (!result.isError()) {
+      this.update(path);
+    }
     return result;
-    // this.update(`${path}/${result[0].payload.User._id}`);
   }
 
-  // put - user sends entire new object to use instead ex{ name: denis, email: newemail}
-  // instead of {name dennis; email old email}
-
-  async put(path, data, client = null) {
-    if (client) {
-      this.subscribe(client, path);
-    }
+  async put(path, data) {
     const result = await this.generator("put", path, data);
-    this.update(path);
+    if (!result.isError()) {
+      this.update(path);
+    }
     return result;
   }
 
-  // patch - only changes the given key
-  // ex {email: new email}
-  // wont erase other properties.args
-  async patch(path, data, client = null) {
-    if (client) {
-      this.subscribe(client, path);
-    }
+  async patch(path, data) {
     const result = await this.generator("patch", path, data);
-    this.update(path);
+    if (!result.isError()) {
+      this.update(path);
+    }
     return result;
   }
 
   async delete(path) {
-    await this.generator("delete", path, null);
-    // console.log("this is the cache", this.cache[path]);
-    // console.log("this is the path", path);
-    // console.log("does the cache have this key?", this.cache.has(path));
-    this.update(path);
-    // console.log("FALSE IF KEY ISNT THERE", this.cache.delete(path));
-    // console.log("this is the path", path);
-    // console.log('should be false if this works', this.cache.has(path));
-    // this.update(path);
+    const result = await this.generator("delete", path, null);
+    if (!result.isError()) {
+      this.update(path);
+    }
+    return result;
   }
 }
 
