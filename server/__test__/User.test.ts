@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
+import WS from "jest-websocket-mock";
+
 const request = require("supertest");
 const mongoose = require("mongoose");
 const UserDB = require("../database")("User");
@@ -7,6 +9,12 @@ const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
 const DBUrl = MONGO_URI;
+
+// beforeEach(async () => {
+//   const testSocket = new WS("ws://localhost:3000/api");
+//   await testSocket.connected;
+//   testSocket.send("connected");
+// });
 
 beforeAll(async () => {
   const url = DBUrl;
@@ -16,11 +24,15 @@ beforeAll(async () => {
   });
 });
 
+afterEach(() => {
+  WS.clean();
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });
 
-describe("Basic operations", () => {
+xdescribe("Basic operations", () => {
   let id;
   it("Should post user to database", async () => {
     const result = await request(app).post("/api/user").send({
@@ -52,5 +64,46 @@ describe("Basic operations", () => {
     const result = await request(app).get("/api/user/qwertyqwertyqwertyqwerty");
     expect(result.status).toEqual(400);
     expect(result.res.statusMessage).toBeTruthy();
+  });
+});
+xdescribe("websocket functionality", () => {
+  it("websocket get request", async () => {
+    const testId = "5ed185ade54a6632f9bce65b";
+    const result = await request(WS).get(`/api/user/${testId}`);
+    console.log("result from ws request", result.body);
+    expect(result.status).toEqual(200);
+    expect(result.body.username).toEqual("denis");
+  });
+});
+describe("websocket testing", () => {
+  it("Sending from mock server should be picked up by connected client", async () => {
+    const server = new WS("ws://localhost:3000/api");
+    const client = new WebSocket("ws://localhost:3000/api");
+
+    await server.connected;
+    client.send("hello");
+    await expect(server).toReceiveMessage("hello");
+
+    expect(server).toHaveReceivedMessages(["hello"]);
+  });
+  it("Mock server should sends errors to connected clients", async () => {
+    const server = new WS("ws://localhost:3000/api");
+    const client = new WebSocket("ws://localhost:3000/api");
+    await server.connected;
+
+    let disconnected = false;
+    let error = null;
+    client.onclose = () => {
+      disconnected = true;
+    };
+    client.onerror = (e) => {
+      error = e;
+    };
+
+    server.send("hello everyone");
+    server.error();
+    expect(disconnected).toBe(true);
+    expect(error.origin).toBe("ws://localhost:3000/api");
+    expect(error.type).toBe("error");
   });
 });

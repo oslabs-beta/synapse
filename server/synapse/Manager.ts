@@ -44,6 +44,8 @@ class Manager {
    * @param path A resource path
    */
   subscribe(client: Function, path: string) {
+    console.log("this is the client", client);
+    console.log("this is the path", path);
     if (!this.subscriptions.has(client)) {
       this.subscriptions.set(client, new Set());
     }
