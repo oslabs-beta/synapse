@@ -45,7 +45,7 @@ class Manager {
    */
   async subscribe(client: Function, path: string) {
     // first attempt to get the value of the resource
-    const result = this.generator(path);
+    const result = await this.get(path);
 
     // if the resource's value can't be obtained, it can't be subscribed to
     if (result.isError()) {
@@ -137,7 +137,7 @@ class Manager {
     return undefined;
   }
 
-  async get(path, data) {
+  async get(path, data = {}) {
     if (this.cache[path]) {
       return Reply.OK(this.cache[path]);
     }
@@ -151,7 +151,7 @@ class Manager {
     return result;
   }
 
-  async post(path, data) {
+  async post(path, data = {}) {
     const result = await this.generator("post", path, data);
     if (!result.isError()) {
       this.update(path);
