@@ -41,7 +41,7 @@
     const webSocket = new WebSocket("ws://localhost:3000/api");
     document.addEventListener("DOMContentLoaded", function () {
       const state = {
-        '/user/5ed27fe4f656c04e19c29862': true,
+        // '/user': true
       };
       const form = document.querySelector("#form");
       form.onsubmit = function (e) {
@@ -145,30 +145,38 @@
             state[path] = data[key].payload
             document.querySelector("#incoming").innerHTML = '';
 
-            Object.keys(state).forEach((key) => {
+            Object.keys(state).forEach((path) => {
+              //create header
               let resourceHeader = document.createElement('div');
-              resourceHeader.textContent = `PATH: ${key}`;
+              resourceHeader.textContent = `PATH: ${path}`;
               resourceHeader.style = "max-width: 300px; border: solid 1px red;"
-              let resource = document.createElement('div');
-              resource.style = " display: block;word-wrap:break-word; max-width: 300px; border: solid 1px grey; overflow-wrap: break-word; white-space: normal;"
-              resource.classList.add('resource');
-              Object.keys(state[key]).forEach((subkey) => {
-                if(typeof state[path][subkey] === 'object'){
-
-                }
-                const property = document.createElement('div')
+              document.querySelector("#incoming").append(resourceHeader);
+              //create resource
+              function parseResource(stateResource) {
+                let resource = document.createElement('div');
+                resource.style = " display: block;word-wrap:break-word; max-width: 300px; border: solid 1px grey; overflow-wrap: break-word; white-space: normal;"
+                resource.classList.add('resource');
+                Object.keys(stateResource).forEach((prop) => {
+                  const property = document.createElement('div')
                 property.style = 'display: flex; flex-direction: column'
-
                 const keySpan = document.createElement('span')
                 const valueSpan = document.createElement('span')
-
-                keySpan.textContent = `${subkey}:`
+                keySpan.textContent = `${prop}:`
                 keySpan.style = "font-weight: bold"
-                valueSpan.textContent = JSON.stringify(state[key][subkey])
+                valueSpan.textContent = JSON.stringify(stateResource[prop])
                 property.append(keySpan,valueSpan)
                 resource.append(property)
-                document.querySelector("#incoming").append(resourceHeader,resource);
-              })
+                document.querySelector("#incoming").append(resource);
+                })
+              }
+              if(Array.isArray(state[path])) {
+                state[path].forEach((instance) => {
+                  parseResource(instance)
+                })
+              } else {
+                parseResource(state[path])
+
+              }
             })
           }
         }
@@ -202,3 +210,4 @@
 
   </script>
 </html>
+
