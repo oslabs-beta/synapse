@@ -44,10 +44,17 @@ const requireAll = (path: string) => {
   return files.map((file: string) => require(`${path}/${file}`));
 };
 
-const parseEndpoint = (endpoint: string) => {
+const parseEndpoint = (endpoint: string, custom = []) => {
   // eslint-disable-next-line prefer-const
   let [method, path] = endpoint.split(" ");
+
   method = method.toLowerCase();
+
+  const standard = ["get", "post", "put", "patch", "delete"];
+  if (!standard.includes(method) && !custom.includes(method)) {
+    return {};
+  }
+
   return { method, path };
 };
 
