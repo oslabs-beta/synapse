@@ -167,7 +167,7 @@ class Resource {
     };
   }
 
-  static Decorators: any = {};
+  static decorators: any = {};
 }
 
 /**
@@ -226,6 +226,6 @@ function affect(...paths: Array<string>) {
   };
 }
 
-Object.assign(Resource.Decorators, { field, endpoint, validator, affect });
+Object.assign(Resource.decorators, { field, endpoint, validator, affect });
 
 module.exports = Resource;

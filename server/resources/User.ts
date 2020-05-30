@@ -7,7 +7,7 @@ const { Email, Hash, Word, Text } = require("../synapse/fields");
 const MongoId = require("../fields/MongoId");
 const UserDB = require("../database")("User");
 
-const { field, endpoint, validator } = Resource.Decorators;
+const { field, endpoint, validator } = Resource.decorators;
 const { OPT } = Field.Flags;
 
 class User extends Resource {
