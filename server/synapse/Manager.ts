@@ -1,24 +1,24 @@
-export {};
+// eslint-disable-next-line import/extensions
+import Relation from "./etc/Relation";
 
 const Reply = require("./Reply");
-
-const Controller = require("./Controller");
+const Resource = require("./Resource");
 
 class Manager {
   /**
    * Maps resources by paths to their last known values.
    */
-  cache: Map<string, any>;
+  cache: object;
 
   /**
-   * Maps resources by path to subscribers (clients). Clients are represented by callback functions.
+   * Stores the resource paths waiting to be updated.
    */
-  dependents: Map<string, Set<Function>>;
+  queue: Array<string>;
 
   /**
-   * Maps clients (represented by callback functions) to subscriptions (resource paths).
+   * Maps clients (represented by callback functions) to resource paths and vice versa.
    */
-  subscriptions: Map<Function, Set<string>>;
+  subscriptions: Relation<Function, string>;
 
   /**
    * The function which will be invoked to to execute requests when a cached resource is invalidated or unavailable.
@@ -26,13 +26,13 @@ class Manager {
   generator: Function;
 
   /**
-   * @param router An Express router which will handle uncached requests.
+   * @param generator A function f(method, path, args)
    */
-  constructor(controller: typeof Controller) {
-    this.cache = new Map();
-    this.dependents = new Map();
-    this.subscriptions = new Map();
-    this.generator = (...args): typeof Reply => controller.request(...args);
+  constructor(generator: Function) {
+    this.cache = {};
+    this.queue = [];
+    this.subscriptions = new Relation();
+    this.generator = generator;
   }
 
   /**
@@ -43,21 +43,33 @@ class Manager {
    * @param client A function representing the client that requested the resource. Will be invoked when the resource changes state.
    * @param path A resource path
    */
-  subscribe(client: Function, path: string) {
-    if (!this.subscriptions.has(client)) {
-      this.subscriptions.set(client, new Set());
+  async subscribe(client: Function, path: string) {
+    // first attempt to get the value of the resource
+    const result = await this.get(path);
+
+    // if the resource's value can't be obtained, it can't be subscribed to
+    if (result.isError()) {
+      return result;
     }
-    if (!this.dependents.has(path)) {
-      this.dependents.set(path, new Set());
+
+    // otherwise, store the subscription
+    this.subscriptions.link(client, path);
+
+    // the resource state will always be either an instance of Resource or an array of Resource instances
+    const state = result.payload;
+
+    // if it's an array, subscribe the client to each resource in the collection
+    if (Array.isArray(state)) {
+      state.forEach((resource: typeof Resource) => {
+        this.subscribe(client, resource.path());
+      });
     }
 
-    const dependents = this.dependents.get(path);
-    dependents.add(client);
+    // then send the resource state to the client
+    client(path, state);
 
-    const subscriptions = this.subscriptions.get(client);
-    subscriptions.add(path);
-
-    console.log(this.subscriptions);
+    // finally, respond to the request
+    return Reply.OK();
   }
 
   /**
@@ -67,57 +79,79 @@ class Manager {
    * @param path A resource path.
    */
   unsubscribe(client: Function, path: string = null) {
-    const subscriptions = this.subscriptions.get(client);
-    const remove = path ? [path] : subscriptions;
-    remove.forEach((target) => {
-      subscriptions.delete(target);
+    this.subscriptions.unlink(client, path);
 
-      const dependents = this.dependents.get(target);
-      dependents.delete(client);
-    });
+    // if the unsubscribed resource is a collection
+    const state = this.cache[path];
+    if (Array.isArray(state)) {
+      // unsubscribe the client from all resources in the collection as well
+      state.forEach((resource: typeof Resource) => {
+        this.subscriptions.unlink(client, resource.path());
+      });
+    }
+
+    return Reply.OK();
   }
 
   /**
-   * Recalculates the cached value of a given resource.
+   * Recalculates the cached value of a given resource by making a GET request to the generator.
    * Invokes all subscriber functions with the new value.
    * @param path A resource path
-   * @returns The new value of the resource.
+   * @returns The result of the GET request
    */
   async update(path: string) {
-    // the generator always returns an instance of Reply
-    const result = await this.generator("get", path);
+    // if there are resources in the queue, then there is already an active update cycle
+    if (this.queue.length) {
+      // add the path the to queue and return;
+      return this.queue.push(path);
+    }
+
+    // otherwise, add the resource to the queue and begin an update cycle
+    this.queue.push(path);
+
+    while (this.queue.length) {
+      // otherwise, start by getting the current state of the resource from the generator
+      const curPath = this.queue[0];
+      // eslint-disable-next-line no-await-in-loop
+      const result = await this.generator("get", curPath);
+
+      if (!result.isError()) {
+        // if it's not an error, update the cache and send the new state to all subscribers
+        this.cache[curPath] = result.payload;
+        this.subscriptions.to(curPath).forEach((client) => {
+          client(curPath, result.payload);
+        });
+      } else if (result.status === 404) {
+        // otherwise, if the resource was not found, remove the resource from the cache
+        delete this.cache[curPath];
+        // then unsubscribe all subscribers and alert them with the new state (undefined).
+        this.subscriptions.to(curPath).forEach((client) => {
+          this.unsubscribe(client, curPath);
+          client(curPath, undefined);
+        });
+      }
+
+      this.queue.shift();
+    }
+
+    return undefined;
+  }
+
+  async get(path, data = {}) {
+    if (this.cache[path]) {
+      return Reply.OK(this.cache[path]);
+    }
+
+    const result = await this.generator("get", path, data);
 
     if (!result.isError()) {
-      // if it's not an error, update the cache and send the new state to all subscribers
-      this.cache.set(path, result.payload);
-      if (this.dependents.has(path)) {
-        this.dependents.get(path).forEach((client) => {
-          console.log(client(path, this.cache.get(path)));
-          client(path, this.cache.get(path));
-        });
-      }
-    } else if (result.status === 404) {
-      // otherwise, if the resource was not found, remove the resource from the cache,
-      // unsubscribe all subscribers and alert them with the new state (undefined).
-      this.cache.delete(path);
-      if (this.dependents.has(path)) {
-        this.dependents.get(path).forEach((client) => {
-          this.unsubscribe(client, path);
-          client(path, undefined);
-        });
-      }
+      this.cache[path] = result.payload;
     }
+
     return result;
   }
 
-  async get(path, data) {
-    if (this.cache.has(path)) {
-      return Reply.OK(this.cache.get(path));
-    }
-    return this.update(path);
-  }
-
-  async post(path, data) {
+  async post(path, data = {}) {
     const result = await this.generator("post", path, data);
     if (!result.isError()) {
       this.update(path);
