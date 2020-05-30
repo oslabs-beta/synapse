@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import WS from "jest-websocket-mock";
+import { WebSocket } from "mock-socket";
 
 const request = require("supertest");
 const mongoose = require("mongoose");
@@ -8,29 +9,26 @@ const UserDB = require("../database")("User");
 const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
+global.WebSocket = WebSocket;
 const DBUrl = MONGO_URI;
 
-// beforeEach(async () => {
-//   const testSocket = new WS("ws://localhost:3000/api");
-//   await testSocket.connected;
-//   testSocket.send("connected");
+beforeEach(async () => {
+  const testSocket = new WebSocket("ws://localhost:3000/api");
+  await testSocket.onopen;
+  testSocket.send("connected");
+});
+
+// beforeAll(async () => {
+//   const url = DBUrl;
+//   await mongoose.connect(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   });
 // });
 
-beforeAll(async () => {
-  const url = DBUrl;
-  await mongoose.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-});
-
-afterEach(() => {
-  WS.clean();
-});
-
-afterAll(() => {
-  mongoose.connection.close();
-});
+// afterAll(() => {
+//   mongoose.connection.close();
+// });
 
 xdescribe("Basic operations", () => {
   let id;
@@ -66,16 +64,19 @@ xdescribe("Basic operations", () => {
     expect(result.res.statusMessage).toBeTruthy();
   });
 });
-xdescribe("websocket functionality", () => {
+describe("websocket functionality", () => {
   it("websocket get request", async () => {
-    const testId = "5ed185ade54a6632f9bce65b";
-    const result = await request(WS).get(`/api/user/${testId}`);
-    console.log("result from ws request", result.body);
-    expect(result.status).toEqual(200);
-    expect(result.body.username).toEqual("denis");
+    const webSocket = new WebSocket("ws://localhost:3000/api");
+    webSocket.send(JSON.stringify({ "GET /user": {} }));
+    webSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      expect(data.status).toEqual(200);
+      expect(Array.isArray(data)).toEqual(true);
+    };
   });
 });
-describe("websocket testing", () => {
+xdescribe("websocket testing", () => {
   it("Sending from mock server should be picked up by connected client", async () => {
     const server = new WS("ws://localhost:3000/api");
     const client = new WebSocket("ws://localhost:3000/api");

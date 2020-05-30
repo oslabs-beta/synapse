@@ -73,6 +73,7 @@
           const request = {
           [key]:payload
         }
+        console.log(JSON.stringify(request));
         webSocket.send(JSON.stringify(request));
         // if sending HTTP
         } else {
