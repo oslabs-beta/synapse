@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test jest",
-    "test2": "jest",
     "start": "node ./build/server/server.js",
     "build": "tsc",
     "dev": "nodemon",

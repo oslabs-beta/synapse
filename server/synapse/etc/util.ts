@@ -1,5 +1,7 @@
 export {};
 
+const fs = require("fs");
+
 /**
  * Verifies that all elements of the input collection are of type 'Type'.
  * @param Type A constructor function
@@ -22,7 +24,7 @@ const isCollectionOf = (Type: Function, col: object, assert: boolean = false) =>
   return true;
 };
 
-const tryParseJSON = (json) => {
+const tryParseJSON = (json: string) => {
   try {
     return JSON.parse(json);
   } catch (err) {
@@ -30,4 +32,17 @@ const tryParseJSON = (json) => {
   }
 };
 
-module.exports = { isCollectionOf, tryParseJSON };
+const requireAll = (path: string) => {
+  const files = fs.readdirSync(path);
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  return files.map((file: string) => require(`${path}/${file}`));
+};
+
+const parseEndpoint = (endpoint: string) => {
+  // eslint-disable-next-line prefer-const
+  let [method, path] = endpoint.split(" ");
+  method = method.toLowerCase();
+  return { method, path };
+};
+
+module.exports = { isCollectionOf, tryParseJSON, requireAll, parseEndpoint };
