@@ -10,6 +10,7 @@
       <select name="protocol" id="protocol">
         <option value="WS">WS</option>
         <option value="HTTP">HTTP</option>
+        <option value="SSE">SSE</option>
       </select>
         <select name="methods" id="methods">
         <option value="GET">GET</option>
@@ -75,7 +76,7 @@
         }
         webSocket.send(JSON.stringify(request));
         // if sending HTTP
-        } else {
+        } else if (protocol === "HTTP") {
           // construct request object
           const reqObj = {
           method,
@@ -88,6 +89,27 @@
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{
+            // display incoming data in "terminal"
+            let terminalPost = document.createElement('div');
+            terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+            terminalPost.classList.add('terminalPost')
+            terminalPost.textContent = JSON.stringify(data)
+            document.querySelector("#terminal").append(terminalPost);
+          })
+        } else if (protocol === "SSE") {
+          console.log('youre making SSE request')
+          const reqObj = {
+          method,
+          headers: {
+            Connection: "keep-alive",
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",            },
+          };
+          if (method !== 'GET') reqObj.body = body
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => response.json())
+          .then((data)=>{
+            console.log("we got something back in response to SSE:", data)
             // display incoming data in "terminal"
             let terminalPost = document.createElement('div');
             terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
@@ -130,7 +152,7 @@
         // parse the data
         const data = JSON.parse(event.data)
         const key = Object.keys(data)[0]
-        const path = key.split(' ')[1]
+        const [method, path] = key.split(' ')
 
         // if we're subscribed - update the local state
         // if we are but data is undefined - clear the local state(data was deleted, we're unsubbed now)
@@ -138,7 +160,7 @@
           if(data[key] === undefined) {
             delete state[path]
           }
-
+          
           // if there's new data - update state and render new info on the page
           if(data[key].payload) {
             
@@ -169,13 +191,13 @@
                 document.querySelector("#incoming").append(resource);
                 })
               }
+
               if(Array.isArray(state[path])) {
                 state[path].forEach((instance) => {
                   parseResource(instance)
                 })
               } else {
                 parseResource(state[path])
-
               }
             })
           }
@@ -184,11 +206,14 @@
         let terminalPost = document.createElement('div');
         terminalPost.style = "display: flex; flex-direction: column; max-width: 300px; border: solid 1px grey;"
         terminalPost.classList.add('terminalPost')
+        const methodSpan = document.createElement('span')
+        methodSpan.textContent = `METHOD: ${method}`
+
         const pathSpan = document.createElement('span')
         pathSpan.textContent = `PATH: ${path}`
         const statusSpan = document.createElement('span')
         statusSpan.textContent = `STATUS: ${data[key].status}`
-        terminalPost.append(pathSpan, statusSpan)
+        terminalPost.append(methodSpan, pathSpan, statusSpan)
         document.querySelector("#terminal").append(terminalPost);
         const length = document.querySelectorAll(".terminalPost").length
         if (length >= 10) {
