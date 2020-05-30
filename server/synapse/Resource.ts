@@ -8,6 +8,7 @@ const Schema = require("./Schema");
 const Reply = require("./Reply");
 const Manager = require("./Manager");
 const Controller = require("./Controller");
+const Id = require("./fields/Id");
 const { isCollectionOf } = require("./etc/util");
 
 /**
@@ -33,7 +34,16 @@ class Resource {
   address() {
     const Class = <typeof Resource>this.constructor;
 
-    return `${Class.root()}/${(<any>this).id}`; // fix: default id should be first field in schema that extends Id
+    const { fields } = Class.schema;
+    const keys = Object.keys(fields);
+    for (let i = 0; i < keys.length; ++i) {
+      const key = keys[i];
+      if (fields[key] instanceof Id) {
+        return `${Class.root()}/${this[key]}`;
+      }
+    }
+
+    throw new Error(`No field of type 'Id' found for class ${Class.name}.`);
   }
 
   /**
