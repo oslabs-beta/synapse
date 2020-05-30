@@ -6,8 +6,8 @@
     <title>Document</title>
     <script>
       if (!!window.EventSource) {
-        console.log("in eventsource");
-        const source = new EventSource("localhost:3000/sse");
+        console.log('in eventSource')
+        const source = new EventSource("api");
 
         source.addEventListener(
           "message",
@@ -20,6 +20,7 @@
         source.addEventListener(
           "open",
           function (e) {
+            console.log('SSE connection is open.')
             document.getElementById("state").innerHTML = "Connected";
           },
           false

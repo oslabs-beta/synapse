@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/extensions
 import Relation from "./etc/Relation";
-
+// const Relation = require("./etc/Relation");
 const Reply = require("./Reply");
 const Resource = require("./Resource");
 
