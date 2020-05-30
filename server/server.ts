@@ -1,3 +1,5 @@
+import { parentPort } from "worker_threads";
+
 export {};
 
 const path = require("path");
@@ -21,21 +23,24 @@ app.use(express.static("src"));
 //   }
 // };
 
-app.get("/sse", (req, res) => {
-  res
-    .set({
-      Connection: "keep-alive",
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-    })
-    .status(200);
-  // countdown(res, 10);
-});
-
+// app.get("/sse", (req, res) => {
+//   res
+//     .set({
+//       Connection: "keep-alive",
+//       "Content-Type": "text/event-stream",
+//       "Cache-Control": "no-cache",
+//     })
+//     .status(200);
+//   countdown(res, 10);
+// });
+// app.use("/", (req, res, next) => {
+//   console.log(req.headers);
+//   return next();
+// });
+app.get("/api", api.sse);
 enableWs(app);
 app.ws("/api", api.ws);
 app.use("/api", api.http);
-app.use("/api", api.sse);
 
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./src/index.html"));

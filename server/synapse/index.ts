@@ -84,35 +84,26 @@ const ws = (manager: typeof Manager) => {
  */
 const sse = (manager: typeof Manager) => {
   return async (req: any, res: any, next: Function) => {
-    const client = (path: string, state: any) => {
-      res.write(JSON.stringify({ [path]: state }));
-    };
-    if (req.headers["Content-Type"] === "text/event-stream") {
-      res.on("data", async (msg: string) => {
-        const data = tryParseJSON(msg);
+    const { method } = parseEndpoint(req.method);
 
-        if (typeof data !== "object") {
-          return client("/", Reply.BAD_REQUEST("Invalid Format"));
-        }
-
-        const requests = Object.keys(data);
-        return requests.forEach(async (endpoint: string) => {
-          const { method, path } = parseEndpoint(endpoint);
-
-          if (!manager[method]) {
-            return client(endpoint, Reply.BAD_REQUEST("Invalid Method"));
-          }
-          const result = await manager[method](path, data[endpoint]);
-
-          return client(endpoint, result);
-        });
-      });
-      res.on("close", () => {
-        manager.unsubscribe(client);
+    let result;
+    if (method) {
+      result = await manager[method](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
       });
     } else {
-      return client("/", Reply.BAD_REQUEST("Invalid Format"));
+      result = Reply.BAD_REQUEST("Invalid Method");
     }
+
+    res
+      .set({
+        Connection: "keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      })
+      .status(200);
   };
 };
 

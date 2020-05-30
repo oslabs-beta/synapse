@@ -4,45 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script>
-      if (!!window.EventSource) {
-        console.log('in eventSource')
-        const source = new EventSource("api");
-
-        source.addEventListener(
-          "message",
-          function (e) {
-            document.getElementById("data").innerHTML = e.data;
-          },
-          false
-        );
-
-        source.addEventListener(
-          "open",
-          function (e) {
-            console.log('SSE connection is open.')
-            document.getElementById("state").innerHTML = "Connected";
-          },
-          false
-        );
-
-        source.addEventListener(
-          "error",
-          function (e) {
-            const id_state = document.getElementById("state");
-            if (e.eventPhase == EventSource.CLOSED) source.close();
-            if (e.target.readyState == EventSource.CLOSED) {
-              id_state.innerHTML = "Disconnected";
-            } else if (e.target.readyState == EventSource.CONNECTING) {
-              id_state.innerHTML = "Connecting...";
-            }
-          },
-          false
-        );
-      } else {
-        console.log("Your browser doesn't support SSE");
-      }
-    </script>
   </head>
   <body>
     <h3>SSE: <span id="state"></span></h1>
@@ -138,7 +99,7 @@
             document.querySelector("#terminal").append(terminalPost);
           })
         } else if (protocol === "SSE") {
-          console.log('youre making SSE request')
+          // console.log('youre making SSE request')
           const reqObj = {
           method,
           headers: {
@@ -150,7 +111,7 @@
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{
-            console.log("we got something back in response to SSE:", data)
+            // console.log("we got something back in response to SSE:", data)
             // display incoming data in "terminal"
             let terminalPost = document.createElement('div');
             terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
@@ -182,6 +143,49 @@
         const listItems = document.querySelectorAll('li')
         listItems[listItems.length-1].remove()
       }
+
+
+      if (!!window.EventSource) {
+        console.log('got into EventSource')
+        const source = new EventSource("api");
+
+        source.addEventListener(
+          "message",
+          function (e) {
+            console.log('got a message')
+            document.getElementById("data").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "open",
+          function (e) {
+            console.log('SSE connection is open.')
+            document.getElementById("state").innerHTML = "Connected";
+          },
+          false
+        );
+
+        source.addEventListener(
+          "error",
+          function (e) {
+            const id_state = document.getElementById("state");
+            if (e.eventPhase == EventSource.CLOSED) source.close();
+            if (e.target.readyState == EventSource.CLOSED) {
+              console.log('SSE connection is closed.')
+              id_state.innerHTML = "Disconnected";
+            } else if (e.target.readyState == EventSource.CONNECTING) {
+              console.log('SSE connecting...')
+              id_state.innerHTML = "Connecting...";
+            }
+          },
+          false
+        );
+      } else {
+        console.log("Your browser doesn't support SSE");
+      }
+
 
 
       webSocket.onopen = (event) => {
