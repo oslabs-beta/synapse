@@ -184,7 +184,7 @@ class Resource {
       // if a Manager object is attached to the class, use it to update the affected resource paths
       if (Class.manager) {
         paths.forEach((path) =>
-          Class.manager.update(`/${Class.name.toLowerCase()}${path}`)
+          Class.manager.enqueue(`/${Class.name.toLowerCase()}${path}`)
         );
       }
 
