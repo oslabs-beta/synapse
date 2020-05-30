@@ -3,8 +3,12 @@ export {};
 const path = require("path");
 const express = require("express");
 const enableWs = require("express-ws");
+<<<<<<< HEAD
 const cors = require("cors");
 const synapse = require("./synapse/synapse");
+=======
+const synapse = require("./synapse");
+>>>>>>> master
 
 const PORT = 3000;
 const app = express();

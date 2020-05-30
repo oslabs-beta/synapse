@@ -2,12 +2,12 @@
 
 export {};
 
-const { Resource, Reply, Field } = require("../synapse/synapse");
+const { Resource, Reply, Field } = require("../synapse");
 const { Email, Hash, Word, Text } = require("../synapse/fields");
 const MongoId = require("../fields/MongoId");
 const UserDB = require("../database")("User");
 
-const { field, endpoint, validator } = Resource.Decorators;
+const { field, endpoint, validator } = Resource.decorators;
 const { OPT } = Field.Flags;
 
 class User extends Resource {
@@ -23,14 +23,14 @@ class User extends Resource {
     if (!ourUser) {
       return Reply.NOT_FOUND();
     }
-    return User.create(ourUser.toObject());
+    return User.instantiate(ourUser.toObject());
   }
 
   @endpoint("GET /")
   static async getAll() {
     const users = await UserDB.find();
     const result = await Promise.all(
-      users.map((user) => User.create(user.toObject()))
+      users.map((user) => User.instantiate(user.toObject()))
     ).then((res) => {
       return res;
     });
@@ -38,10 +38,12 @@ class User extends Resource {
   }
 
   @endpoint("POST /")
-  @validator(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
+  @validator(
+    User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
+  )
   static async register({ username, email, password }) {
     const ourUser = await UserDB.create({ username, email, password });
-    return User.create(ourUser.toObject());
+    return User.instantiate(ourUser.toObject());
   }
 
   @validator(User.schema.select("username").extend({ password: new Text() }))
