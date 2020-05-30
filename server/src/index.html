@@ -51,6 +51,7 @@
       <select name="protocol" id="protocol">
         <option value="WS">WS</option>
         <option value="HTTP">HTTP</option>
+        <option value="SSE">SSE</option>
       </select>
         <select name="methods" id="methods">
         <option value="GET">GET</option>
@@ -82,8 +83,7 @@
     const webSocket = new WebSocket("ws://localhost:3000/api");
     document.addEventListener("DOMContentLoaded", function () {
       const state = {
-        // '/user/5ed177e2b0918f30bc51d544': true,
-        // '/user/5ed177cfb0918f30bc51d543': true,
+        // '/user': true
       };
       const form = document.querySelector("#form");
       form.onsubmit = function (e) {
@@ -117,7 +117,7 @@
         }
         webSocket.send(JSON.stringify(request));
         // if sending HTTP
-        } else {
+        } else if (protocol === "HTTP") {
           // construct request object
           const reqObj = {
           method,
@@ -130,6 +130,27 @@
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{
+            // display incoming data in "terminal"
+            let terminalPost = document.createElement('div');
+            terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+            terminalPost.classList.add('terminalPost')
+            terminalPost.textContent = JSON.stringify(data)
+            document.querySelector("#terminal").append(terminalPost);
+          })
+        } else if (protocol === "SSE") {
+          console.log('youre making SSE request')
+          const reqObj = {
+          method,
+          headers: {
+            Connection: "keep-alive",
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",            },
+          };
+          if (method !== 'GET') reqObj.body = body
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => response.json())
+          .then((data)=>{
+            console.log("we got something back in response to SSE:", data)
             // display incoming data in "terminal"
             let terminalPost = document.createElement('div');
             terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
@@ -172,7 +193,7 @@
         // parse the data
         const data = JSON.parse(event.data)
         const key = Object.keys(data)[0]
-        const path = key.split(' ')[1]
+        const [method, path] = key.split(' ')
 
         // if we're subscribed - update the local state
         // if we are but data is undefined - clear the local state(data was deleted, we're unsubbed now)
@@ -180,37 +201,45 @@
           if(data[key] === undefined) {
             delete state[path]
           }
-
+          
           // if there's new data - update state and render new info on the page
           if(data[key].payload) {
             
             state[path] = data[key].payload
             document.querySelector("#incoming").innerHTML = '';
 
-            Object.keys(state).forEach((key) => {
+            Object.keys(state).forEach((path) => {
+              //create header
               let resourceHeader = document.createElement('div');
-              resourceHeader.textContent = `PATH: ${key}`;
+              resourceHeader.textContent = `PATH: ${path}`;
               resourceHeader.style = "max-width: 300px; border: solid 1px red;"
-              let resource = document.createElement('div');
-              resource.style = " display: block;word-wrap:break-word; max-width: 300px; border: solid 1px grey; overflow-wrap: break-word; white-space: normal;"
-              resource.classList.add('resource');
-              Object.keys(state[key]).forEach((subkey) => {
-                if(typeof state[path][subkey] === 'object'){
-
-                }
-                const property = document.createElement('div')
+              document.querySelector("#incoming").append(resourceHeader);
+              //create resource
+              function parseResource(stateResource) {
+                let resource = document.createElement('div');
+                resource.style = " display: block;word-wrap:break-word; max-width: 300px; border: solid 1px grey; overflow-wrap: break-word; white-space: normal;"
+                resource.classList.add('resource');
+                Object.keys(stateResource).forEach((prop) => {
+                  const property = document.createElement('div')
                 property.style = 'display: flex; flex-direction: column'
-
                 const keySpan = document.createElement('span')
                 const valueSpan = document.createElement('span')
-
-                keySpan.textContent = `${subkey}:`
+                keySpan.textContent = `${prop}:`
                 keySpan.style = "font-weight: bold"
-                valueSpan.textContent = JSON.stringify(state[key][subkey])
+                valueSpan.textContent = JSON.stringify(stateResource[prop])
                 property.append(keySpan,valueSpan)
                 resource.append(property)
-                document.querySelector("#incoming").append(resourceHeader,resource);
-              })
+                document.querySelector("#incoming").append(resource);
+                })
+              }
+
+              if(Array.isArray(state[path])) {
+                state[path].forEach((instance) => {
+                  parseResource(instance)
+                })
+              } else {
+                parseResource(state[path])
+              }
             })
           }
         }
@@ -218,11 +247,14 @@
         let terminalPost = document.createElement('div');
         terminalPost.style = "display: flex; flex-direction: column; max-width: 300px; border: solid 1px grey;"
         terminalPost.classList.add('terminalPost')
+        const methodSpan = document.createElement('span')
+        methodSpan.textContent = `METHOD: ${method}`
+
         const pathSpan = document.createElement('span')
         pathSpan.textContent = `PATH: ${path}`
         const statusSpan = document.createElement('span')
         statusSpan.textContent = `STATUS: ${data[key].status}`
-        terminalPost.append(pathSpan, statusSpan)
+        terminalPost.append(methodSpan, pathSpan, statusSpan)
         document.querySelector("#terminal").append(terminalPost);
         const length = document.querySelectorAll(".terminalPost").length
         if (length >= 10) {
@@ -244,3 +276,4 @@
 
   </script>
 </html>
+
