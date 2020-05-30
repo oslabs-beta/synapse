@@ -23,15 +23,14 @@ class User extends Resource {
     if (!ourUser) {
       return Reply.NOT_FOUND();
     }
-    const newUser = await User.create(ourUser.toObject());
-    return User.create(ourUser.toObject());
+    return User.instantiate(ourUser.toObject());
   }
 
   @endpoint("GET /")
   static async getAll() {
     const users = await UserDB.find();
     const result = await Promise.all(
-      users.map((user) => User.create(user.toObject()))
+      users.map((user) => User.instantiate(user.toObject()))
     ).then((res) => {
       return res;
     });
@@ -44,7 +43,7 @@ class User extends Resource {
   )
   static async register({ username, email, password }) {
     const ourUser = await UserDB.create({ username, email, password });
-    return User.create(ourUser.toObject());
+    return User.instantiate(ourUser.toObject());
   }
 
   @validator(User.schema.select("username").extend({ password: new Text() }))

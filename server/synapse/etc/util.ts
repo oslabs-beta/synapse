@@ -51,4 +51,4 @@ const parseEndpoint = (endpoint: string) => {
   return { method, path };
 };
 
-module.exports = { isCollectionOf, tryParseJSON, requireAll };
+module.exports = { isCollectionOf, tryParseJSON, requireAll, parseEndpoint };

@@ -14,20 +14,35 @@ const { isCollectionOf } = require("./etc/util");
  *  Represents a RESTful resource exposed by the synapse API
  */
 class Resource {
-  static schema;
+  static schema: typeof Schema;
 
-  static endpoints;
+  static endpoints: object;
 
-  static manager;
+  static manager: typeof Manager;
+
+  static root() {
+    const Class = this;
+
+    const name = Class.name
+      .split(/(?=[A-Z])/)
+      .join("_")
+      .toLowerCase();
+    return `/${name}`;
+  }
+
+  address() {
+    const Class = <typeof Resource>this.constructor;
+
+    return `${Class.root()}/${(<any>this).id}`; // fix: default id should be first field in schema that extends Id
+  }
 
   /**
    * Creates an instance of the derived class using a plain object 'data'.
    * Validates the data using the derived class's schema.
-   *
-   * @param data A plain object that contains "raw" information that will be used to make a resource. Ex: User.create({name: 'Jay', pass: 'password'})
+   * @param data A plain object that contains "raw" information that will be used to make a resource. Ex: User.instantiate({name: 'Jay', pass: 'password'})
    * @returns An instance of the derived class. Ex: User object with [name] validated, and [password] hashed: {name: 'Jay', pass: '$2b$10$3euPcmQFCiblsZeEu5s7p'}
    */
-  static async create(data: object) {
+  static async instantiate(data: object) {
     // 'this' represents the class constructor in a static method.
     const Type: any = this;
     // validate in the input data using the derived class's schema.
@@ -171,7 +186,7 @@ class Resource {
 }
 
 /**
- * @param fieldInst An instance of field that will be added to schema.
+ * @param value An instance of Field that will be added to schema.
  * @returns A decorator function which adds the specified Field to the
  * target class's schema, using the name of the targeted property.
  */

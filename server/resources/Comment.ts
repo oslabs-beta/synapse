@@ -10,8 +10,8 @@ const { field, endpoint, validator, affect } = Resource.decorators;
 const ledger = [];
 
 class Comment extends Resource {
-  @field(new Id()) id;
-  @field(new Text()) text;
+  @field(new Id()) id: string;
+  @field(new Text()) text: string;
 
   @endpoint("GET /last")
   static Last() {
@@ -34,10 +34,10 @@ class Comment extends Resource {
   }
 
   @endpoint("POST /")
-  @affect("/last") // "/page/*"
+  @affect("/last") // "/page/*" fix: update occurs before request is completed
   @validator(Comment.schema.select("text"))
   static async Post({ text }) {
-    const comment = await Comment.create({ id: `${ledger.length}`, text });
+    const comment = await Comment.instantiate({ id: `${ledger.length}`, text });
     ledger.push(comment);
     return comment;
   }

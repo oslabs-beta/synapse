@@ -68,12 +68,23 @@ const ws = (manager: typeof Manager) => {
 };
 
 /**
+ * Creates an express middleware function to handle requests for SSE subscriptions
+ * @param manager
+ */
+const sse = (manager: typeof Manager) => {
+  return async (req: any, res: any, next: Function) => {
+    // handle sse request
+  };
+};
+
+/**
  * Initializes API request handlers from Resource definitions in the given directory 'dir'.
  * @param dir A directory containing Resource definitions.
  * @returns An object containing properties 'ws' and 'http', whose values are request handlers for the respective protocol.
  */
 function synapse(dir: string) {
   const controller = new Controller();
+
   const manager = new Manager((...args) => {
     return controller.request(...args);
   });
@@ -86,6 +97,7 @@ function synapse(dir: string) {
 
   return {
     http: http(manager),
+    sse: sse(manager),
     ws: ws(manager),
   };
 }
