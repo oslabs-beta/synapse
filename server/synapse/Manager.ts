@@ -84,7 +84,6 @@ class Manager {
    * @returns The new value of the resource.
    */
   async update(path: string) {
-    console.log(this.dependents.get(path));
     // the generator always returns an instance of Reply
     const result = await this.generator("get", path);
 
@@ -93,6 +92,7 @@ class Manager {
       this.cache.set(path, result.payload);
       if (this.dependents.has(path)) {
         this.dependents.get(path).forEach((client) => {
+          console.log(client(path, this.cache.get(path)));
           client(path, this.cache.get(path));
         });
       }
@@ -107,7 +107,6 @@ class Manager {
         });
       }
     }
-
     return result;
   }
 
