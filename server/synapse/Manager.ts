@@ -94,45 +94,40 @@ class Manager {
     return Reply.OK();
   }
 
+  enqueue(...path: Array<string>) {
+    this.queue.push(...path);
+  }
+
   /**
    * Recalculates the cached value of a given resource by making a GET request to the generator.
    * Invokes all subscriber functions with the new value.
    * @param path A resource path
    * @returns The result of the GET request
    */
-  async update(path: string) {
-    // if there are resources in the queue, then there is already an active update cycle
-    if (this.queue.length) {
-      // add the path the to queue and return;
-      return this.queue.push(path);
-    }
-
-    // otherwise, add the resource to the queue and begin an update cycle
-    this.queue.push(path);
-
+  async update() {
+    // update all affected resources in order
     while (this.queue.length) {
-      // otherwise, start by getting the current state of the resource from the generator
-      const curPath = this.queue[0];
+      const path = this.queue.shift();
+
+      // start by getting the current state of the resource from the generator
       // eslint-disable-next-line no-await-in-loop
-      const result = await this.generator("get", curPath);
+      const result = await this.generator("get", path);
 
       if (!result.isError()) {
         // if it's not an error, update the cache and send the new state to all subscribers
-        this.cache[curPath] = result.payload;
-        this.subscriptions.to(curPath).forEach((client) => {
-          client(curPath, result.payload);
+        this.cache[path] = result.payload;
+        this.subscriptions.to(path).forEach((client) => {
+          client(path, result.payload);
         });
       } else if (result.status === 404) {
         // otherwise, if the resource was not found, remove the resource from the cache
-        delete this.cache[curPath];
+        delete this.cache[path];
         // then unsubscribe all subscribers and alert them with the new state (undefined).
-        this.subscriptions.to(curPath).forEach((client) => {
-          this.unsubscribe(client, curPath);
-          client(curPath, undefined);
+        this.subscriptions.to(path).forEach((client) => {
+          this.unsubscribe(client, path);
+          client(path, undefined);
         });
       }
-
-      this.queue.shift();
     }
 
     return undefined;
@@ -153,33 +148,37 @@ class Manager {
   }
 
   async post(path, data = {}) {
+    this.enqueue(path);
     const result = await this.generator("post", path, data);
     if (!result.isError()) {
-      this.update(path);
+      this.update();
     }
     return result;
   }
 
   async put(path, data) {
+    this.enqueue(path);
     const result = await this.generator("put", path, data);
     if (!result.isError()) {
-      this.update(path);
+      this.update();
     }
     return result;
   }
 
   async patch(path, data) {
+    this.enqueue(path);
     const result = await this.generator("patch", path, data);
     if (!result.isError()) {
-      this.update(path);
+      this.update();
     }
     return result;
   }
 
   async delete(path) {
+    this.enqueue(path);
     const result = await this.generator("delete", path, null);
     if (!result.isError()) {
-      this.update(path);
+      this.update();
     }
     return result;
   }
