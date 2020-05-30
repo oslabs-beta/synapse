@@ -14,10 +14,18 @@ const { requireAll, tryParseJSON, parseEndpoint } = require("./etc/util");
  */
 const http = (manager: typeof Manager) => {
   return async (req: any, res: any, next: Function) => {
-    const method = req.method.toLowerCase();
-    const data = { ...req.query, ...req.body, ...req.params };
+    const { method } = parseEndpoint(req.method);
 
-    const result = await manager[method](req.path, data);
+    let result;
+    if (method) {
+      result = await manager[method](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
+      });
+    } else {
+      result = Reply.BAD_REQUEST("Invalid Method");
+    }
 
     res.status(result.status).json(result.payload);
   };
@@ -48,15 +56,18 @@ const ws = (manager: typeof Manager) => {
       // attempt to execute each request
       const requests = Object.keys(data);
       return requests.forEach(async (endpoint: string) => {
-        const { method, path } = parseEndpoint(endpoint);
+        const customMethods = ["subscribe", "unsubscribe"];
+        const { method, path } = parseEndpoint(endpoint, customMethods);
 
-        if (!manager[method]) {
-          return client(endpoint, Reply.BAD_REQUEST(`Invalid Method`));
+        if (!method) {
+          return client("/", Reply.BAD_REQUEST("Invalid Method"));
         }
 
-        const result = await manager[method](path, data[endpoint]);
+        if (customMethods.includes(method)) {
+          return client(endpoint, await manager[method](client, path));
+        }
 
-        return client(endpoint, result);
+        return client(endpoint, await manager[method](path, data[endpoint]));
       });
     });
 

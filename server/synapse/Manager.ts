@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 // eslint-disable-next-line import/extensions
 import Relation from "./etc/Relation";
 // const Relation = require("./etc/Relation");
@@ -61,12 +62,12 @@ class Manager {
     // if it's an array, subscribe the client to each resource in the collection
     if (Array.isArray(state)) {
       state.forEach((resource: typeof Resource) => {
-        this.subscribe(client, resource.path());
+        this.subscribe(client, resource.address());
       });
     }
 
     // then send the resource state to the client
-    client(path, state);
+    // client(path, state);
 
     // finally, respond to the request
     return Reply.OK();
