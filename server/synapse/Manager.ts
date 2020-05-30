@@ -2,8 +2,6 @@ export {};
 
 const Reply = require("./Reply");
 
-const Controller = require("./Controller");
-
 class Manager {
   /**
    * Maps resources by paths to their last known values.
@@ -28,11 +26,11 @@ class Manager {
   /**
    * @param router An Express router which will handle uncached requests.
    */
-  constructor(controller: typeof Controller) {
+  constructor(generator: Function) {
     this.cache = new Map();
     this.dependents = new Map();
     this.subscriptions = new Map();
-    this.generator = (...args): typeof Reply => controller.request(...args);
+    this.generator = generator;
   }
 
   /**
@@ -57,7 +55,7 @@ class Manager {
     const subscriptions = this.subscriptions.get(client);
     subscriptions.add(path);
 
-    console.log(this.subscriptions);
+    return Reply.OK();
   }
 
   /**
@@ -75,6 +73,8 @@ class Manager {
       const dependents = this.dependents.get(target);
       dependents.delete(client);
     });
+
+    return Reply.OK();
   }
 
   /**

@@ -40,10 +40,6 @@
   <script>
     const webSocket = new WebSocket("ws://localhost:3000/api");
     document.addEventListener("DOMContentLoaded", function () {
-      const state = {
-        '/user/5ed177e2b0918f30bc51d544': true,
-        '/user/5ed177cfb0918f30bc51d543': true,
-      };
       const form = document.querySelector("#form");
       form.onsubmit = function (e) {
         e.preventDefault();

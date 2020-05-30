@@ -2,7 +2,7 @@
 
 export {};
 
-const { Resource, Reply, Field } = require("../synapse/synapse");
+const { Resource, Reply, Field } = require("../synapse");
 const { Email, Hash, Word, Text } = require("../synapse/fields");
 const MongoId = require("../fields/MongoId");
 const UserDB = require("../database")("User");
@@ -35,11 +35,11 @@ class User extends Resource {
   @endpoint("GET /")
   static async getAll() {
     const users = await UserDB.find();
-    const result = await Promise.all(users.map((user) => User.create(user.toObject()))).then(
-      (res) => {
-        return res;
-      }
-    );
+    const result = await Promise.all(
+      users.map((user) => User.create(user.toObject()))
+    ).then((res) => {
+      return res;
+    });
     return result;
   }
 

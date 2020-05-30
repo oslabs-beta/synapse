@@ -2,7 +2,7 @@
 
 export {};
 
-const { Resource, Reply } = require("../synapse/synapse");
+const { Resource, Reply } = require("../synapse");
 const { Id, Text, Integer } = require("../synapse/fields");
 
 const { field, endpoint, validator, affect } = Resource.Decorators;
