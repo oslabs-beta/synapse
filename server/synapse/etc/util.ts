@@ -1,5 +1,7 @@
 export {};
 
+const fs = require("fs");
+
 /**
  * Verifies that all elements of the input collection are of type 'Type'.
  * @param Type A constructor function
@@ -7,14 +9,20 @@ export {};
  * @param assert If true, the function will throw an error in case of false result.
  * @returns A boolean
  */
-const isCollectionOf = (Type: Function, col: object, assert: boolean = false) => {
+const isCollectionOf = (
+  Type: Function,
+  col: object,
+  assert: boolean = false
+) => {
   if (!Array.isArray(col)) {
     return false;
   }
   for (let i = 0; i < col.length; ++i) {
     if (!(col[i] instanceof Type)) {
       if (assert) {
-        throw new Error(`Expected collection containing only values of type ${Type.name}.`);
+        throw new Error(
+          `Expected collection containing only values of type ${Type.name}.`
+        );
       }
       return false;
     }
@@ -22,7 +30,7 @@ const isCollectionOf = (Type: Function, col: object, assert: boolean = false) =>
   return true;
 };
 
-const tryParseJSON = (json) => {
+const tryParseJSON = (json: string) => {
   try {
     return JSON.parse(json);
   } catch (err) {
@@ -30,4 +38,17 @@ const tryParseJSON = (json) => {
   }
 };
 
-module.exports = { isCollectionOf, tryParseJSON };
+const requireAll = (path: string) => {
+  const files = fs.readdirSync(path);
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  return files.map((file: string) => require(`${path}/${file}`));
+};
+
+const parseEndpoint = (endpoint: string) => {
+  // eslint-disable-next-line prefer-const
+  let [method, path] = endpoint.split(" ");
+  method = method.toLowerCase();
+  return { method, path };
+};
+
+module.exports = { isCollectionOf, tryParseJSON, requireAll, parseEndpoint };
