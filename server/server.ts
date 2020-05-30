@@ -3,13 +3,37 @@ export {};
 const path = require("path");
 const express = require("express");
 const enableWs = require("express-ws");
+const cors = require("cors");
 const synapse = require("./synapse/synapse");
 
 const PORT = 3000;
 const app = express();
 const api = synapse(path.resolve(__dirname, "./resources"));
+// app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.static("server/src"));
 
-app.use(express.json());
+const countdown = (res, count) => {
+  res.write("data: " + count + "\n\n");
+  if (count) {
+    setTimeout(() => countdown(res, count - 1), 1000);
+  } else {
+    res.end();
+  }
+};
+
+app.get("/sse", (req, res) => {
+  res
+    .set({
+      Connection: "keep-alive",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Access-Control-Allow-Origin": "*",
+    })
+    .status(200);
+  countdown(res, 10);
+});
 
 enableWs(app);
 app.ws("/api", api.ws);

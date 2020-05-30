@@ -4,8 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script>
+      if (!!window.EventSource) {
+        console.log("in eventsource");
+        const source = new EventSource("localhost:3000/sse");
+
+        source.addEventListener(
+          "message",
+          function (e) {
+            document.getElementById("data").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "open",
+          function (e) {
+            document.getElementById("state").innerHTML = "Connected";
+          },
+          false
+        );
+
+        source.addEventListener(
+          "error",
+          function (e) {
+            const id_state = document.getElementById("state");
+            if (e.eventPhase == EventSource.CLOSED) source.close();
+            if (e.target.readyState == EventSource.CLOSED) {
+              id_state.innerHTML = "Disconnected";
+            } else if (e.target.readyState == EventSource.CONNECTING) {
+              id_state.innerHTML = "Connecting...";
+            }
+          },
+          false
+        );
+      } else {
+        console.log("Your browser doesn't support SSE");
+      }
+    </script>
   </head>
   <body>
+    <h3>SSE: <span id="state"></span></h1>
+    <h4>Data: <span id="data"></span></h3>
     <form id="form" name="publish">
       <select name="protocol" id="protocol">
         <option value="WS">WS</option>
