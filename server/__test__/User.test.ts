@@ -64,7 +64,7 @@ describe("Basic operations", () => {
     expect(result.res.statusMessage).toBeTruthy();
   });
 });
-xdescribe("websocket testing", () => {
+describe("websocket testing", () => {
   it("Sending from mock server should be picked up by connected client", async () => {
     const server = new WS("ws://localhost:3000/api");
     const client = new WebSocket("ws://localhost:3000/api");
