@@ -7,20 +7,14 @@ import * as fs from "fs";
  * @param assert If true, the function will throw an error in case of false result.
  * @returns A boolean
  */
-export const isCollectionOf = (
-  Type: Function,
-  col: object,
-  assert: boolean = false
-) => {
+export const isCollectionOf = (Type: Function, col: object, assert: boolean = false) => {
   if (!Array.isArray(col)) {
     return false;
   }
   for (let i = 0; i < col.length; ++i) {
     if (!(col[i] instanceof Type)) {
       if (assert) {
-        throw new Error(
-          `Expected collection containing only values of type ${Type.name}.`
-        );
+        throw new Error(`Expected collection containing only values of type ${Type.name}.`);
       }
       return false;
     }

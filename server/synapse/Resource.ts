@@ -98,9 +98,7 @@ export default class Resource {
           // the result should now be an instance of Reply
           if (!(result instanceof Reply)) {
             console.log(result);
-            throw new Error(
-              `Unexpected result from endpoint '${method} ${path}'.`
-            );
+            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
           }
         } catch (err) {
           console.log(err);
@@ -225,10 +223,7 @@ export const field = (instance: Field): Function => {
   };
 };
 
-export const endpoint = (
-  path: string,
-  ...middleware: Array<Function>
-): Function => {
+export const endpoint = (path: string, ...middleware: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
     Class.$endpoint(path, ...middleware, descriptor.value);
   };

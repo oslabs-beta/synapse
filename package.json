@@ -29,6 +29,8 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "jest": "^26.0.1",
+    "jest-websocket-mock": "^2.0.2",
+    "mock-socket": "^9.0.3",
     "mongoose": "^5.9.16",
     "nodemon": "^2.0.4",
     "run-middleware": "^0.9.10",

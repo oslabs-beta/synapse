@@ -28,11 +28,11 @@ export default class User extends Resource {
   @endpoint("GET /")
   static async getAll() {
     const users = await UserDB.find();
-    const result = await Promise.all(
-      users.map((user) => User.instantiate(user.toObject()))
-    ).then((res) => {
-      return res;
-    });
+    const result = await Promise.all(users.map((user) => User.instantiate(user.toObject()))).then(
+      (res) => {
+        return res;
+      }
+    );
     return result;
   }
 
