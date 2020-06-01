@@ -1,3 +1,5 @@
+import { ClientRequest } from "http";
+
 export {};
 
 const Resource = require("./Resource");
@@ -48,7 +50,6 @@ const ws = (manager: typeof Manager) => {
 
     socket.on("message", async (msg: string) => {
       const data = tryParseJSON(msg);
-
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
       }
@@ -85,35 +86,28 @@ const ws = (manager: typeof Manager) => {
 const sse = (manager: typeof Manager) => {
   return async (req: any, res: any, next: Function) => {
     const client = (path: string, state: any) => {
-      res.write(JSON.stringify({ [path]: state }));
+      res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
     };
-    const { method } = parseEndpoint(req.method);
+    res
+      .set({
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      })
+      .status(200);
     let result;
-    const sendSSE = async (req: any, res: any) => {
-      res
-        .set({
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        })
-        .status(200);
+    const { method } = parseEndpoint(req.method);
+    if (method === "get") {
       result = await manager[method](req.path, {
         ...req.query,
         ...req.body,
         ...req.params,
       });
-      setInterval(() => {
-        res.write("data: " + result + "\n\n");
-      }, 1000);
-      res.write("data: " + result + "\n\n");
-    };
-
-    if (method === "get" || req.headers.accept === "text/event-stream") {
-      sendSSE(req, res);
+      manager.subscribe(client, req.path);
     } else {
       result = Reply.BAD_REQUEST("Invalid Method");
-      res.end();
     }
+    client(`${req.method} ${req.path}`, result);
   };
 };
 
@@ -145,3 +139,36 @@ function synapse(dir: string) {
 Object.assign(synapse, { Field, Schema, Resource, Reply, Controller, Manager });
 
 module.exports = synapse;
+
+// return async (req: any, res: any, next: Function) => {
+//   const client = (path: string, state: any) => {
+//     res.write(JSON.stringify({ [path]: state }));
+//   };
+//   const { method } = parseEndpoint(req.method);
+//   let result;
+//   const sendSSE = async (req: any, res: any) => {
+//     res
+//       .set({
+//         "Content-Type": "text/event-stream",
+//         "Cache-Control": "no-cache",
+//         Connection: "keep-alive",
+//       })
+//       .status(200);
+//     result = await manager[method](req.path, {
+//       ...req.query,
+//       ...req.body,
+//       ...req.params,
+//     });
+//     setInterval(() => {
+//       res.write("data: " + result + "\n\n");
+//     }, 1000);
+//     res.write("data: " + result + "\n\n");
+//   };
+
+//   if (method === "get" || req.headers.accept === "text/event-stream") {
+//     sendSSE(req, res);
+//   } else {
+//     result = Reply.BAD_REQUEST("Invalid Method");
+//     res.end();
+//   }
+// };

@@ -108,6 +108,46 @@
             "Cache-Control": "no-cache",            },
           };
           if (method !== 'GET') reqObj.body = body
+
+          if (!!window.EventSource) {
+            const source = new EventSource(`api/${path}`);
+
+            source.addEventListener(
+              "message",
+              function (e) {
+                console.log('SSE Message: ', e.data)
+                document.getElementById("data").innerHTML = e.data;
+              },
+              false
+            );
+
+            source.addEventListener(
+              "open",
+              function (e) {
+                console.log('SSE connection is open.')
+                document.getElementById("state").innerHTML = "Connected";
+              },
+              false
+            );
+
+            source.addEventListener(
+              "error",
+              function (e) {
+                const id_state = document.getElementById("state");
+                if (e.eventPhase == EventSource.CLOSED) source.close();
+                if (e.target.readyState == EventSource.CLOSED) {
+                  console.log('SSE connection is closed.')
+                  id_state.innerHTML = "Disconnected";
+                } else if (e.target.readyState == EventSource.CONNECTING) {
+                  console.log('SSE connecting...')
+                  id_state.innerHTML = "Connecting...";
+                }
+              },
+              false
+            );
+          } else {
+            console.log("Your browser doesn't support SSE");
+          }
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{
@@ -145,46 +185,7 @@
       }
 
 
-      if (!!window.EventSource) {
-        console.log('got into EventSource')
-        const source = new EventSource("api");
-
-        source.addEventListener(
-          "message",
-          function (e) {
-            console.log('SSE Message: ', e.data)
-            document.getElementById("data").innerHTML = e.data;
-          },
-          false
-        );
-
-        source.addEventListener(
-          "open",
-          function (e) {
-            console.log('SSE connection is open.')
-            document.getElementById("state").innerHTML = "Connected";
-          },
-          false
-        );
-
-        source.addEventListener(
-          "error",
-          function (e) {
-            const id_state = document.getElementById("state");
-            if (e.eventPhase == EventSource.CLOSED) source.close();
-            if (e.target.readyState == EventSource.CLOSED) {
-              console.log('SSE connection is closed.')
-              id_state.innerHTML = "Disconnected";
-            } else if (e.target.readyState == EventSource.CONNECTING) {
-              console.log('SSE connecting...')
-              id_state.innerHTML = "Connecting...";
-            }
-          },
-          false
-        );
-      } else {
-        console.log("Your browser doesn't support SSE");
-      }
+      
 
 
 
