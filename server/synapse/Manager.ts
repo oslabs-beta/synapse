@@ -1,50 +1,42 @@
+/* eslint-disable import/no-cycle */
+/* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
-// eslint-disable-next-line import/extensions
-import Relation from "./etc/Relation";
-// const Relation = require("./etc/Relation");
-const Reply = require("./Reply");
-const Resource = require("./Resource");
 
-class Manager {
-  /**
-   * Maps resources by paths to their last known values.
-   */
-  cache: object;
+import Store from "./util/Store";
+import Relation from "./util/Relation";
+import Reply from "./Reply";
+import Resource from "./Resource";
 
-  /**
-   * Stores the resource paths waiting to be updated.
-   */
+/** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Acts as a cache and subscription service. */
+export default class Manager {
+  /** Maps resources by paths to their last known values. */
+  cache: Store;
+
+  /** Stores the resource paths waiting to be updated. */
   queue: Array<string>;
 
-  /**
-   * Maps clients (represented by callback functions) to resource paths and vice versa.
-   */
+  /** Maps clients (represented by callback functions) to _resource paths_ and vice versa. */
   subscriptions: Relation<Function, string>;
 
-  /**
-   * The function which will be invoked to to execute requests when a cached resource is invalidated or unavailable.
-   */
+  /** The function ```(method, path, args) => {...}``` which will be invoked to execute requests when a cached resource is invalidated or unavailable. */
   generator: Function;
 
   /**
-   * @param generator A function f(method, path, args)
+   * @param generator See {@linkcode Manager.generator|Manager.prototype.generator}.
    */
   constructor(generator: Function) {
-    this.cache = {};
+    this.cache = new Store();
     this.queue = [];
     this.subscriptions = new Relation();
     this.generator = generator;
   }
 
-  /**
-   * Subscribes a client to a given resource path.
-   * Subscriptions are many-to-many relationships between clients and resources.
-   * Client-to-resource associations are stored in Manager.prototype.subscriptions.
-   * Resource-to-client associations are stored in Manager.prototype.dependents.
-   * @param client A function representing the client that requested the resource. Will be invoked when the resource changes state.
-   * @param path A resource path
+  /** _**(async)**_ Subscribes a client function to a given _resource ```path```_.
+   * @param client A function representing a client. Will be invoked when the resource at ```path``` changes state.
+   * @param path A _resource path_.
+   * @returns A promise evaluating to a {@linkcode Reply} -- ```OK``` if the subscription was successful, otherwise the reply returned by a ```GET``` request to the _resource path_.
    */
-  async subscribe(client: Function, path: string) {
+  async subscribe(client: Function, path: string): Promise<Reply> {
     // first attempt to get the value of the resource
     const result = await this.get(path);
 
@@ -61,8 +53,8 @@ class Manager {
 
     // if it's an array, subscribe the client to each resource in the collection
     if (Array.isArray(state)) {
-      state.forEach((resource: typeof Resource) => {
-        this.subscribe(client, resource.address());
+      state.forEach((resource: Resource) => {
+        this.subscribe(client, resource.path());
       });
     }
 
@@ -73,20 +65,19 @@ class Manager {
     return Reply.OK();
   }
 
-  /**
-   * Removes all associations between a given client and a given resource path.
-   * If no path is specified, unsubscribes the client from all resources.
+  /** Unsubscribes a client function from a given _resource ```path```_. If no path is specified, unsubscribes the client from all resources.
    * @param client A function representing a client.
-   * @param path A resource path.
+   * @param path A _resource path_.
+   * @returns An ```OK``` {@linkcode Reply}.
    */
-  unsubscribe(client: Function, path: string = null) {
+  unsubscribe(client: Function, path: string = null): Reply {
     this.subscriptions.unlink(client, path);
 
     // if the unsubscribed resource is a collection
-    const state = this.cache[path];
+    const state = this.cache.get(path);
     if (Array.isArray(state)) {
       // unsubscribe the client from all resources in the collection as well
-      state.forEach((resource: typeof Resource) => {
+      state.forEach((resource: Resource) => {
         this.subscriptions.unlink(client, resource.path());
       });
     }
@@ -94,61 +85,75 @@ class Manager {
     return Reply.OK();
   }
 
-  enqueue(...path: Array<string>) {
-    this.queue.push(...path);
+  /** Indicates that the resources at the specified ```paths``` may have changed state.
+   * @param paths One or more _resource paths_.
+   */
+  notify(...paths: Array<string>): void {
+    this.queue.push(...paths);
   }
 
-  /**
-   * Recalculates the cached value of a given resource by making a GET request to the generator.
-   * Invokes all subscriber functions with the new value.
-   * @param path A resource path
-   * @returns The result of the GET request
+  /** _**(async)**_ Recalculates the cached value of a given resource by making a GET request to the generator. Invokes all subscribed client functions with the new state.
+   * @param path A _resource path_.
+   * @returns A reply representing the result of the GET request used to recalculate the resource state.
    */
-  async update() {
+  async update(): Promise<Reply> {
     // update all affected resources in order
     while (this.queue.length) {
       const path = this.queue.shift();
 
-      // start by getting the current state of the resource from the generator
-      // eslint-disable-next-line no-await-in-loop
-      const result = await this.generator("get", path);
+      const subscriptions = this.subscriptions.to(path);
+      if (subscriptions.length) {
+        // start by getting the current state of the resource from the generator
+        // eslint-disable-next-line no-await-in-loop
+        const result = await this.generator("get", path);
 
-      if (!result.isError()) {
-        // if it's not an error, update the cache and send the new state to all subscribers
-        this.cache[path] = result.payload;
-        this.subscriptions.to(path).forEach((client) => {
-          client(path, result.payload);
-        });
-      } else if (result.status === 404) {
-        // otherwise, if the resource was not found, remove the resource from the cache
-        delete this.cache[path];
-        // then unsubscribe all subscribers and alert them with the new state (undefined).
-        this.subscriptions.to(path).forEach((client) => {
-          this.unsubscribe(client, path);
-          client(path, undefined);
-        });
+        if (!result.isError()) {
+          // if it's not an error, update the cache and send the new state to all subscribers
+          this.cache.set(path, result.payload);
+          subscriptions.forEach((client) => {
+            client(path, result.payload);
+          });
+        } else if (result.status === 404) {
+          // otherwise, if the resource was not found, remove the resource from the cache
+          this.cache.delete(path);
+          // then unsubscribe all subscribers and alert them with the new state (undefined).
+          subscriptions.forEach((client) => {
+            this.unsubscribe(client, path);
+            client(path, undefined);
+          });
+        }
       }
     }
 
     return undefined;
   }
 
-  async get(path, data = {}) {
-    if (this.cache[path]) {
-      return Reply.OK(this.cache[path]);
+  /** _**(async)**_ Returns the current state of the resource at the specified ```path```. Uses the cached value when available, otherwise makes a ```GET``` request to the {@linkcode Manager.generator|generator}.
+   * @param path A _resource path_.
+   * @param data The arguments to be passed to the _endpoint_ method.
+   * @returns A promise evaluating to a {@linkcode Reply}.
+   */
+  async get(path: string, data: object = {}): Promise<Reply> {
+    if (this.cache.has(path)) {
+      return Reply.OK(this.cache.get(path));
     }
 
     const result = await this.generator("get", path, data);
 
     if (!result.isError()) {
-      this.cache[path] = result.payload;
+      this.cache.set(path, result.payload);
     }
 
     return result;
   }
 
-  async post(path, data = {}) {
-    this.enqueue(path);
+  /** _**(async)**_ Makes a ```POST ``` request to the {@linkcode Manager.generator|generator}.
+   * @param path A _resource path_.
+   * @param data The arguments to be passed to the _endpoint_ method.
+   * @returns A promise evaluating to the result of the request.
+   */
+  async post(path: string, data: object): Promise<Reply> {
+    this.notify(path);
     const result = await this.generator("post", path, data);
     if (!result.isError()) {
       this.update();
@@ -156,8 +161,13 @@ class Manager {
     return result;
   }
 
-  async put(path, data) {
-    this.enqueue(path);
+  /** _**(async)**_ Makes a ```PUT ``` request to the {@linkcode Manager.generator|generator}.
+   * @param path A _resource path_.
+   * @param data The arguments to be passed to the _endpoint_ method.
+   * @returns A promise evaluating to the result of the request.
+   */
+  async put(path: string, data: object): Promise<Reply> {
+    this.notify(path);
     const result = await this.generator("put", path, data);
     if (!result.isError()) {
       this.update();
@@ -165,8 +175,13 @@ class Manager {
     return result;
   }
 
-  async patch(path, data) {
-    this.enqueue(path);
+  /** _**(async)**_ Makes a ```PATCH ``` request to the {@linkcode Manager.generator|generator}.
+   * @param path A _resource path_.
+   * @param data The arguments to be passed to the _endpoint_ method.
+   * @returns A promise evaluating to the result of the request.
+   */
+  async patch(path: string, data: object): Promise<Reply> {
+    this.notify(path);
     const result = await this.generator("patch", path, data);
     if (!result.isError()) {
       this.update();
@@ -174,8 +189,13 @@ class Manager {
     return result;
   }
 
-  async delete(path) {
-    this.enqueue(path);
+  /** _**(async)**_ Makes a ```DELETE ``` request to the {@linkcode Manager.generator|generator}.
+   * @param path A _resource path_.
+   * @param data The arguments to be passed to the _endpoint_ method.
+   * @returns A promise evaluating to the result of the request.
+   */
+  async delete(path: string): Promise<Reply> {
+    this.notify(path);
     const result = await this.generator("delete", path, null);
     if (!result.isError()) {
       this.update();
@@ -183,5 +203,3 @@ class Manager {
     return result;
   }
 }
-
-module.exports = Manager;

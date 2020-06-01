@@ -1,21 +1,18 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-await-in-loop */
 
-export {};
+import Field from "./Field";
+import { isCollectionOf } from "./util";
 
-const Field = require("./Field");
-const { isCollectionOf } = require("./etc/util");
-
-/**
- * Defines a type of object as a set of key names
- * and value types (Fields). Can validate that a
- * given object meets its requirements.
- * @param fields An empty object by default. Look into the decorator "fields" (link: ***somelink***) for more details on adding fields to Schema.
- */
-class Schema {
+/** An instance of {@linkcode Schema} defines a set of parameters by name and _fieldtype_ (see {@linkcode Field}). */
+export default class Schema {
   fields: object;
 
-  lastError: string;
+  lastError: object;
 
+  /**
+   * @param fields An object whose values are all instances of {@linkcode Field} -- herein _fieldset_.
+   */
   constructor(fields: object = {}) {
     // assert that the input is a collection of fields
     isCollectionOf(Field, fields, true);
@@ -23,24 +20,22 @@ class Schema {
     this.fields = fields;
   }
 
-  /**
-   * Extends current fields.
-   * @param fields An object that contains key names and value types to extend current fields.
-   * @returns A new Schema containing all the fields of this schema, plus additional fields.
+  /** Creates a new schema containing all of the instance's fields, plus additional ```fields```.
+   * @param fields A _fieldset_.
+   * @returns A new instance of {@linkcode Schema}.
    */
-  extend(fields: object) {
+  extend(fields: object): Schema {
     // assert that the input is a collection of fields
     isCollectionOf(Field, fields, true);
 
     return new Schema({ ...this.fields, ...fields });
   }
 
-  /**
-   * Creates a new Schema made of selected fields.
-   * @param keys List of keys to select.
-   * @return A new Schema containing a subset of the fields of this Schema as specified by 'keys'.
+  /** Creates a new schema containing a subset of the instance's fields.
+   * @param keys The names of the fields which should be transferred to the new schema.
+   * @return A new instance of {@linkcode Schema}.
    */
-  select(...keys) {
+  select(...keys: Array<string>): Schema {
     const result = {};
     keys.forEach((key) => {
       result[key] = this.fields[key];
@@ -48,13 +43,11 @@ class Schema {
     return new Schema(result);
   }
 
-  /**
-   * Deletes unused fields from their respective Schemas and adds them to a new one,
-   * in case they needs to be accessed later.
-   * @param keys List of keys to remove.
-   * @return A new Schema containing only the necessary/used fields of this Schema.
+  /** Creates a new schema containing a subset of the instance's fields.
+   * @param keys The names of the fields which should not be transferred to the new schema.
+   * @return A new instance of {@linkcode Schema}.
    */
-  exclude(...keys) {
+  exclude(...keys): Schema {
     const result = { ...this.fields };
     keys.forEach((key) => {
       delete result[key];
@@ -62,34 +55,37 @@ class Schema {
     return new Schema(result);
   }
 
-  /**
-   * Verifies that the object 'data' meets all the requirements defined by this schema's fields.
-   * @param data the object that we want to validate
-   * @returns an object that has been parsed through
-   * by calling the parse method on field and had
-   * its key value pairs confirmed as being valid
+  /** _**(async)**_ Determines if the key-value pairs in ```data``` match, or can be converted to, the format of the instance's _fieldset_.
+   * @param data An object to validate.
+   * @returns A new object containing only the values that have been parsed by corresponding fields in the _fieldset_, or undefined if a corresponding value for any field was not present.
    */
-  async validate(data: object) {
-    const result = {};
-
+  async validate(data: object): Promise<object> {
+    // for each field in the schema, parse the corresponding input value from 'data'
     const keys = Object.keys(this.fields);
-    for (let i = 0; i < keys.length; i++) {
+    const parsed = await Promise.all(
+      keys.map((key) => this.fields[key].parse(data[key]))
+    );
+
+    // initialize the output object and reset the lastError property
+    let output = {};
+    this.lastError = null;
+    parsed.forEach((value, i) => {
       const key = keys[i];
-      const field = this.fields[key];
-
-      // eslint-disable-next-line no-await-in-loop
-      const value = await field.parse(data[key]);
-
-      // if any of the fields are not valid return undefined
       if (value === undefined) {
-        this.lastError = `Unexpected parameter '${key} = ${data[key]}'.`;
-        return undefined;
+        // if any result is undefined, the input data is invalid
+        if (!this.lastError) {
+          // set the lastError property to a new object and the output to undefined
+          this.lastError = {};
+          output = undefined;
+        }
+        // transfer the error message from the field to the lastError object
+        this.lastError[key] = this.fields[key].lastError;
+      } else if (output) {
+        // if no errors have occured yet, transfer the successfully parse value to the output object
+        output[key] = value;
       }
+    });
 
-      result[key] = value;
-    }
-    return result; // if all fields are valid return the new object
+    return output;
   }
 }
-
-module.exports = Schema;

@@ -9,7 +9,8 @@ const synapse = require("./synapse/index");
 
 const PORT = 3000;
 const app = express();
-const api = synapse(path.resolve(__dirname, "./resources"));
+const api = synapse.initialize(path.resolve(__dirname, "./resources"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("src"));

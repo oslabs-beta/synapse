@@ -1,19 +1,18 @@
+/* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-export {};
+import { Resource, Reply } from "../synapse";
+import { field, endpoint, validator } from "../synapse/Resource";
+import { Email, Hash, Word, Text } from "../synapse/fields";
+import MongoId from "../fields/MongoId";
+import mongo from "../database";
 
-const { Resource, Reply, Field } = require("../synapse");
-const { Email, Hash, Word, Text } = require("../synapse/fields");
-const MongoId = require("../fields/MongoId");
-const UserDB = require("../database")("User");
+const UserDB = mongo("User");
 
-const { field, endpoint, validator } = Resource.decorators;
-const { OPT } = Field.Flags;
-
-class User extends Resource {
+export default class User extends Resource {
   @field(new MongoId()) _id;
   @field(new Word(3, 16)) username;
-  @field(new Email(OPT)) email;
+  @field(new Email(true)) email;
   @field(new Text()) password;
 
   @endpoint("GET /:_id")
@@ -56,5 +55,3 @@ class User extends Resource {
     });
   }
 }
-
-module.exports = User;
