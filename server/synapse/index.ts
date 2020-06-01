@@ -47,7 +47,6 @@ const ws = (manager: Manager): Function => {
 
     socket.on("message", async (msg: string) => {
       const data = tryParseJSON(msg);
-
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
       }
@@ -83,7 +82,29 @@ const ws = (manager: Manager): Function => {
  */
 const sse = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
-    // handle sse request
+    const client = (path: string, state: any) => {
+      res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
+    };
+    res
+      .set({
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      })
+      .status(200);
+    let result;
+    const { method } = parseEndpoint(req.method);
+    if (method === "get") {
+      result = await manager[method](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
+      });
+      manager.subscribe(client, req.path);
+    } else {
+      result = Reply.BAD_REQUEST("Invalid Method");
+    }
+    client(`${req.method} ${req.path}`, result);
   };
 };
 
