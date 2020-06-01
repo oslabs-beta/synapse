@@ -1,18 +1,17 @@
-export {};
+/* eslint-disable import/no-cycle */
+/* eslint-disable import/extensions */
 
-const Resource = require("./Resource");
-const Reply = require("./Reply");
-const Manager = require("./Manager");
-const Controller = require("./Controller");
-const Schema = require("./Schema");
-const Field = require("./Field");
-const { requireAll, tryParseJSON, parseEndpoint } = require("./etc/util");
+import Resource from "./Resource";
+import Reply from "./Reply";
+import Manager from "./Manager";
+import Controller from "./Controller";
+import { requireAll, tryParseJSON, parseEndpoint } from "./util";
 
 /**
  * Creates an express middleware function to handle HTTP requests
  * @param manager
  */
-const http = (manager: typeof Manager) => {
+const http = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
     const { method } = parseEndpoint(req.method);
 
@@ -39,7 +38,7 @@ const http = (manager: typeof Manager) => {
  * to be passed to the associated endpoint.
  * @param manager
  */
-const ws = (manager: typeof Manager) => {
+const ws = (manager: Manager): Function => {
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
@@ -48,7 +47,6 @@ const ws = (manager: typeof Manager) => {
 
     socket.on("message", async (msg: string) => {
       const data = tryParseJSON(msg);
-
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
       }
@@ -82,25 +80,48 @@ const ws = (manager: typeof Manager) => {
  * Creates an express middleware function to handle requests for SSE subscriptions
  * @param manager
  */
-const sse = (manager: typeof Manager) => {
+const sse = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
-    // handle sse request
+    const client = (path: string, state: any) => {
+      res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
+    };
+    res
+      .set({
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      })
+      .status(200);
+    let result;
+    const { method } = parseEndpoint(req.method);
+    if (method === "get") {
+      result = await manager[method](req.path, {
+        ...req.query,
+        ...req.body,
+        ...req.params,
+      });
+      manager.subscribe(client, req.path);
+    } else {
+      result = Reply.BAD_REQUEST("Invalid Method");
+    }
+    client(`${req.method} ${req.path}`, result);
   };
 };
 
 /**
- * Initializes API request handlers from Resource definitions in the given directory 'dir'.
- * @param dir A directory containing Resource definitions.
- * @returns An object containing properties 'ws' and 'http', whose values are request handlers for the respective protocol.
+ * Initializes API request handlers from {@linkcode Resource} definitions in the given ```directory```.
+ * @param directory A directory containing {@linkcode Resource} definitions.
+ * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-function synapse(dir: string) {
+export function initialize(directory: string): object {
   const controller = new Controller();
 
-  const manager = new Manager((...args) => {
-    return controller.request(...args);
+  const manager = new Manager((method, path, data) => {
+    return controller.request(method, path, data);
   });
 
-  requireAll(dir).forEach((Class: any) => {
+  requireAll(directory).forEach((module: any) => {
+    const Class = module.default;
     if (Class && Class.prototype instanceof Resource) {
       Class.attach(controller, manager);
     }
@@ -113,6 +134,9 @@ function synapse(dir: string) {
   };
 }
 
-Object.assign(synapse, { Field, Schema, Resource, Reply, Controller, Manager });
-
-module.exports = synapse;
+export { default as Field } from "./Field";
+export { default as Schema } from "./Schema";
+export { default as Resource } from "./Resource";
+export { default as Reply } from "./Reply";
+export { default as Controller } from "./Controller";
+export { default as Manager } from "./Manager";

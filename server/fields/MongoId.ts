@@ -1,8 +1,8 @@
-export {};
+/* eslint-disable import/extensions */
 
-const { Id } = require("../synapse/fields");
+import { Id } from "../synapse/fields";
 
-class MongoId extends Id {
+export default class MongoId extends Id {
   constructor(flags = null) {
     super();
 
@@ -13,5 +13,3 @@ class MongoId extends Id {
     );
   }
 }
-
-module.exports = MongoId;

@@ -1,9 +1,8 @@
-export {};
+/* eslint-disable import/extensions */
 
-const bcrypt = require("bcrypt");
-const Text = require("./Text");
+import Text from "./Text";
 
-class Word extends Text {
+export default class Word extends Text {
   saltRounds: number;
 
   constructor(min: number = null, max: number = null, flags: number = null) {
@@ -11,6 +10,12 @@ class Word extends Text {
 
     this.assert(/[^\w]/, false, "must contain only alphanumeric characters");
   }
+  /**
+   * Checks if the inputted value is valid by calling the parse methods in Text and Field.
+   * Serializes the input by converting it to lowercase.
+   * @param value A user's input.
+   * @returns The serialized version of its input or undefined if the input value is not valid.
+   */
 
   async parse(value: any) {
     const valid = await super.parse(value);
@@ -20,5 +25,3 @@ class Word extends Text {
     return valid.toLowerCase();
   }
 }
-
-module.exports = Word;

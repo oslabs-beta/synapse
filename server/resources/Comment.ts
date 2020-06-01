@@ -1,15 +1,13 @@
+/* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-export {};
-
-const { Resource, Reply } = require("../synapse");
-const { Id, Text, Integer } = require("../synapse/fields");
-
-const { field, endpoint, validator, affect } = Resource.decorators;
+import { Resource, Reply } from "../synapse";
+import { field, endpoint, validator, affect } from "../synapse/Resource";
+import { Id, Text, Integer } from "../synapse/fields";
 
 const ledger = [];
 
-class Comment extends Resource {
+export default class Comment extends Resource {
   @field(new Id()) id: string;
   @field(new Text()) text: string;
 
@@ -42,5 +40,3 @@ class Comment extends Resource {
     return comment;
   }
 }
-
-module.exports = Comment;

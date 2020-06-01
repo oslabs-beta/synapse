@@ -1,23 +1,11 @@
-export {};
+/* eslint-disable import/extensions */
 
-const Email = require("./Email");
-const Float = require("./Float");
-const Hash = require("./Hash");
-const Id = require("./Id");
-const Integer = require("./Integer");
-const Number = require("./Number");
-const Password = require("./Password");
-const Text = require("./Text");
-const Word = require("./Word");
-
-module.exports = {
-  Email,
-  Float,
-  Hash,
-  Id,
-  Integer,
-  Number,
-  Password,
-  Text,
-  Word,
-};
+export { default as Email } from "./Email";
+export { default as Float } from "./Float";
+export { default as Hash } from "./Hash";
+export { default as Id } from "./Id";
+export { default as Integer } from "./Integer";
+export { default as Number } from "./Number";
+export { default as Password } from "./Password";
+export { default as Text } from "./Text";
+export { default as Word } from "./Word";

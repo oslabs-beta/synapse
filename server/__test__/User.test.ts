@@ -1,24 +1,34 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
+import WS from "jest-websocket-mock";
+import { WebSocket } from "mock-socket";
+import { MONGO_URI } from "../secrets";
+
 const request = require("supertest");
 const mongoose = require("mongoose");
-const UserDB = require("../database")("User");
-const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
+global.WebSocket = WebSocket;
 const DBUrl = MONGO_URI;
 
-beforeAll(async () => {
-  const url = DBUrl;
-  await mongoose.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+beforeEach(async () => {
+  const testSocket = new WebSocket("ws://localhost:3000/api");
+  await testSocket.onopen;
+  testSocket.send("connected");
 });
 
-afterAll(() => {
-  mongoose.connection.close();
-});
+// beforeAll(async () => {
+//   const url = DBUrl;
+//   await mongoose.connect(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   });
+// });
+
+// afterAll(() => {
+//   mongoose.connection.close();
+// });
 
 describe("Basic operations", () => {
   let id;
@@ -52,5 +62,37 @@ describe("Basic operations", () => {
     const result = await request(app).get("/api/user/qwertyqwertyqwertyqwerty");
     expect(result.status).toEqual(400);
     expect(result.res.statusMessage).toBeTruthy();
+  });
+});
+xdescribe("websocket testing", () => {
+  it("Sending from mock server should be picked up by connected client", async () => {
+    const server = new WS("ws://localhost:3000/api");
+    const client = new WebSocket("ws://localhost:3000/api");
+
+    await server.connected;
+    client.send("hello");
+    await expect(server).toReceiveMessage("hello");
+
+    expect(server).toHaveReceivedMessages(["hello"]);
+  });
+  it("Mock server should sends errors to connected clients", async () => {
+    const server = new WS("ws://localhost:3000/api");
+    const client = new WebSocket("ws://localhost:3000/api");
+    await server.connected;
+
+    let disconnected = false;
+    let error = null;
+    client.onclose = () => {
+      disconnected = true;
+    };
+    client.onerror = (e) => {
+      error = e;
+    };
+
+    server.send("hello everyone");
+    server.error();
+    expect(disconnected).toBe(true);
+    expect(error.origin).toBe("ws://localhost:3000/api");
+    expect(error.type).toBe("error");
   });
 });

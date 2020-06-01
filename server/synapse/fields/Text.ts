@@ -1,11 +1,10 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
-export {};
+import Field from "../Field";
 
-const Field = require("../Field");
-
-class Text extends Field {
+export default class Text extends Field {
   /**
    * Set of rules to validate input.
    * Filled with the RegExp provided when custom fields are created.
@@ -39,6 +38,13 @@ class Text extends Field {
     this.rules.push({ regex, expect, message });
   }
 
+  /**
+   * Verifies that a user's input is in the correct format of a string and that it had passed its RegExp test(s).
+   * If the input is null or undefined, obtains the default value if one exists.
+   * @param value User input to be checked.
+   * @returns Undefined if the value is not a string or if it didn't pass the tests, or the value itself if it does.
+   */
+
   /*
    * Overrides Field.prototype.parse.
    * If the input value is null or undefined, obtains the default value, if one exists.
@@ -64,5 +70,3 @@ class Text extends Field {
     return undefined;
   }
 }
-
-module.exports = Text;

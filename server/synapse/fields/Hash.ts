@@ -1,9 +1,10 @@
-export {};
+/* eslint-disable import/extensions */
 
-const bcrypt = require("bcrypt");
-const Text = require("./Text");
+import Text from "./Text";
 
-class Hash extends Text {
+import bcrypt = require("bcrypt");
+
+export default class Hash extends Text {
   saltRounds: number;
 
   constructor(
@@ -17,6 +18,12 @@ class Hash extends Text {
     this.saltRounds = saltRounds;
   }
 
+  /**
+   * Checks to see if a user's input is in the correct format and if so, hashes it using bcrypt.
+   * @param value A user's input.
+   * @returns A hashed version of the input if it passed its tests or undefined if it did not.
+   */
+
   async parse(value: any) {
     if (await super.parse(value)) {
       return bcrypt.hash(value, this.saltRounds);
@@ -28,5 +35,3 @@ class Hash extends Text {
     return bcrypt.compare(value, hash);
   }
 }
-
-module.exports = Hash;

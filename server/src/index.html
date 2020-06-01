@@ -6,6 +6,8 @@
     <title>Document</title>
   </head>
   <body>
+    <h3>SSE: <span id="state"></span></h1>
+    <h4>Data: <span id="data"></span></h3>
     <form id="form" name="publish">
       <select name="protocol" id="protocol">
         <option value="WS">WS</option>
@@ -106,7 +108,11 @@
           const request = {
           [key]:payload
         }
+<<<<<<< HEAD
         console.log(JSON.stringify(request))
+=======
+        console.log(JSON.stringify(request));
+>>>>>>> ffed959f635fcd4a910e13bc75d9d6836b73c5ea
         webSocket.send(JSON.stringify(request));
         // if sending HTTP
         } else if (protocol === "HTTP") {
@@ -132,7 +138,7 @@
            
           })
         } else if (protocol === "SSE") {
-          console.log('youre making SSE request')
+          // console.log('youre making SSE request')
           const reqObj = {
           method,
           headers: {
@@ -141,10 +147,50 @@
             "Cache-Control": "no-cache",            },
           };
           if (method !== 'GET') reqObj.body = body
+
+          if (!!window.EventSource) {
+            const source = new EventSource(`api/${path}`);
+
+            source.addEventListener(
+              "message",
+              function (e) {
+                console.log('SSE Message: ', e.data)
+                document.getElementById("data").innerHTML = e.data;
+              },
+              false
+            );
+
+            source.addEventListener(
+              "open",
+              function (e) {
+                console.log('SSE connection is open.')
+                document.getElementById("state").innerHTML = "Connected";
+              },
+              false
+            );
+
+            source.addEventListener(
+              "error",
+              function (e) {
+                const id_state = document.getElementById("state");
+                if (e.eventPhase == EventSource.CLOSED) source.close();
+                if (e.target.readyState == EventSource.CLOSED) {
+                  console.log('SSE connection is closed.')
+                  id_state.innerHTML = "Disconnected";
+                } else if (e.target.readyState == EventSource.CONNECTING) {
+                  console.log('SSE connecting...')
+                  id_state.innerHTML = "Connecting...";
+                }
+              },
+              false
+            );
+          } else {
+            console.log("Your browser doesn't support SSE");
+          }
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{
-            console.log("we got something back in response to SSE:", data)
+            // console.log("we got something back in response to SSE:", data)
             // display incoming data in "terminal"
             let terminalPost = document.createElement('div');
             terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
@@ -176,6 +222,10 @@
         const listItems = document.querySelectorAll('li')
         listItems[listItems.length-1].remove()
       }
+
+
+      
+
 
 
       webSocket.onopen = (event) => {
