@@ -7,6 +7,7 @@ import Relation from "./util/Relation";
 import Reply from "./Reply";
 import Resource from "./Resource";
 
+/** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Acts as a cache and subscription service. */
 export default class Manager {
   /** Maps resources by paths to their last known values. */
   cache: Store;

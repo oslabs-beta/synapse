@@ -11,7 +11,7 @@ import { requireAll, tryParseJSON, parseEndpoint } from "./util";
  * Creates an express middleware function to handle HTTP requests
  * @param manager
  */
-const http = (manager: Manager) => {
+const http = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
     const { method } = parseEndpoint(req.method);
 
@@ -38,7 +38,7 @@ const http = (manager: Manager) => {
  * to be passed to the associated endpoint.
  * @param manager
  */
-const ws = (manager: Manager) => {
+const ws = (manager: Manager): Function => {
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
@@ -81,25 +81,25 @@ const ws = (manager: Manager) => {
  * Creates an express middleware function to handle requests for SSE subscriptions
  * @param manager
  */
-const sse = (manager: Manager) => {
+const sse = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
     // handle sse request
   };
 };
 
 /**
- * Initializes API request handlers from Resource definitions in the given directory 'dir'.
- * @param dir A directory containing Resource definitions.
- * @returns An object containing properties 'ws' and 'http', whose values are request handlers for the respective protocol.
+ * Initializes API request handlers from {@linkcode Resource} definitions in the given ```directory```.
+ * @param directory A directory containing {@linkcode Resource} definitions.
+ * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-export function initialize(dir: string) {
+export function initialize(directory: string): object {
   const controller = new Controller();
 
   const manager = new Manager((method, path, data) => {
     return controller.request(method, path, data);
   });
 
-  requireAll(dir).forEach((module: any) => {
+  requireAll(directory).forEach((module: any) => {
     const Class = module.default;
     if (Class && Class.prototype instanceof Resource) {
       Class.attach(controller, manager);
