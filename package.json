@@ -8,7 +8,7 @@
     "start": "node ./build/server/server.js",
     "build": "tsc",
     "dev": "nodemon",
-    "doc": "npx typedoc --out docs server/synapse"
+    "doc": "npx typedoc --mode library --excludeNotExported --excludeExternals --stripInternal --theme minimal --out docs/build docs/index.ts"
   },
   "repository": {
     "type": "git",
@@ -54,6 +54,6 @@
     }
   },
   "devDependencies": {
-    "typedoc": "^0.17.7"
+    "typedoc": "^0.17.0-3"
   }
 }

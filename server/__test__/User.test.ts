@@ -1,15 +1,15 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
+
+import { MONGO_URI } from "../secrets";
+
 const request = require("supertest");
 const mongoose = require("mongoose");
-const UserDB = require("../database")("User");
-const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
-const DBUrl = MONGO_URI;
-
 beforeAll(async () => {
-  const url = DBUrl;
+  const url = MONGO_URI;
   await mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,

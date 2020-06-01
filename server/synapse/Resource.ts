@@ -1,27 +1,30 @@
 /* eslint-disable no-await-in-loop */
+/* eslint-disable import/no-cycle */
+/* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
-export {};
+import { Field, Schema, Reply, Controller, Manager } from ".";
+// import Schema from "./Schema";
+// import Manager from "./Manager";
+// import Field from "./Field";
+// import Controller from "./Controller";
+// import Reply from "./Reply";
+import Id from "./fields/Id";
+import { isCollectionOf } from "./util";
 
-const Field = require("./Field");
-const Schema = require("./Schema");
-const Reply = require("./Reply");
-const Manager = require("./Manager");
-const Controller = require("./Controller");
-const Id = require("./fields/Id");
-const { isCollectionOf } = require("./etc/util");
+/** Abstract class representing a RESTful resource exposed by the synapse API. */
+export default class Resource {
+  /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
+  static schema: Schema;
 
-/**
- *  Represents a RESTful resource exposed by the synapse API
- */
-class Resource {
-  static schema: typeof Schema;
-
+  /** An object mapping API _endpoints_ in the format ```METHOD /path``` to handler functions. */
   static endpoints: object;
 
-  static manager: typeof Manager;
+  /** The instance of {@linkcode Manager} that is currently managing the derived class. */
+  static manager: Manager;
 
-  static root() {
+  /** Returns the _resource path_ from which all endpoints on the derived class originate. */
+  static root(): string {
     const Class = this;
 
     const name = Class.name
@@ -31,7 +34,8 @@ class Resource {
     return `/${name}`;
   }
 
-  address() {
+  /** Returns the _resource path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
+  path(): string {
     const Class = <typeof Resource>this.constructor;
 
     const { fields } = Class.schema;
@@ -46,15 +50,12 @@ class Resource {
     throw new Error(`No field of type 'Id' found for class ${Class.name}.`);
   }
 
-  /**
-   * Creates an instance of the derived class using a plain object 'data'.
-   * Validates the data using the derived class's schema.
-   * @param data A plain object that contains "raw" information that will be used to make a resource. Ex: User.instantiate({name: 'Jay', pass: 'password'})
-   * @returns An instance of the derived class. Ex: User object with [name] validated, and [password] hashed: {name: 'Jay', pass: '$2b$10$3euPcmQFCiblsZeEu5s7p'}
+  /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}.
+   * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
-  static async instantiate(data: object) {
-    // 'this' represents the class constructor in a static method.
-    const Type: any = this;
+  static async instantiate(data: object): Promise<Resource> {
+    const Type: any = this; // 'this' represents the class constructor in a static method.
+
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
@@ -70,7 +71,11 @@ class Resource {
     return instance;
   }
 
-  static attach(controller: typeof Controller, manager: typeof Manager) {
+  /** Exposes all {@linkcode Resource.endpoints|endpoints} defined by the derived class to the specified ```controller```. Sets the derived class's {@linkcode Resource.manager|manager}.
+   * @param controller The controller which will receive the endpoints.
+   * @param manager See {@linkcode Resource.manager}.
+   */
+  static attach(controller: Controller, manager: Manager): void {
     const Class = this;
 
     Object.keys(Class.endpoints || {}).forEach((key: string) => {
@@ -109,7 +114,12 @@ class Resource {
     Class.manager = manager;
   }
 
-  static $field(name: string, value: typeof Field) {
+  /** Adds a field to the derived class's {@linkcode Resource.schema|schema}.
+   * @category Meta
+   * @param name The name of the field.
+   * @param value An instance of {@linkcode Field}.
+   */
+  static $field(name: string, value: Field): void {
     const Class = this;
 
     if (!(value instanceof Field)) {
@@ -123,15 +133,21 @@ class Resource {
     Class.schema = Class.schema.extend({ [name]: value });
   }
 
-  static $endpoint(path: string, ...middleware: Array<Function>) {
+  /** Adds an _endpoint_ to the derived class's {@linkcode Resource.endpoints|endpoints} object.
+   * @category Meta
+   * @param value The _endpoint_ string.
+   * @param middleware A chain of functions to be executed when the _endpoint_ is requested. The return value of each function will be passed to the next in line.
+   * @returns The last function in the middleware chain.
+   */
+  static $endpoint(value: string, ...middleware: Array<Function>): Function {
     const Class = this;
 
-    if (typeof path !== "string") {
-      throw new Error("Expected path to be a string.");
+    if (typeof value !== "string") {
+      throw new Error("Expected 'value' to be a string.");
     }
     if (!isCollectionOf(Function, middleware)) {
       console.log(middleware);
-      throw new Error("Expected middleware to be an array of functions.");
+      throw new Error("Expected 'middleware' to be an array of functions.");
     }
 
     if (!Class.endpoints) {
@@ -139,7 +155,7 @@ class Resource {
     }
 
     // add a new function to the class's 'endpoints' object.
-    Class.endpoints[path] = async (...args) => {
+    Class.endpoints[value] = async (...args) => {
       const chain = [...middleware];
 
       let baton = args; // pass the input arguments to the first function in the chain
@@ -159,7 +175,13 @@ class Resource {
     return middleware[middleware.length - 1];
   }
 
-  static $validator(schema: any, wrapped: Function) {
+  /** Returns a function which, when invoked, will validate its input arguments using the specified ```schema``` before calling the specified```target``` function.
+   * @category Meta
+   * @param schema An instance of {@linkcode Schema}, or a _fieldset_ which will be used to construct a schema.
+   * @param target The function to be wrapped.
+   * @returns The validator function.
+   */
+  static $validator(schema: any, target: Function): Function {
     if (!(schema instanceof Schema)) {
       schema = new Schema(schema);
     }
@@ -171,86 +193,57 @@ class Resource {
         return Reply.BAD_REQUEST(schema.lastError);
       }
 
-      return wrapped(validated);
+      return target(validated);
     };
   }
 
-  static $affect(paths: Array<string>, wrapped: Function) {
+  /** Returns a function which, when invoked, will first call the ```target``` function and then attempt to notify the derived class's {@linkcode Resource.manager|manager} that the specified _resource ```paths```_ should be updated.
+   * @category Meta
+   * @param paths The dependent _resource paths_.
+   * @param target The function to be wrapped.
+   */
+  static $affect(paths: Array<string>, target: Function): Function {
     const Class = this;
 
     return (...args: any) => {
-      const result = wrapped(...args);
+      const result = target(...args);
 
       // if a Manager object is attached to the class, use it to update the affected resource paths
       if (Class.manager) {
-        paths.forEach((path) =>
-          Class.manager.enqueue(`/${Class.name.toLowerCase()}${path}`)
-        );
+        paths.forEach((path) => Class.manager.notify(Class.root() + path));
       }
 
       return result;
     };
   }
-
-  static decorators: any = {};
 }
 
-/**
- * @param value An instance of Field that will be added to schema.
- * @returns A decorator function which adds the specified Field to the
- * target class's schema, using the name of the targeted property.
- */
-function field(value: typeof Field) {
-  return (target, name) => {
-    target.constructor.$field(name, value);
+export const field = (instance: Field): Function => {
+  return (target, fieldName) => {
+    const Class = target.constructor;
+    Class.$field(fieldName, instance);
   };
-}
+};
 
-/**
- * An instance of Resource will have an "endpoints" property(object) that contains endpoint methods.
- * The endpoint method will call the class method targeted by the decorator using the
- * arguments obtained by passing the input arguments through the specified chain of functions 'middleware'.
- * If any middleware functions return an instance of Reply(more info on Reply class here: (***somelink***),
- * the chain will be broken and the target class method will not be invoked.
- * @param path Primary HTTP verb + URL endpoint. Ex: 'GET /:id'
- * @param middleware A list of middleware functions(comma separated) to be invoked when receiving a request to a specific endpoint.
- * @returns A decorator function which adds a new endpoint method to the class's static 'endpoints' object.
- */
-function endpoint(path: string, ...middleware: Array<Function>) {
-  return (target, name, descriptor) => {
-    target.$endpoint(path, ...middleware, descriptor.value);
+export const endpoint = (
+  path: string,
+  ...middleware: Array<Function>
+): Function => {
+  return (Class, methodName, descriptor) => {
+    Class.$endpoint(path, ...middleware, descriptor.value);
   };
-}
+};
 
-/**
- * When invoked, the validator function
- * uses the specified schema to validate the input arguments
- * before calling the original target method.
- * @param schema Specific schema that will be used to validate
- * the field that the decorator is wrapped around.
- * @returns Returns a decorator function which wraps the target class method
- * in a validator function. If validation fails - return an instance of Reply class(read more: ***somelink***).
- */
-function validator(schema: typeof Schema) {
-  return (target, name, descriptor) => {
+export const validator = (schema: any): Function => {
+  return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated
-    descriptor.value = target.$validator(schema, method);
+    descriptor.value = Class.$validator(schema, method);
   };
-}
+};
 
-/**
- * Used as a decorator to wrap the target class method in a function which, when invoked,
- * attempts to invalidate cached values for specified resource 'paths'.
- * @param paths the paths of resources whose state depends on this resource
- * @returns A decorator function
- */
-function affect(...paths: Array<string>) {
-  return (target, name, descriptor) => {
+export const affect = (...paths: Array<string>): Function => {
+  return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated
-    descriptor.value = target.$affect(paths, method);
+    descriptor.value = Class.$affect(paths, method);
   };
-}
-
-Object.assign(Resource.decorators, { field, endpoint, validator, affect });
-
-module.exports = Resource;
+};

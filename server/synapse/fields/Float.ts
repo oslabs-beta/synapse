@@ -1,13 +1,10 @@
+/* eslint-disable import/extensions */
 /* eslint-disable class-methods-use-this */
 
-export {};
+import Number from "./Number";
 
-const Number = require("./Number");
-
-class Float extends Number {
+export default class Float extends Number {
   async parse(value: any) {
     return parseFloat(value);
   }
 }
-
-module.exports = Float;

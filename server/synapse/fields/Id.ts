@@ -1,9 +1,9 @@
-export {};
+/* eslint-disable import/extensions */
 
-const Text = require("./Text");
+import Text from "./Text";
 
-class Id extends Text {
-  constructor(length, flags = null) {
+export default class Id extends Text {
+  constructor(length = null, flags = null) {
     super(length, length, null, flags);
 
     this.assert(
@@ -13,5 +13,3 @@ class Id extends Text {
     );
   }
 }
-
-module.exports = Id;
