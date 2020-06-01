@@ -1,17 +1,21 @@
-export {};
+/* eslint-disable import/extensions */
 
-const mongoose = require("mongoose");
-const { MONGO_URI } = require("./secrets");
+import * as mongoose from "mongoose";
+import { MONGO_URI } from "./secrets";
+
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  dbName: "synapse",
+};
 
 mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: "synapse",
-  })
+  .connect(MONGO_URI, options)
   .then(() => console.log("Connected to Mongo DB."))
   .catch((err) => console.log(err));
+
 const schema = new mongoose.Schema({}, { strict: false });
-module.exports = (model) => {
+
+export default (model: string) => {
   return mongoose.model(model, schema);
 };

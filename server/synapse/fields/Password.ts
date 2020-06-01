@@ -1,10 +1,9 @@
-export {};
-const Text = require("./Text");
+/* eslint-disable import/extensions */
 
-class Password extends Text {
+import Text from "./Text";
+
+export default class Password extends Text {
   constructor(flags = null) {
     super();
   }
 }
-
-module.exports = Password;
