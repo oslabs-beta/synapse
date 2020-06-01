@@ -152,7 +152,7 @@
         source.addEventListener(
           "message",
           function (e) {
-            console.log('got a message')
+            console.log('SSE Message: ', e.data)
             document.getElementById("data").innerHTML = e.data;
           },
           false

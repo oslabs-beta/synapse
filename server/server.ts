@@ -37,10 +37,10 @@ app.use(express.static("src"));
 //   console.log(req.headers);
 //   return next();
 // });
-app.get("/api", api.sse);
 enableWs(app);
 app.ws("/api", api.ws);
 app.use("/api", api.http);
+app.get("/api", api.sse);
 
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./src/index.html"));

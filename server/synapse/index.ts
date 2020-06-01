@@ -84,26 +84,36 @@ const ws = (manager: typeof Manager) => {
  */
 const sse = (manager: typeof Manager) => {
   return async (req: any, res: any, next: Function) => {
+    const client = (path: string, state: any) => {
+      res.write(JSON.stringify({ [path]: state }));
+    };
     const { method } = parseEndpoint(req.method);
-
     let result;
-    if (method) {
+    const sendSSE = async (req: any, res: any) => {
+      res
+        .set({
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        })
+        .status(200);
       result = await manager[method](req.path, {
         ...req.query,
         ...req.body,
         ...req.params,
       });
+      setInterval(() => {
+        res.write("data: " + result + "\n\n");
+      }, 1000);
+      res.write("data: " + result + "\n\n");
+    };
+
+    if (method === "get" || req.headers.accept === "text/event-stream") {
+      sendSSE(req, res);
     } else {
       result = Reply.BAD_REQUEST("Invalid Method");
+      res.end();
     }
-
-    res
-      .set({
-        Connection: "keep-alive",
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-      })
-      .status(200);
   };
 };
 
