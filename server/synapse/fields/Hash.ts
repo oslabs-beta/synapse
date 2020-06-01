@@ -1,9 +1,10 @@
-export {};
+/* eslint-disable import/extensions */
 
-const bcrypt = require("bcrypt");
-const Text = require("./Text");
+import Text from "./Text";
 
-class Hash extends Text {
+import bcrypt = require("bcrypt");
+
+export default class Hash extends Text {
   saltRounds: number;
 
   constructor(
@@ -28,5 +29,3 @@ class Hash extends Text {
     return bcrypt.compare(value, hash);
   }
 }
-
-module.exports = Hash;

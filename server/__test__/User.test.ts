@@ -1,12 +1,12 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import WS from "jest-websocket-mock";
 import { WebSocket } from "mock-socket";
+import { MONGO_URI } from "../secrets";
 
 const request = require("supertest");
 const mongoose = require("mongoose");
-const UserDB = require("../database")("User");
-const { MONGO_URI } = require("../secrets");
 const app = require("../server");
 
 global.WebSocket = WebSocket;
@@ -30,7 +30,7 @@ beforeEach(async () => {
 //   mongoose.connection.close();
 // });
 
-xdescribe("Basic operations", () => {
+describe("Basic operations", () => {
   let id;
   it("Should post user to database", async () => {
     const result = await request(app).post("/api/user").send({
@@ -62,18 +62,6 @@ xdescribe("Basic operations", () => {
     const result = await request(app).get("/api/user/qwertyqwertyqwertyqwerty");
     expect(result.status).toEqual(400);
     expect(result.res.statusMessage).toBeTruthy();
-  });
-});
-describe("websocket functionality", () => {
-  it("websocket get request", async () => {
-    const webSocket = new WebSocket("ws://localhost:3000/api");
-    webSocket.send(JSON.stringify({ "GET /user": {} }));
-    webSocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data);
-      expect(data.status).toEqual(200);
-      expect(Array.isArray(data)).toEqual(true);
-    };
   });
 });
 xdescribe("websocket testing", () => {

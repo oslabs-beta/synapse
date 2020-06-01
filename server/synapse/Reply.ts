@@ -1,72 +1,82 @@
-export {};
-
-/**
- * Represents a response to the client.
- */
-class Reply {
+/** Represents a response to a client. */
+export default class Reply {
+  /** An HTTP status code */
   status: number;
 
+  /** The requested data */
   payload: any;
 
+  /**
+   * @param status See {@linkcode Reply.status|Reply.prototype.status}.
+   * @param payload See {@linkcode Reply.payload|Reply.prototype.payload}.
+   */
   constructor(status: number, payload: any = null) {
     this.status = status;
     this.payload = payload;
   }
 
-  /*
-    Checks if this.status is a 4xx or 5xx error.
-  */
-  isError() {
+  /** Checks if the instance's {@linkcode Reply.status|status} is a 4xx or 5xx error. */
+  isError(): boolean {
     return ["4", "5"].includes(this.status.toString()[0]);
   }
 
-  toString() {
+  /**
+   * @returns A string representation of the instance's {@linkcode Reply.payload|payload}.
+   */
+  toString(): string {
     if (this.payload === null || this.payload === undefined) {
       return "";
     }
 
     if (typeof this.payload === "string" || typeof this.payload === "number") {
-      return this.payload;
+      return <string>this.payload;
     }
 
     return JSON.stringify(this.payload);
   }
 
+  /** @category Factory */
   static OK(payload: any = null) {
     return new Reply(200, payload);
   }
 
+  /** @category Factory */
   static CREATED(payload: any = null) {
     return new Reply(201, payload);
   }
 
+  /** @category Factory */
   static NO_CONTENT() {
     return new Reply(201);
   }
 
+  /** @category Factory */
   static BAD_REQUEST(payload: any = null) {
     return new Reply(400, payload);
   }
 
+  /** @category Factory */
   static UNAUTHORIZED(payload: any = null) {
     return new Reply(401, payload);
   }
 
+  /** @category Factory */
   static FORBIDDEN(payload: any = null) {
     return new Reply(403, payload);
   }
 
+  /** @category Factory */
   static NOT_FOUND(payload: any = null) {
     return new Reply(404, payload);
   }
 
+  /** @category Factory */
   static CONFLICT(payload: any = null) {
     return new Reply(409, payload);
   }
 
+  /** @category Factory */
   static INTERNAL_SERVER_ERROR(payload: any = null) {
     return new Reply(500, payload);
   }
 }
-
-module.exports = Reply;
