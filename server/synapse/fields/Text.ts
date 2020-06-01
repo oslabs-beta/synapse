@@ -1,11 +1,10 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
-export {};
+import Field from "../Field";
 
-const Field = require("../Field");
-
-class Text extends Field {
+export default class Text extends Field {
   /**
    * Set of rules to validate input.
    * Filled with the RegExp provided when custom fields are created.
@@ -71,5 +70,3 @@ class Text extends Field {
     return undefined;
   }
 }
-
-module.exports = Text;

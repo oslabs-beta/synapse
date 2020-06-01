@@ -1,9 +1,8 @@
-export {};
+/* eslint-disable import/extensions */
 
-const bcrypt = require("bcrypt");
-const Text = require("./Text");
+import Text from "./Text";
 
-class Word extends Text {
+export default class Word extends Text {
   saltRounds: number;
 
   constructor(min: number = null, max: number = null, flags: number = null) {
@@ -26,5 +25,3 @@ class Word extends Text {
     return valid.toLowerCase();
   }
 }
-
-module.exports = Word;

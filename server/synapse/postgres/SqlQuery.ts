@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 
-class SqlQuery {
+export default class SqlQuery {
   table: string;
 
   columns: string;
@@ -98,5 +98,3 @@ class SqlQuery {
 //   .into("users");
 
 // console.log(select.evaluate());
-
-module.exports = SqlQuery;
