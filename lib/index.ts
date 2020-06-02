@@ -1,6 +1,5 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
-
 import Resource from "./Resource";
 import Reply from "./Reply";
 import Manager from "./Manager";
