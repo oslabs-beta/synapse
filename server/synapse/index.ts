@@ -29,7 +29,7 @@ const http = (manager: Manager): Function => {
     };
     const result = await manager[method](req.path, args);
 
-    res.status(result.status).json(result.payload);
+    return res.status(result.status).json(result.payload);
   };
 };
 
@@ -134,7 +134,7 @@ const sse = (manager: Manager): Function => {
  * @param directory A directory containing {@linkcode Resource} definitions.
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-export function initialize(directory: string): object {
+export function synpase(directory: string): object {
   const controller = new Controller();
 
   const manager = new Manager((method, path, data) => {

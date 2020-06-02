@@ -73,9 +73,7 @@ export default class Schema {
   async validate(data: object): Promise<object> {
     // for each field in the schema, parse the corresponding input value from 'data'
     const keys = Object.keys(this.fields);
-    const parsed = await Promise.all(
-      keys.map((key) => this.fields[key].parse(data[key]))
-    );
+    const parsed = await Promise.all(keys.map((key) => this.fields[key].parse(data[key])));
 
     // initialize the output object and reset the lastError property
     let output = {};

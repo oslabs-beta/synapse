@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
-const synapse = require("./synapse");
+const { synapse } = require("./synapse");
 const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json(), express.urlencoded({ extended: true }), cookieParser());
 
 // initialize an instance of the synapse API with the directory containing the Resource definitions
-const api = synapse.initialize(path.resolve(__dirname, "./resources"));
+const api = synapse(path.resolve(__dirname, "./resources"));
 // initialize express-ws
 enableWs(app);
 // ensure that all clients have a client_id cookie
