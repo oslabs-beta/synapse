@@ -4,7 +4,7 @@
 import Resource from "./Resource";
 import Reply from "./Reply";
 import Manager from "./Manager";
-import Controller from "./Controller";
+import Controller from "./util/Controller";
 import { requireAll, tryParseJSON, parseEndpoint } from "./util";
 
 /**
@@ -21,12 +21,7 @@ const http = (manager: Manager): Function => {
     }
 
     // then pass it to the manager
-    const args = {
-      ...req.cookies,
-      ...req.query,
-      ...req.body,
-      ...req.params,
-    };
+    const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const result = await manager[method](req.path, args);
 
     return res.status(result.status).json(result.payload);
@@ -101,12 +96,7 @@ const sse = (manager: Manager): Function => {
     };
 
     // validate the request by attempting to GET the requested resource
-    const args = {
-      ...req.cookies,
-      ...req.query,
-      ...req.body,
-      ...req.params,
-    };
+    const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const result = await manager.get(req.path, args);
 
     if (result.isError()) {
@@ -159,5 +149,4 @@ export { default as Field } from "./Field";
 export { default as Schema } from "./Schema";
 export { default as Resource } from "./Resource";
 export { default as Reply } from "./Reply";
-export { default as Controller } from "./Controller";
 export { default as Manager } from "./Manager";
