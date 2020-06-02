@@ -2,7 +2,7 @@
 
 import Text from "./Text";
 
-import bcrypt = require("bcrypt");
+import bcrypt = require("bcryptjs");
 
 export default class Hash extends Text {
   saltRounds: number;
