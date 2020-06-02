@@ -1,10 +1,10 @@
-/* eslint-disable no-await-in-loop */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
-import { Field, Schema, Reply, Controller, Manager } from ".";
-import { isCollectionOf } from "./util";
+import { Field, Schema, Reply, Manager } from ".";
+import { isCollectionOf, parseEndpoint, invokeChain } from "./util";
+import Controller from "./util/Controller";
 import Id from "./fields/Id";
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
@@ -59,7 +59,7 @@ export default class Resource {
     }
 
     // transfer the resulting values to a new instance of the derived class
-    const instance = new Type(); // new User(id: 123, email: xxninjamasterxx@gmail.com(!!!), pass: HASDHASHDASH)
+    const instance = new Type();
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
@@ -74,41 +74,24 @@ export default class Resource {
   static attach(controller: Controller, manager: Manager): void {
     const Class = this;
 
-    Object.keys(Class.endpoints || {}).forEach((key: string) => {
-      let [method, path] = key.split(" "); // ex. 'GET /:id => [ 'GET, '/:id' ]
-      method = method.toLowerCase(); // ex. 'GET' => 'get'
-      path = `/${Class.name.toLowerCase()}${path}`; // ex. '/:id' => '/user/:id'
+    Class.manager = manager;
 
-      // add route to controller: ex. controller.declare('get', '/user/:id', ...
+    if (!Class.endpoints) {
+      Class.endpoints = {};
+    }
+
+    Object.keys(Class.endpoints).forEach((key: string) => {
+      const { method, path } = parseEndpoint(key, [], Class.root());
       controller.declare(method, path, async (args: object) => {
-        let result;
-
-        try {
-          result = await Class.endpoints[key](args); // invoke the endpoint method
-
-          // if the result is a Resource or array of Resources, convert it to a reply
-          if (result instanceof Resource || isCollectionOf(Resource, result)) {
-            result = new Reply(method === "post" ? 201 : 200, result);
-          }
-
-          // the result should now be an instance of Reply
-          if (!(result instanceof Reply)) {
-            console.log(result);
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
-          }
-        } catch (err) {
-          console.log(err);
-          result = Reply.INTERNAL_SERVER_ERROR();
-        }
-
-        return result;
+        return Class.endpoints[key](args);
       });
     });
-
-    Class.manager = manager;
   }
 
-  static union(...Classes) {
+  /** Returns a new {@linkcode Schema} containing all the fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to latter {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
+   * @param Classes The {@linkcode Resource}
+   */
+  static union(...Classes: Array<{ new (): Resource }>): Schema {
     const fields = [];
     Classes.forEach((Class: typeof Resource) => {
       if (Class.prototype instanceof Resource) {
@@ -147,12 +130,12 @@ export default class Resource {
    */
   static $endpoint(value: string, ...middleware: Array<Function>): Function {
     const Class = this;
+    const { method } = parseEndpoint(value);
 
-    if (typeof value !== "string") {
-      throw new Error("Expected 'value' to be a string.");
+    if (!method) {
+      throw new Error(`Invalid endpoint '${value}'.`);
     }
     if (!isCollectionOf(Function, middleware)) {
-      console.log(middleware);
       throw new Error("Expected 'middleware' to be an array of functions.");
     }
 
@@ -162,20 +145,27 @@ export default class Resource {
 
     // add a new function to the class's 'endpoints' object.
     Class.endpoints[value] = async (...args) => {
-      const chain = [...middleware];
+      let result: any;
 
-      let baton = args; // pass the input arguments to the first function in the chain
-      while (chain.length) {
-        const current = chain.shift();
-
-        baton = await current(...baton); // then store the return value to be used as input arguments for the next function
-
-        if (!Array.isArray(baton)) {
-          break; // if the middleware function did not return an array of arguments, break the chain
-        }
+      try {
+        result = await invokeChain(middleware, ...args); // start by attempting to invoke the middleware chain
+      } catch (err) {
+        console.log(err);
+        result = Reply.INTERNAL_SERVER_ERROR(); // any unhandled errors produce a generic 500 reply
       }
 
-      return baton;
+      // if the result is a Resource or array of Resources, convert it to a reply
+      if (result instanceof Resource || isCollectionOf(Resource, result)) {
+        result = new Reply(method === "post" ? 201 : 200, result);
+      }
+
+      // the result should now be an instance of Reply
+      if (!(result instanceof Reply)) {
+        console.log(result);
+        throw new Error(`Unexpected result from endpoint '${value}'.`);
+      }
+
+      return result;
     };
 
     return middleware[middleware.length - 1];

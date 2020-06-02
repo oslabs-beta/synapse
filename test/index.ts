@@ -1,10 +1,16 @@
+/* eslint-disable import/no-extraneous-dependencies */
+
 const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
+<<<<<<< HEAD:server/server.ts
 const cors = require("cors");
 
 const { synapse } = require("./synapse");
+=======
+const { synapse } = require("../lib");
+>>>>>>> 7c3235b4624851707adcfb0f298b923a36f2c989:test/index.ts
 const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
@@ -29,7 +35,7 @@ app.use("/api", api.http);
 app.use("/api", api.sse);
 
 // serve static content
-app.use(express.static(path.resolve(__dirname, "./src")));
+app.use(express.static(path.resolve(__dirname, "./public")));
 
 // catch-all error handlers
 app.use((req, res) => res.status(400).send("Not Found"));

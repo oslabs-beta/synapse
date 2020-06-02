@@ -83,10 +83,7 @@ export default class SqlQuery {
       return [`${query};`, values];
     }
     if (this.action === "INSERT") {
-      return [
-        `INSERT INTO ${this.table}(${this.columns}) VALUES(${this.values[0]});`,
-        this.values[1],
-      ];
+      return [`INSERT INTO ${this.table}(${this.columns}) VALUES(${this.values[0]});`, this.values[1]];
     }
     return "";
   }
