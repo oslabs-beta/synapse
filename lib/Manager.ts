@@ -7,7 +7,7 @@ import Relation from "./util/Relation";
 import Reply from "./Reply";
 import Resource from "./Resource";
 
-/** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Acts as a cache and subscription service. */
+/** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Manages caching, subscription, and state management of resources. */
 export default class Manager {
   /** Maps resources by paths to their last known values. */
   cache: Store;
@@ -54,12 +54,12 @@ export default class Manager {
     // if it's an array, subscribe the client to each resource in the collection
     if (Array.isArray(state)) {
       state.forEach((resource: Resource) => {
-        this.subscribe(client, resource.path());
+        this.subscriptions.link(client, resource.path());
       });
     }
 
     // then send the resource state to the client
-    client(path, state);
+    client(path, Resource.serialize(state));
 
     // finally, respond to the request
     return Reply.OK();
