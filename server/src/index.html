@@ -41,7 +41,7 @@
     
   </body>
   <script>
-    const webSocket = new WebSocket("ws://localhost:3000/api");
+    const webSocket = new WebSocket("ws://localhost:3000/rapi");
     document.addEventListener("DOMContentLoaded", function () {
       const state = {
         // '/user': true
@@ -111,7 +111,7 @@
           if (method !== 'GET') reqObj.body = body
 
           if (!!window.EventSource) {
-            const source = new EventSource(`api/${path}`);
+            const source = new EventSource(`rapi/${path}`);
 
             source.addEventListener(
               "message",

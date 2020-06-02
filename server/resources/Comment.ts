@@ -5,6 +5,7 @@ import { Resource, Reply } from "../synapse";
 import { field, endpoint, validator, affect } from "../synapse/Resource";
 import { Id, Text, Integer } from "../synapse/fields";
 
+const pageSize = 10;
 const ledger = [];
 
 export default class Comment extends Resource {
@@ -25,14 +26,13 @@ export default class Comment extends Resource {
   @endpoint("GET /page/:index")
   @validator({ index: new Integer() })
   static List({ index }) {
-    const size = 10;
-    const start = ledger.length - size * index;
-    const result = ledger.slice(start, start + size).reverse();
+    const start = ledger.length - pageSize * index;
+    const result = ledger.slice(start, start + pageSize).reverse();
     return result;
   }
 
   @endpoint("POST /")
-  @affect("/last") // "/page/*" fix: update occurs before request is completed
+  @affect("/last") // "/page/*" fix: support wildcards
   @validator(Comment.schema.select("text"))
   static async Post({ text }) {
     const comment = await Comment.instantiate({ id: `${ledger.length}`, text });

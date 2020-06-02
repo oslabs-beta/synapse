@@ -17,8 +17,12 @@ export default class Relation<F, T> {
 
   unlink(from: F = null, to: T = null) {
     if (from && to) {
-      this.fromMap.get(from).delete(to);
-      this.toMap.get(to).delete(from);
+      if (this.fromMap.has(from)) {
+        this.fromMap.get(from).delete(to);
+      }
+      if (this.toMap.has(to)) {
+        this.toMap.get(to).delete(from);
+      }
     } else if (from) {
       if (this.fromMap.has(from)) {
         this.fromMap.get(from).forEach((val: T) => {
