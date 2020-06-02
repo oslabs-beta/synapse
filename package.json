@@ -26,6 +26,7 @@
     "@types/node": "^14.0.5",
     "@types/supertest": "^2.0.9",
     "bcrypt": "^4.0.1",
+    "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "jest": "^26.0.1",
@@ -37,7 +38,8 @@
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "uuid": "^8.1.0"
   },
   "jest": {
     "testEnvironment": "node",

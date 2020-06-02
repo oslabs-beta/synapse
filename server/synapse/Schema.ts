@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable import/extensions */
 /* eslint-disable no-await-in-loop */
 
@@ -14,6 +15,11 @@ export default class Schema {
    * @param fields An object whose values are all instances of {@linkcode Field} -- herein _fieldset_.
    */
   constructor(fields: object = {}) {
+    // if the input is a schema, extract its fields
+    if (fields instanceof Schema) {
+      fields = fields.fields;
+    }
+
     // assert that the input is a collection of fields
     isCollectionOf(Field, fields, true);
 
@@ -25,6 +31,11 @@ export default class Schema {
    * @returns A new instance of {@linkcode Schema}.
    */
   extend(fields: object): Schema {
+    // if the input is a schema, extract its fields
+    if (fields instanceof Schema) {
+      fields = fields.fields;
+    }
+
     // assert that the input is a collection of fields
     isCollectionOf(Field, fields, true);
 

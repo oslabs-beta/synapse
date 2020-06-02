@@ -4,13 +4,8 @@
 /* eslint-disable no-param-reassign */
 
 import { Field, Schema, Reply, Controller, Manager } from ".";
-// import Schema from "./Schema";
-// import Manager from "./Manager";
-// import Field from "./Field";
-// import Controller from "./Controller";
-// import Reply from "./Reply";
-import Id from "./fields/Id";
 import { isCollectionOf } from "./util";
+import Id from "./fields/Id";
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
 export default class Resource {
@@ -62,6 +57,7 @@ export default class Resource {
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
+      console.log(data);
       throw new Error(Type.schema.lastError);
     }
 
@@ -101,7 +97,9 @@ export default class Resource {
           // the result should now be an instance of Reply
           if (!(result instanceof Reply)) {
             console.log(result);
-            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
+            throw new Error(
+              `Unexpected result from endpoint '${method} ${path}'.`
+            );
           }
         } catch (err) {
           console.log(err);
@@ -113,6 +111,18 @@ export default class Resource {
     });
 
     Class.manager = manager;
+  }
+
+  static union(...Classes) {
+    const fields = [];
+    Classes.forEach((Class: typeof Resource) => {
+      if (Class.prototype instanceof Resource) {
+        fields.push(Class.schema.fields);
+      }
+    });
+
+    const Class = <typeof Resource>this;
+    return new Schema(Object.assign({}, ...fields, Class.schema.fields));
   }
 
   /** Adds a field to the derived class's {@linkcode Resource.schema|schema}.
@@ -226,7 +236,10 @@ export const field = (instance: Field): Function => {
   };
 };
 
-export const endpoint = (path: string, ...middleware: Array<Function>): Function => {
+export const endpoint = (
+  path: string,
+  ...middleware: Array<Function>
+): Function => {
   return (Class, methodName, descriptor) => {
     Class.$endpoint(path, ...middleware, descriptor.value);
   };

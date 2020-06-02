@@ -1,56 +1,41 @@
-import { parentPort } from "worker_threads";
-
-export {};
-
 const path = require("path");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
-const synapse = require("./synapse/index");
+const { v4: uuidv4 } = require("uuid");
+const synapse = require("./synapse");
 
 const PORT = 3000;
 const app = express();
+
+// standard parsers
+app.use(express.json(), express.urlencoded({ extended: true }), cookieParser());
+
+// initialize an instance of the synapse API with the directory containing the Resource definitions
 const api = synapse.initialize(path.resolve(__dirname, "./resources"));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("src"));
-
-// const countdown = (res, count) => {
-//   res.write("data: " + count + "\n\n");
-//   if (count) {
-//     setTimeout(() => countdown(res, count - 1), 1000);
-//   } else {
-//     res.end();
-//   }
-// };
-
-// app.get("/sse", (req, res) => {
-//   res
-//     .set({
-//       Connection: "keep-alive",
-//       "Content-Type": "text/event-stream",
-//       "Cache-Control": "no-cache",
-//     })
-//     .status(200);
-//   countdown(res, 10);
-// });
-// app.use("/", (req, res, next) => {
-//   console.log(req.headers);
-//   return next();
-// });
+// initialize express-ws
 enableWs(app);
-app.ws("/api", api.ws);
-app.use("/api", api.sse);
+// ensure that all clients have a client_id cookie
+app.use("/", (req, res, next) => {
+  res.cookie("client_id", req.cookies.client_id || uuidv4());
+  next();
+});
+// add routes for each supported API access protocol
+app.ws("/rapi", api.ws);
+app.use("/rapi", api.sse);
 app.use("/api", api.http);
 
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./src/index.html"));
-});
+// serve static content
+app.use(express.static(path.resolve(__dirname, "./src")));
 
+// catch-all error handlers
+app.use((req, res) => res.status(400).send("Not Found"));
 app.use((err, req, res, next) => {
   console.log(err);
   res.status(err.status || 500).send(err.toString());
 });
+
+// if not in test mode, start the server
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 }
