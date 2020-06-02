@@ -2,6 +2,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
+import { v4 as uuidv4 } from "uuid";
 import { Resource, Reply } from "../synapse";
 import { field, endpoint, validator } from "../synapse/Resource";
 import Id from "../synapse/fields/Id";
@@ -9,7 +10,13 @@ import User from "./User";
 
 const sessions = {};
 
-function authorizer(args) {
+/** Express middleware function which sets a cookie ```client_id``` on the client. */
+export const identifier = (req, res, next) => {
+  res.cookie("client_id", req.cookies.client_id || uuidv4());
+  next();
+};
+/** Synpase middleware function which checks for a ```client_id``` property on the input arguments whose value is associated with a valid session instance. */
+export const authorizer = (args) => {
   const { client_id } = args;
 
   const client = sessions[client_id];
@@ -19,7 +26,7 @@ function authorizer(args) {
   }
 
   return [args];
-}
+};
 
 export default class Session extends Resource {
   @field(new Id(36)) client_id: string;

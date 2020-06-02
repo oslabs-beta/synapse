@@ -48,10 +48,7 @@ export default class Resource {
   /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}.
    * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
-  static async instantiate<T extends typeof Resource>(
-    this: T,
-    data: object
-  ): Promise<InstanceType<T>> {
+  static async instantiate<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const Type: any = this; // 'this' represents the class constructor in a static method.
 
     // validate in the input data using the derived class's schema.
@@ -97,9 +94,7 @@ export default class Resource {
           // the result should now be an instance of Reply
           if (!(result instanceof Reply)) {
             console.log(result);
-            throw new Error(
-              `Unexpected result from endpoint '${method} ${path}'.`
-            );
+            throw new Error(`Unexpected result from endpoint '${method} ${path}'.`);
           }
         } catch (err) {
           console.log(err);
@@ -236,10 +231,7 @@ export const field = (instance: Field): Function => {
   };
 };
 
-export const endpoint = (
-  path: string,
-  ...middleware: Array<Function>
-): Function => {
+export const endpoint = (path: string, ...middleware: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
     Class.$endpoint(path, ...middleware, descriptor.value);
   };

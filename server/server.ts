@@ -2,8 +2,8 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
-const { v4: uuidv4 } = require("uuid");
 const synapse = require("./synapse");
+const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
 const app = express();
@@ -16,10 +16,7 @@ const api = synapse.initialize(path.resolve(__dirname, "./resources"));
 // initialize express-ws
 enableWs(app);
 // ensure that all clients have a client_id cookie
-app.use("/", (req, res, next) => {
-  res.cookie("client_id", req.cookies.client_id || uuidv4());
-  next();
-});
+app.use("/", identifier);
 // add routes for each supported API access protocol
 app.ws("/rapi", api.ws);
 app.use("/rapi", api.sse);

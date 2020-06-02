@@ -28,15 +28,11 @@ export default class User extends Resource {
   @endpoint("GET /")
   static async getAll() {
     const documents = await collection.find();
-    return Promise.all(
-      documents.map((document) => User.instantiate(document.toObject()))
-    );
+    return Promise.all(documents.map((document) => User.instantiate(document.toObject())));
   }
 
   @endpoint("POST /")
-  @validator(
-    User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
-  )
+  @validator(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
   static async register({ username, email, password }) {
     const document = await collection.create({ username, email, password });
     return User.instantiate(document.toObject());
