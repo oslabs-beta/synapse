@@ -4,13 +4,9 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
-<<<<<<< HEAD:server/server.ts
 const cors = require("cors");
 
 const { synapse } = require("./synapse");
-=======
-const { synapse } = require("../lib");
->>>>>>> 7c3235b4624851707adcfb0f298b923a36f2c989:test/index.ts
 const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
