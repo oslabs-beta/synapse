@@ -1,11 +1,12 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable camelcase */
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
 import { v4 as uuidv4 } from "uuid";
-import { Resource, Reply } from "../synapse";
-import { field, endpoint, validator } from "../synapse/Resource";
-import Id from "../synapse/fields/Id";
+import { Resource, Reply } from "../../lib";
+import { field, endpoint, validator } from "../../lib/Resource";
+import Id from "../../lib/fields/Id";
 import User from "./User";
 
 const sessions = {};

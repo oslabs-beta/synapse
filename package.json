@@ -4,41 +4,43 @@
   "description": "Realtime API Library",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test jest",
-    "start": "node ./build/server/server.js",
     "build": "tsc",
-    "dev": "nodemon",
-    "doc": "npx typedoc --mode library --excludeExternals --stripInternal --theme minimal --out docs server/synapse/index.ts"
+    "test": "NODE_ENV=test jest",
+    "start": "NODE_ENV=production node ./build/server/server.js",
+    "dev": "NODE_ENV=development nodemon",
+    "doc": "npx typedoc --mode library --excludeExternals --stripInternal --theme minimal --out docs lib/index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/markcmlee/synapse.git"
+    "url": "git+https://github.com/oslabs-beta/synapse"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/markcmlee/synapse/issues"
+    "url": "https://github.com/oslabs-beta/synapse/issues"
   },
-  "homepage": "https://github.com/markcmlee/synapse#readme",
+  "homepage": "https://github.com/oslabs-beta/synapse#readme",
   "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.3",
+    "typedoc": "^0.17.0-3",
     "@types/express": "^4.17.6",
     "@types/jest": "^25.2.3",
     "@types/node": "^14.0.5",
     "@types/supertest": "^2.0.9",
     "bcrypt": "^4.0.1",
     "cookie-parser": "^1.4.5",
-    "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "jest": "^26.0.1",
     "jest-websocket-mock": "^2.0.2",
     "mock-socket": "^9.0.3",
     "mongoose": "^5.9.16",
     "nodemon": "^2.0.4",
-    "run-middleware": "^0.9.10",
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.3",
     "uuid": "^8.1.0"
   },
   "jest": {
@@ -57,7 +59,12 @@
       }
     }
   },
-  "devDependencies": {
-    "typedoc": "^0.17.0-3"
+  "nodemonConfig": {
+    "watch": [
+      "test",
+      "synapse"
+    ],
+    "ext": "ts",
+    "exec": "ts-node ./test/index.ts"
   }
 }

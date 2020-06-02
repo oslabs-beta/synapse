@@ -1,13 +1,15 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/extensions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
+
 import WS from "jest-websocket-mock";
 import { WebSocket } from "mock-socket";
-import { MONGO_URI } from "../secrets";
+import { MONGO_URI } from "../etc/secrets";
 
 const request = require("supertest");
 const mongoose = require("mongoose");
-const app = require("../server");
+const app = require("..");
 
 global.WebSocket = WebSocket;
 const DBUrl = MONGO_URI;

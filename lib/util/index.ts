@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 import * as fs from "fs";
 
 /**
@@ -36,11 +37,11 @@ export const requireAll = (path: string) => {
   return files.map((file: string) => require(`${path}/${file}`));
 };
 
-export const parseEndpoint = (endpoint: string, custom = []) => {
-  // eslint-disable-next-line prefer-const
+export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = "") => {
   let [method, path] = endpoint.split(" ");
 
   method = method.toLowerCase();
+  path = root + path;
 
   const standard = ["get", "post", "put", "patch", "delete"];
   if (!standard.includes(method) && !custom.includes(method)) {
@@ -49,3 +50,25 @@ export const parseEndpoint = (endpoint: string, custom = []) => {
 
   return { method, path };
 };
+
+export const invokeChain = async (middleware: Array<Function>, ...args) => {
+  const chain = [...middleware];
+
+  let baton = args; // pass the input arguments to the first function in the chain
+  while (chain.length) {
+    const current = chain.shift();
+
+    // eslint-disable-next-line no-await-in-loop
+    baton = await current(...baton); // then store the return value to be used as input arguments for the next function
+
+    if (!Array.isArray(baton)) {
+      break; // if the middleware function did not return an array of arguments, break the chain
+    }
+  }
+
+  return baton;
+};
+
+export { default as Controller } from "./Controller";
+export { default as Relation } from "./Relation";
+export { default as Store } from "./Store";
