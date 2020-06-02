@@ -47,11 +47,7 @@ const ws = (manager: Manager): Function => {
     };
 
     socket.on("message", async (msg: string) => {
-<<<<<<< HEAD
-      console.log(" I GOT A MESSAGE");
-=======
       // make sure the message can be parsed to an object
->>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
       const data = tryParseJSON(msg);
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
@@ -71,17 +67,10 @@ const ws = (manager: Manager): Function => {
         if (customMethods.includes(method)) {
           return client(endpoint, await manager[method](client, path));
         }
-<<<<<<< HEAD
-        const result = await manager[method](path, data[endpoint]);
-        console.log("RESULTTTT");
-        console.log(result);
-        return client(endpoint, result);
-=======
 
         // ...from the standard HTTP methods
         const args = { ...req.cookies, ...data[endpoint] };
         return client(endpoint, await manager[method](path, args));
->>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
       });
     });
 
