@@ -10,12 +10,12 @@ import User from "./User";
 
 const sessions = {};
 
-/** Express middleware function which sets a cookie ```client_id``` on the client. */
+/** Express middleware function which sets a cookie ```client_id``` on the client if it doesn't already exist. */
 export const identifier = (req, res, next) => {
   res.cookie("client_id", req.cookies.client_id || uuidv4());
   next();
 };
-/** Synpase middleware function which checks for a ```client_id``` property on the input arguments whose value is associated with a valid session instance. */
+/** Synpase middleware function which checks for a ```client_id``` property on the input arguments object whose value is associated with a valid session instance. */
 export const authorizer = (args) => {
   const { client_id } = args;
 
