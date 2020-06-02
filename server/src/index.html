@@ -106,6 +106,7 @@
           const request = {
           [key]:payload
         }
+        console.log('asdas')
         console.log(JSON.stringify(request))
         webSocket.send(JSON.stringify(request));
         // if sending HTTP
@@ -186,6 +187,7 @@
         // validate and dont attempt to render if its null
         // parse the data
         const data = JSON.parse(event.data)
+        console.log(data)
         const key = Object.keys(data)[0]
         const [method, path] = key.split(' ')
         // if we're subscribed - update the local state

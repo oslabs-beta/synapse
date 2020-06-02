@@ -46,6 +46,7 @@ const ws = (manager: Manager): Function => {
     };
 
     socket.on("message", async (msg: string) => {
+      console.log(" I GOT A MESSAGE");
       const data = tryParseJSON(msg);
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
@@ -64,8 +65,10 @@ const ws = (manager: Manager): Function => {
         if (customMethods.includes(method)) {
           return client(endpoint, await manager[method](client, path));
         }
-
-        return client(endpoint, await manager[method](path, data[endpoint]));
+        const result = await manager[method](path, data[endpoint]);
+        console.log("RESULTTTT");
+        console.log(result);
+        return client(endpoint, result);
       });
     });
 

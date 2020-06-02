@@ -40,8 +40,8 @@ app.use(express.static("src"));
 // });
 enableWs(app);
 app.ws("/api", api.ws);
-app.use("/api", api.sse);
 app.use("/api", api.http);
+app.use("/api", api.sse);
 
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./src/index.html"));
