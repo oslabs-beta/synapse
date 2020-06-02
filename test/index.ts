@@ -4,25 +4,31 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
-const { synapse } = require("../lib");
+const cors = require("cors");
+
+const { synapse } = require("../lib/index");
 const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
 const app = express();
 
 // standard parsers
-app.use(express.json(), express.urlencoded({ extended: true }), cookieParser());
+app.use(express.json(), express.urlencoded({ extended: true }), cookieParser(), cors());
 
 // initialize an instance of the synapse API with the directory containing the Resource definitions
 const api = synapse(path.resolve(__dirname, "./resources"));
 // initialize express-ws
 enableWs(app);
+
+// set Allow CORS headers to all responses(testing only)
+
 // ensure that all clients have a client_id cookie
 app.use("/", identifier);
 // add routes for each supported API access protocol
 app.ws("/rapi", api.ws);
 app.use("/rapi", api.sse);
 app.use("/api", api.http);
+app.use("/api", api.sse);
 
 // serve static content
 app.use(express.static(path.resolve(__dirname, "./public")));
