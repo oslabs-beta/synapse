@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const enableWs = require("express-ws");
 const cors = require("cors");
 
-const { synapse } = require("./synapse");
+const { synapse } = require("../lib/index");
 const { identifier } = require("./resources/Session");
 
 const PORT = 3000;
