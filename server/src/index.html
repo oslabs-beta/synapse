@@ -39,7 +39,7 @@
     
   </body>
   <script>
-    const webSocket = new WebSocket("ws://localhost:3000/api");
+    const webSocket = new WebSocket("ws://localhost:3000/rapi");
     document.addEventListener("DOMContentLoaded", function () {
 
       const state = {
@@ -142,6 +142,49 @@
             "Cache-Control": "no-cache",            },
           };
           if (method !== 'GET') reqObj.body = body
+<<<<<<< HEAD
+=======
+
+          if (!!window.EventSource) {
+            const source = new EventSource(`rapi/${path}`);
+
+            source.addEventListener(
+              "message",
+              function (e) {
+                console.log('SSE Message: ', e.data)
+                document.getElementById("data").innerHTML = e.data;
+              },
+              false
+            );
+
+            source.addEventListener(
+              "open",
+              function (e) {
+                console.log('SSE connection is open.')
+                document.getElementById("state").innerHTML = "Connected";
+              },
+              false
+            );
+
+            source.addEventListener(
+              "error",
+              function (e) {
+                const id_state = document.getElementById("state");
+                if (e.eventPhase == EventSource.CLOSED) source.close();
+                if (e.target.readyState == EventSource.CLOSED) {
+                  console.log('SSE connection is closed.')
+                  id_state.innerHTML = "Disconnected";
+                } else if (e.target.readyState == EventSource.CONNECTING) {
+                  console.log('SSE connecting...')
+                  id_state.innerHTML = "Connecting...";
+                }
+              },
+              false
+            );
+          } else {
+            console.log("Your browser doesn't support SSE");
+          }
+>>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
           fetch(`http://localhost:3000/api${path}`, reqObj)
           .then((response) => response.json())
           .then((data)=>{

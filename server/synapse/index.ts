@@ -15,30 +15,31 @@ const http = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
     const { method } = parseEndpoint(req.method);
 
-    let result;
-    if (method) {
-      result = await manager[method](req.path, {
-        ...req.query,
-        ...req.body,
-        ...req.params,
-      });
-    } else {
-      result = Reply.BAD_REQUEST("Invalid Method");
+    // make sure the request is allowed
+    if (!method) {
+      return res.status(405).send("Method Not Allowed");
     }
 
-    res.status(result.status).json(result.payload);
+    // then pass it to the manager
+    const args = {
+      ...req.cookies,
+      ...req.query,
+      ...req.body,
+      ...req.params,
+    };
+    const result = await manager[method](req.path, args);
+
+    return res.status(result.status).json(result.payload);
   };
 };
 
-/**
- * Creates an express-ws middleware function to handle new WebSocket connections.
- *
- * Receives messages in the form of an object whose keys represent endpoints in
- * the format 'METHOD /path' and whose values are objects containing the arguments
- * to be passed to the associated endpoint.
+/** Creates an express-ws middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
  * @param manager
  */
 const ws = (manager: Manager): Function => {
+  // the WebSocket interface accepts two custom methods
+  const customMethods = ["subscribe", "unsubscribe"];
+
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
@@ -46,29 +47,41 @@ const ws = (manager: Manager): Function => {
     };
 
     socket.on("message", async (msg: string) => {
+<<<<<<< HEAD
       console.log(" I GOT A MESSAGE");
+=======
+      // make sure the message can be parsed to an object
+>>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
       const data = tryParseJSON(msg);
       if (typeof data !== "object") {
         return client("/", Reply.BAD_REQUEST("Invalid Format"));
       }
 
-      // attempt to execute each request
+      // attempt to execute each request on the object
       const requests = Object.keys(data);
       return requests.forEach(async (endpoint: string) => {
-        const customMethods = ["subscribe", "unsubscribe"];
+        // make sure the method is valid
         const { method, path } = parseEndpoint(endpoint, customMethods);
 
         if (!method) {
           return client("/", Reply.BAD_REQUEST("Invalid Method"));
         }
 
+        // SUBSCRIBE and UNSUBSCRIBE requests are handled separately...
         if (customMethods.includes(method)) {
           return client(endpoint, await manager[method](client, path));
         }
+<<<<<<< HEAD
         const result = await manager[method](path, data[endpoint]);
         console.log("RESULTTTT");
         console.log(result);
         return client(endpoint, result);
+=======
+
+        // ...from the standard HTTP methods
+        const args = { ...req.cookies, ...data[endpoint] };
+        return client(endpoint, await manager[method](path, args));
+>>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
       });
     });
 
@@ -80,34 +93,50 @@ const ws = (manager: Manager): Function => {
 };
 
 /**
- * Creates an express middleware function to handle requests for SSE subscriptions
+ * Creates an express middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
  * @param manager
  */
 const sse = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
+    // Since a request for SSE constitutes a request for a subscription
+    const { method } = parseEndpoint(req.method);
+
+    // only a get request will be allowed.
+    if (method !== "get") {
+      return res.status(400).send("Invalid Method");
+    }
+
+    // create a function to handle updates to the client
     const client = (path: string, state: any) => {
       res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
     };
-    res
-      .set({
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      })
-      .status(200);
-    let result;
-    const { method } = parseEndpoint(req.method);
-    if (method === "get") {
-      result = await manager[method](req.path, {
-        ...req.query,
-        ...req.body,
-        ...req.params,
-      });
-      manager.subscribe(client, req.path);
-    } else {
-      result = Reply.BAD_REQUEST("Invalid Method");
+
+    // validate the request by attempting to GET the requested resource
+    const args = {
+      ...req.cookies,
+      ...req.query,
+      ...req.body,
+      ...req.params,
+    };
+    const result = await manager.get(req.path, args);
+
+    if (result.isError()) {
+      return res.status(result.status).send(result.payload);
     }
-    client(`${req.method} ${req.path}`, result);
+
+    // if the resource is valid, subscribe the client
+    manager.subscribe(client, req.path);
+
+    // upgrade the connection
+    const headers = {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    };
+    res.set(headers).status(200);
+
+    // and send back the result of the initial request
+    return client(`${req.method} ${req.path}`, result);
   };
 };
 
@@ -116,7 +145,7 @@ const sse = (manager: Manager): Function => {
  * @param directory A directory containing {@linkcode Resource} definitions.
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-export function initialize(directory: string): object {
+export function synpase(directory: string): object {
   const controller = new Controller();
 
   const manager = new Manager((method, path, data) => {

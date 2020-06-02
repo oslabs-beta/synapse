@@ -4,13 +4,8 @@
 /* eslint-disable no-param-reassign */
 
 import { Field, Schema, Reply, Controller, Manager } from ".";
-// import Schema from "./Schema";
-// import Manager from "./Manager";
-// import Field from "./Field";
-// import Controller from "./Controller";
-// import Reply from "./Reply";
-import Id from "./fields/Id";
 import { isCollectionOf } from "./util";
+import Id from "./fields/Id";
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
 export default class Resource {
@@ -53,12 +48,13 @@ export default class Resource {
   /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}.
    * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
-  static async instantiate(data: object): Promise<Resource> {
+  static async instantiate<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const Type: any = this; // 'this' represents the class constructor in a static method.
 
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
+      console.log(data);
       throw new Error(Type.schema.lastError);
     }
 
@@ -110,6 +106,18 @@ export default class Resource {
     });
 
     Class.manager = manager;
+  }
+
+  static union(...Classes) {
+    const fields = [];
+    Classes.forEach((Class: typeof Resource) => {
+      if (Class.prototype instanceof Resource) {
+        fields.push(Class.schema.fields);
+      }
+    });
+
+    const Class = <typeof Resource>this;
+    return new Schema(Object.assign({}, ...fields, Class.schema.fields));
   }
 
   /** Adds a field to the derived class's {@linkcode Resource.schema|schema}.
