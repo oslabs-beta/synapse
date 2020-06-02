@@ -59,7 +59,7 @@ export default class Manager {
     }
 
     // then send the resource state to the client
-    // client(path, state);
+    client(path, state);
 
     // finally, respond to the request
     return Reply.OK();
