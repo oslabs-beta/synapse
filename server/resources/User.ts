@@ -7,51 +7,47 @@ import { Email, Hash, Word, Text } from "../synapse/fields";
 import MongoId from "../fields/MongoId";
 import mongo from "../database";
 
-const UserDB = mongo("User");
+const collection = mongo("User");
 
 export default class User extends Resource {
-  @field(new MongoId()) _id;
-  @field(new Word(3, 16)) username;
-  @field(new Email(true)) email;
-  @field(new Text()) password;
+  @field(new MongoId()) _id: string;
+  @field(new Word(3, 16)) username: string;
+  @field(new Email(true)) email: string;
+  @field(new Text()) password: string;
 
   @endpoint("GET /:_id")
   @validator(User.schema.select("_id"))
   static async find({ _id }) {
-    const ourUser = await UserDB.findById({ _id });
-    if (!ourUser) {
+    const document = await collection.findById({ _id });
+    if (!document) {
       return Reply.NOT_FOUND();
     }
-    return User.instantiate(ourUser.toObject());
+    return User.instantiate(document.toObject());
   }
 
   @endpoint("GET /")
   static async getAll() {
-    const users = await UserDB.find();
-    const result = await Promise.all(users.map((user) => User.instantiate(user.toObject()))).then(
-      (res) => {
-        return res;
-      }
-    );
-    return result;
+    const documents = await collection.find();
+    return Promise.all(documents.map((document) => User.instantiate(document.toObject())));
   }
 
   @endpoint("POST /")
-  @validator(
-    User.schema.exclude("_id", "password").extend({ password: new Hash(6) })
-  )
+  @validator(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
   static async register({ username, email, password }) {
-    const ourUser = await UserDB.create({ username, email, password });
-    return User.instantiate(ourUser.toObject());
+    const document = await collection.create({ username, email, password });
+    return User.instantiate(document.toObject());
   }
 
-  @validator(User.schema.select("username").extend({ password: new Text() }))
+  @endpoint("POST /me")
+  @validator(User.schema.select("username", "password"))
   static async authenticate({ username, password }) {
-    UserDB.findOne({ username }, (err, user) => {
-      if (err) return Reply.INTERNAL_SERVER_ERROR();
-      if (!user) return Reply.NOT_FOUND();
-      const hash = user.password;
-      return Hash.validate(password, hash);
-    });
+    const document = await collection.findOne({ username });
+    if (document) {
+      const user = await User.instantiate(document.toObject());
+      if (await Hash.validate(password, user.password)) {
+        return user;
+      }
+    }
+    return Reply.FORBIDDEN("Incorrect username/password.");
   }
 }

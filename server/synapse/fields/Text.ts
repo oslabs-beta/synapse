@@ -38,6 +38,13 @@ export default class Text extends Field {
     this.rules.push({ regex, expect, message });
   }
 
+  /**
+   * Verifies that a user's input is in the correct format of a string and that it had passed its RegExp test(s).
+   * If the input is null or undefined, obtains the default value if one exists.
+   * @param value User input to be checked.
+   * @returns Undefined if the value is not a string or if it didn't pass the tests, or the value itself if it does.
+   */
+
   /*
    * Overrides Field.prototype.parse.
    * If the input value is null or undefined, obtains the default value, if one exists.
