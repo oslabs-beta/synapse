@@ -54,12 +54,12 @@ export default class Manager {
     // if it's an array, subscribe the client to each resource in the collection
     if (Array.isArray(state)) {
       state.forEach((resource: Resource) => {
-        this.subscribe(client, resource.path());
+        this.subscriptions.link(client, resource.path());
       });
     }
 
     // then send the resource state to the client
-    client(path, state);
+    client(path, Resource.serialize(state));
 
     // finally, respond to the request
     return Reply.OK();
