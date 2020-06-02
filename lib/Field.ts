@@ -1,6 +1,6 @@
 /* eslint-disable no-bitwise */
 
-/** Abstract class representing a subset of any primitive value type, herein referred to as a _fieldtype_. For example, a hypothetical ```class Email extends Field``` would represent a subset of ```string``` (i.e. strings which are valid email addresses). A class which extends {@linkcode Field} should define the requirements of its _fieldtype_ by overriding {@linkcode Field.parse|Field.prototype.parse}. Instances of {@linkcode Field} are used to validate values and compose {@linkcode Schema|Schemas}. */
+/** AAbstract class representing a subset of any primitive value type, herein referred to as a _fieldtype_. For example, a hypothetical ```class Email extends Field``` would represent a subset of ```string``` (i.e. strings which are valid email addresses). A class which extends {@linkcode Field} should define the requirements of its _fieldtype_ by overriding {@linkcode Field.parse|Field.prototype.parse}. Instances of {@linkcode Field} are used to validate values and compose {@linkcode Schema|Schemas}. */
 export default class Field {
   static Flags = {
     /** _PRIVATE_ denotes that a field should not be exposed. */
