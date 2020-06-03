@@ -2379,10 +2379,16 @@ img {
 					<a href="manager.html#generator" class="tsd-kind-icon">generator</a>
 				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-class">
+					<a href="manager.html#queries" class="tsd-kind-icon">queries</a>
+				</li>
+				<li class=" tsd-kind-property tsd-parent-kind-class">
 					<a href="manager.html#queue" class="tsd-kind-icon">queue</a>
 				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-class">
 					<a href="manager.html#subscriptions" class="tsd-kind-icon">subscriptions</a>
+				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="manager.html#analyze" class="tsd-kind-icon">analyze</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class">
 					<a href="manager.html#delete" class="tsd-kind-icon">delete</a>
@@ -2432,7 +2438,7 @@ img {
 		<section class="tsd-panel tsd-comment">
 			<div class="tsd-comment tsd-typography">
 				<div class="lead">
-					<p>Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Acts as a cache and subscription service.</p>
+					<p>Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Manages caching, subscription, and state management of resources.</p>
 				</div>
 			</div>
 		</section>
@@ -2459,6 +2465,7 @@ img {
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-property tsd-parent-kind-class"><a href="manager.html#cache" class="tsd-kind-icon">cache</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class"><a href="manager.html#generator" class="tsd-kind-icon">generator</a></li>
+							<li class="tsd-kind-property tsd-parent-kind-class"><a href="manager.html#queries" class="tsd-kind-icon">queries</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class"><a href="manager.html#queue" class="tsd-kind-icon">queue</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class"><a href="manager.html#subscriptions" class="tsd-kind-icon">subscriptions</a></li>
 						</ul>
@@ -2466,6 +2473,7 @@ img {
 					<section class="tsd-index-section ">
 						<h3>Methods</h3>
 						<ul class="tsd-index-list">
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="manager.html#analyze" class="tsd-kind-icon">analyze</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="manager.html#delete" class="tsd-kind-icon">delete</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="manager.html#get" class="tsd-kind-icon">get</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="manager.html#notify" class="tsd-kind-icon">notify</a></li>
@@ -2492,7 +2500,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L22">Manager.ts:22</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L29">Manager.ts:29</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2521,7 +2529,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Store</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L13">Manager.ts:13</a></li>
+						<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L17">Manager.ts:17</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -2536,7 +2544,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">generator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L22">Manager.ts:22</a></li>
+						<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L29">Manager.ts:29</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -2546,17 +2554,32 @@ img {
 				</div>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<a name="queries" class="tsd-anchor"></a>
+				<h3>queries</h3>
+				<div class="tsd-signature tsd-kind-icon">queries<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Relation</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L23">Manager.ts:23</a></li>
+					</ul>
+				</aside>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Maps <em>resource paths</em> to query strings.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 				<a name="queue" class="tsd-anchor"></a>
 				<h3>queue</h3>
 				<div class="tsd-signature tsd-kind-icon">queue<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L16">Manager.ts:16</a></li>
+						<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L20">Manager.ts:20</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Stores the resource paths waiting to be updated.</p>
+						<p>Stores the <em>resource paths</em> waiting to be updated.</p>
 					</div>
 				</div>
 			</section>
@@ -2566,7 +2589,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">subscriptions<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Relation</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L19">Manager.ts:19</a></li>
+						<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L26">Manager.ts:26</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -2579,6 +2602,32 @@ img {
 		<section class="tsd-panel-group tsd-member-group ">
 			<h2>Methods</h2>
 			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="analyze" class="tsd-anchor"></a>
+				<h3>analyze</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">analyze<span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L42">Manager.ts:42</a></li>
+							</ul>
+						</aside>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>query: <span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li>
+								<h5>state: <span class="tsd-signature-type">object</span></h5>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 				<a name="delete" class="tsd-anchor"></a>
 				<h3>delete</h3>
 				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -2588,7 +2637,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L197">Manager.ts:197</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L218">Manager.ts:218</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2620,7 +2669,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L136">Manager.ts:136</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L157">Manager.ts:157</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2658,7 +2707,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L91">Manager.ts:91</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L107">Manager.ts:107</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2689,7 +2738,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L183">Manager.ts:183</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L204">Manager.ts:204</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2727,7 +2776,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L155">Manager.ts:155</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L176">Manager.ts:176</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2765,7 +2814,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L169">Manager.ts:169</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L190">Manager.ts:190</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2797,13 +2846,13 @@ img {
 				<a name="subscribe" class="tsd-anchor"></a>
 				<h3>subscribe</h3>
 				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-					<li class="tsd-signature tsd-kind-icon">subscribe<span class="tsd-signature-symbol">(</span>client<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span>, path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="reply.html" class="tsd-signature-type">Reply</a><span class="tsd-signature-symbol">&gt;</span></li>
+					<li class="tsd-signature tsd-kind-icon">subscribe<span class="tsd-signature-symbol">(</span>client<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span>, path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="reply.html" class="tsd-signature-type">Reply</a><span class="tsd-signature-symbol">&gt;</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L39">Manager.ts:39</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L57">Manager.ts:57</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2825,6 +2874,9 @@ img {
 									<p>A <em>resource path</em>.</p>
 								</div>
 							</li>
+							<li>
+								<h5><span class="tsd-flag ts-flagDefault value">Default value</span> args: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> = {}</span></h5>
+							</li>
 						</ul>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="reply.html" class="tsd-signature-type">Reply</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						<p>A promise evaluating to a <a href="reply.html"><code>Reply</code></a> -- <code>OK</code> if the subscription was successful, otherwise the reply returned by a <code>GET</code> request to the <em>resource path</em>.</p>
@@ -2841,7 +2893,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L73">Manager.ts:73</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L89">Manager.ts:89</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2879,16 +2931,15 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/denskarlet/synapse/blob/6206516/lib/Manager.ts#L99">Manager.ts:99</a></li>
+								<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/2561906/lib/Manager.ts#L112">Manager.ts:112</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
 							<div class="lead">
-								<p><em><strong>(async)</strong></em> Recalculates the cached value of a given resource by making a GET request to the generator. Invokes all subscribed client functions with the new state.</p>
+								<p><em><strong>(async)</strong></em> Recalculates state of all invalidated resources and sends new state to all subscribers.</p>
 							</div>
 						</div>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="reply.html" class="tsd-signature-type">Reply</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						<p>A reply representing the result of the GET request used to recalculate the resource state.</p>
 					</li>
 				</ul>
 			</section>

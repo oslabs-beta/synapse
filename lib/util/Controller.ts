@@ -5,9 +5,9 @@ import { Router } from "express";
 import { parseEndpoint } from ".";
 import Reply from "../Reply";
 
-/** Generic wrapper for an Express router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
+/** Generic wrapper for an ```express``` router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
 export default class Controller {
-  /** An Express router */
+  /** An ```express``` router */
   router: Function;
 
   constructor() {
@@ -16,7 +16,7 @@ export default class Controller {
 
   /** Associates a callback function with an HTTP method and _resource path_
    * @param method An HTTP method
-   * @param path A _route_ in the Express syntax - ex. '/user/:id'
+   * @param path A _route_ in the ```express``` syntax (e.g ```/user/:id```)
    * @param callback A callback function
    */
   declare(method: string, path: string, callback: Function): void {
@@ -37,11 +37,15 @@ export default class Controller {
    */
   async request(method: string, path: string, args: object): Promise<any> {
     return new Promise((resolve) => {
-      this.router(
-        { method: method.toUpperCase(), url: path, body: args },
-        {
-          send: (callback, params) => resolve(callback({ ...args, ...params })),
-        },
+      const { method: _method } = parseEndpoint(method);
+
+      if (!_method) {
+        resolve(Reply.BAD_REQUEST());
+      }
+
+      return this.router(
+        { method: _method.toUpperCase(), url: path, body: args },
+        { send: (callback, params) => resolve(callback({ ...args, ...params })) },
         () => resolve(Reply.NOT_FOUND())
       );
     });

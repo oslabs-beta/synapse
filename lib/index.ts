@@ -7,7 +7,7 @@ import Controller from "./util/Controller";
 import { requireAll, tryParseJSON, parseEndpoint } from "./util";
 
 /**
- * Creates an express middleware function to handle HTTP requests
+ * Creates an ```express``` middleware function to handle HTTP requests
  * @param manager
  */
 const http = (manager: Manager): Function => {
@@ -27,7 +27,7 @@ const http = (manager: Manager): Function => {
   };
 };
 
-/** Creates an express-ws middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
+/** Creates an ```express-ws``` middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
  * @param manager
  */
 const ws = (manager: Manager): Function => {
@@ -37,6 +37,7 @@ const ws = (manager: Manager): Function => {
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
+      console.log({ [path]: state });
       socket.send(JSON.stringify({ [path]: state }));
     };
 
@@ -50,7 +51,7 @@ const ws = (manager: Manager): Function => {
       // attempt to execute each request on the object
       const requests = Object.keys(data);
       return requests.forEach(async (endpoint: string) => {
-        // make sure the method is valid
+        // make sure each method is valid
         const { method, path } = parseEndpoint(endpoint, customMethods);
 
         if (!method) {
@@ -76,7 +77,7 @@ const ws = (manager: Manager): Function => {
 };
 
 /**
- * Creates an express middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
+ * Creates an ```express``` middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
  * @param manager
  */
 const sse = (manager: Manager): Function => {
