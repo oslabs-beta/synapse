@@ -38,6 +38,26 @@ export default class User extends Resource {
     return User.instantiate(document.toObject());
   }
 
+  @endpoint("PATCH /:_id")
+  @validator(User.schema.select("_id", "email"))
+  static async update({ _id, email }) {
+    const document = await collection.findOneAndUpdate({ _id }, { email }, { new: true });
+    if (!document) {
+      return Reply.NOT_FOUND();
+    }
+    return User.instantiate(document.toObject());
+  }
+
+  @endpoint("DELETE /:_id")
+  @validator(User.schema.select("_id"))
+  static async remove({ _id }) {
+    const document = await collection.deleteOne({ _id });
+    if (!document) {
+      return Reply.NOT_FOUND();
+    }
+    return Reply.OK("User Deleted");
+  }
+
   @validator(User.schema.select("username", "password"))
   static async authenticate({ username, password }) {
     const document = await collection.findOne({ username });

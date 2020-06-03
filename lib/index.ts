@@ -37,6 +37,7 @@ const ws = (manager: Manager): Function => {
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
+      console.log({ [path]: state });
       socket.send(JSON.stringify({ [path]: state }));
     };
 
