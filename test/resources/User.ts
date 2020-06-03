@@ -38,7 +38,6 @@ export default class User extends Resource {
     return User.instantiate(document.toObject());
   }
 
-  @endpoint("POST /me")
   @validator(User.schema.select("username", "password"))
   static async authenticate({ username, password }) {
     const document = await collection.findOne({ username });

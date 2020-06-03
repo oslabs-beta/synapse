@@ -6,6 +6,9 @@ export default class Reply {
   /** The requested data */
   payload: any;
 
+  /** Metadata associated with the reply. */
+  metadata: any;
+
   /**
    * @param status See {@linkcode Reply.status|Reply.prototype.status}.
    * @param payload See {@linkcode Reply.payload|Reply.prototype.payload}.
@@ -13,6 +16,7 @@ export default class Reply {
   constructor(status: number, payload: any = null) {
     this.status = status;
     this.payload = payload;
+    this.metadata = {};
   }
 
   /** Checks if the instance's {@linkcode Reply.status|status} is a 4xx or 5xx error. */

@@ -37,7 +37,7 @@ export default class Manager {
    * @returns A promise evaluating to a {@linkcode Reply} -- ```OK``` if the subscription was successful, otherwise the reply returned by a ```GET``` request to the _resource path_.
    */
   async subscribe(client: Function, path: string): Promise<Reply> {
-    // first attempt to get the value of the resource
+    // first, attempt to get the value of the resource
     const result = await this.get(path);
 
     // if the resource's value can't be obtained, it can't be subscribed to
