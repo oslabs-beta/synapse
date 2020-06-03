@@ -67,6 +67,18 @@ export default class Resource {
     return instance;
   }
 
+  static serialize(resource: Resource | Array<Resource>): any {
+    if (resource instanceof Resource) {
+      return { [resource.path()]: { ...resource } };
+    }
+
+    if (isCollectionOf(Resource, resource, true)) {
+      return resource.map((el) => Resource.serialize(el));
+    }
+
+    return undefined;
+  }
+
   /** Exposes all {@linkcode Resource.endpoints|endpoints} defined by the derived class to the specified ```controller```. Sets the derived class's {@linkcode Resource.manager|manager}.
    * @param controller The controller which will receive the endpoints.
    * @param manager See {@linkcode Resource.manager}.
