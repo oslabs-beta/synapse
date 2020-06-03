@@ -1,9 +1,9 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Reply } from "../synapse";
-import { field, endpoint, validator, affect } from "../synapse/Resource";
-import { Id, Text, Integer } from "../synapse/fields";
+import { Resource, Reply } from "../../lib";
+import { field, endpoint, validator, affect } from "../../lib/Resource";
+import { Id, Text, Integer } from "../../lib/fields";
 
 const pageSize = 10;
 const ledger = [];

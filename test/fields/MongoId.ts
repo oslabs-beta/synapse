@@ -1,6 +1,6 @@
 /* eslint-disable import/extensions */
 
-import { Id } from "../synapse/fields";
+import { Id } from "../../lib/fields";
 
 export default class MongoId extends Id {
   constructor(flags = null) {

@@ -1,4 +1,3 @@
 node_modules
 build
-docs
-server/secrets.ts
+test/etc/secrets.ts

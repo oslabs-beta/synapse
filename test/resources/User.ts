@@ -1,11 +1,11 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Reply } from "../synapse";
-import { field, endpoint, validator } from "../synapse/Resource";
-import { Email, Hash, Word, Text } from "../synapse/fields";
+import { Resource, Reply } from "../../lib";
+import { field, endpoint, validator } from "../../lib/Resource";
+import { Email, Hash, Word, Text } from "../../lib/fields";
 import MongoId from "../fields/MongoId";
-import mongo from "../database";
+import mongo from "../etc/database";
 
 const collection = mongo("User");
 

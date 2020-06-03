@@ -1,7 +1,9 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
 import { Router } from "express";
-import Reply from "./Reply";
+import { parseEndpoint } from ".";
+import Reply from "../Reply";
 
 /** Generic wrapper for an Express router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
 export default class Controller {
@@ -18,7 +20,13 @@ export default class Controller {
    * @param callback A callback function
    */
   declare(method: string, path: string, callback: Function): void {
-    this.router[method.toLowerCase()](path, (req, res) => res.send(callback, req.params));
+    const { method: _method } = parseEndpoint(method);
+
+    if (!_method) {
+      throw new Error(`Unkown method '${method}'.`);
+    }
+
+    this.router[_method](path, (req, res) => res.send(callback, req.params));
   }
 
   /** _**(async)**_ Attempts to execute a request using the constructed router.
