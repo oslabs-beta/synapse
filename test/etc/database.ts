@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/extensions */
 
 import * as mongoose from "mongoose";
@@ -7,6 +8,7 @@ const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   dbName: "synapse",
+  useFindAndModify: false,
 };
 
 mongoose
