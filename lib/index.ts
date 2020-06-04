@@ -23,7 +23,10 @@ const http = (manager: Manager): Function => {
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const result = await manager[method](req.path, args);
 
-    return res.status(result.status).json(result.payload);
+    res.locals = result;
+    next();
+
+    // return res.status(result.status).json(result.payload);
   };
 };
 
@@ -37,7 +40,6 @@ const ws = (manager: Manager): Function => {
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
     const client = (path: string, state: any) => {
-      console.log({ [path]: state });
       socket.send(JSON.stringify({ [path]: state }));
     };
 
@@ -82,6 +84,10 @@ const ws = (manager: Manager): Function => {
  */
 const sse = (manager: Manager): Function => {
   return async (req: any, res: any, next: Function) => {
+    if (req.get("Accept") !== "text/event-stream") {
+      return next();
+    }
+
     // Since a request for SSE constitutes a request for a subscription
     const { method } = parseEndpoint(req.method);
 
