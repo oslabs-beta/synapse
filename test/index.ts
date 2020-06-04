@@ -15,20 +15,18 @@ const app = express();
 // standard parsers
 app.use(express.json(), express.urlencoded({ extended: true }), cookieParser(), cors());
 
-// initialize an instance of the synapse API with the directory containing the Resource definitions
-const api = synapse(path.resolve(__dirname, "./resources"));
-// initialize express-ws
-enableWs(app);
-
-// set Allow CORS headers to all responses(testing only)
-
 // ensure that all clients have a client_id cookie
 app.use("/", identifier);
+
+// initialize an instance of the synapse API with the directory containing the Resource definitions
+const api = synapse(path.resolve(__dirname, "./resources"));
+enableWs(app); // initialize express-ws
 // add routes for each supported API access protocol
-app.ws("/rapi", api.ws);
-app.use("/rapi", api.sse);
-app.use("/api", api.http);
-app.use("/api", api.sse);
+app.ws("/api", api.ws);
+app.use("/api", api.sse, api.http, (req, res) => {
+  const result = res.locals;
+  res.status(result.status).json(result.payload);
+});
 
 // serve static content
 app.use(express.static(path.resolve(__dirname, "./public")));
