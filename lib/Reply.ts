@@ -51,7 +51,7 @@ export default class Reply {
 
   /** @category Factory */
   static NO_CONTENT() {
-    return new Reply(201);
+    return new Reply(204);
   }
 
   /** @category Factory */

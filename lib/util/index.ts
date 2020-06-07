@@ -1,3 +1,4 @@
+/* eslint-disable valid-typeof */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 import * as fs from "fs";
@@ -9,14 +10,18 @@ import * as fs from "fs";
  * @param assert If true, the function will throw an error in case of false result.
  * @returns A boolean
  */
-export const isCollectionOf = (Type: Function, col: object, assert: boolean = false) => {
+export const isCollectionOf = (type: any, col: object, assert: boolean = false) => {
   if (!Array.isArray(col)) {
     return false;
   }
   for (let i = 0; i < col.length; ++i) {
-    if (!(col[i] instanceof Type)) {
+    const invalid =
+      (typeof type === "string" && typeof col[i] !== type) ||
+      (typeof type === "function" && !(col[i] instanceof type));
+
+    if (invalid) {
       if (assert) {
-        throw new Error(`Expected collection containing only values of type ${Type.name}.`);
+        throw new Error(`Expected collection containing only values of type ${type}.`);
       }
       return false;
     }
@@ -73,3 +78,4 @@ export const invokeChain = async (middleware: Array<Function>, ...args) => {
 export { default as Controller } from "./Controller";
 export { default as Relation } from "./Relation";
 export { default as Store } from "./Store";
+export { default as Middleware } from "./Middleware";

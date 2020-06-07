@@ -21,7 +21,7 @@ const http = (manager: Manager): Function => {
 
     // then pass it to the manager
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
-    const result = await manager[method](req.path, args);
+    const result = await manager.execute(req.path, [method, args]);
 
     res.locals = result;
     next();
@@ -60,14 +60,15 @@ const ws = (manager: Manager): Function => {
           return client("/", Reply.BAD_REQUEST("Invalid Method"));
         }
 
-        // SUBSCRIBE and UNSUBSCRIBE requests are handled separately...
-        if (customMethods.includes(method)) {
-          return client(endpoint, await manager[method](client, path));
+        if (method === "unsubscribe") {
+          return client(endpoint, manager.unsubscribe(client, path));
         }
 
-        // ...from the standard HTTP methods
         const args = { ...req.cookies, ...data[endpoint] };
-        return client(endpoint, await manager[method](path, args));
+        if (method === "subscribe") {
+          return client(endpoint, await manager.execute(path, ["get", args], client));
+        }
+        return client(endpoint, await manager.execute(path, [method, args]));
       });
     });
 
@@ -87,31 +88,12 @@ const sse = (manager: Manager): Function => {
     if (req.get("Accept") !== "text/event-stream") {
       return next();
     }
-
     // Since a request for SSE constitutes a request for a subscription
     const { method } = parseEndpoint(req.method);
-
     // only a get request will be allowed.
     if (method !== "get") {
       return res.status(400).send("Invalid Method");
     }
-
-    // create a function to handle updates to the client
-    const client = (path: string, state: any) => {
-      res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
-    };
-
-    // validate the request by attempting to GET the requested resource
-    const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
-    const result = await manager.get(req.path, args);
-
-    if (result.isError()) {
-      return res.status(result.status).send(result.payload);
-    }
-
-    // if the resource is valid, subscribe the client
-    manager.subscribe(client, req.path);
-
     // upgrade the connection
     const headers = {
       "Content-Type": "text/event-stream",
@@ -119,7 +101,16 @@ const sse = (manager: Manager): Function => {
       Connection: "keep-alive",
     };
     res.set(headers).status(200);
-
+    // create a function to handle updates to the client
+    const client = (path: string, state: any) => {
+      res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`);
+    };
+    // validate the request by attempting to GET the requested resource
+    const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
+    const result = await manager.execute(req.path, ["get", args], client);
+    if (result.isError()) {
+      return res.status(result.status).send(result.payload);
+    }
     // and send back the result of the initial request
     return client(`${req.method} ${req.path}`, result);
   };
@@ -133,8 +124,29 @@ const sse = (manager: Manager): Function => {
 export function synapse(directory: string): object {
   const controller = new Controller();
 
-  const manager = new Manager((method, path, data) => {
-    return controller.request(method, path, data);
+  const manager = new Manager(async (path, request) => {
+    const [method, data] = Array.isArray(request) ? request : [];
+    const query = typeof request === "string" ? request : null;
+
+    return new Promise((resolve, reject) => {
+      if (method) {
+        controller.request(method, path, (result, params) => {
+          if (result instanceof Reply) {
+            resolve(result);
+          } else {
+            resolve(result({ ...data, ...params }, path));
+          }
+        });
+      } else {
+        controller.request("get", path, (result) => {
+          if (result instanceof Reply) {
+            resolve(result);
+          } else {
+            resolve(result(query, path));
+          }
+        });
+      }
+    });
   });
 
   requireAll(directory).forEach((module: any) => {

@@ -1,3 +1,6 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-continue */
 /* eslint-disable no-lone-blocks */
@@ -11,9 +14,21 @@ import Relation from "./util/Relation";
 import Reply from "./Reply";
 import Resource from "./Resource";
 
+const queryString = (path, args) => (path ? `${path}?${querystring.encode(<any>args)}` : null);
+
+const analyze = (query: string, state: any, target: Relation<string, string>) => {
+  const [path] = query.split("?");
+
+  target.unlink(null, query);
+
+  target.link(path, query);
+  (Array.isArray(state) ? state : [state]).forEach((resource: Resource) => {
+    target.link(resource.path(), query);
+  });
+};
+
 /** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Manages caching, subscription, and state management of resources. */
 export default class Manager {
-  /** Maps resources by paths to their last known values. */
   cache: Store;
 
   /** Stores the _resource paths_ waiting to be updated. */
@@ -39,65 +54,13 @@ export default class Manager {
     this.generator = generator;
   }
 
-  async analyze(query: string, state: object) {
-    const [path] = query.split("?");
-    if (path) {
-      this.queries.link(path, query);
-      (Array.isArray(state) ? state : [state]).forEach((resource: Resource) => {
-        this.queries.link(resource.path(), query);
-      });
-    }
-  }
-
-  /** _**(async)**_ Subscribes a client function to a given _resource ```path```_.
-   * @param client A function representing a client. Will be invoked when the resource at ```path``` changes state.
-   * @param path A _resource path_.
-   * @returns A promise evaluating to a {@linkcode Reply} -- ```OK``` if the subscription was successful, otherwise the reply returned by a ```GET``` request to the _resource path_.
-   */
-  async subscribe(client: Function, path: string, args: object = {}): Promise<Reply> {
-    {
-      // first, attempt to get the value of the resource
-      // if the resource's value can't be obtained, it can't be subscribed to
-      // otherwise, store the subscription
-      // the resource state will always be either an instance of Resource or an array of Resource instances
-      // if it's an array, subscribe the client to each resource in the collection
-      // then send the resource state to the client
-      // finally, respond to the request
-    }
-
-    const result = await this.get(path, args);
-    if (result.isError()) {
-      return result;
-    }
-
-    const query = `${path}?${querystring.encode(<any>args)}`;
-    const state = result.payload;
-
-    this.analyze(query, state);
-    this.subscriptions.link(client, query);
-
-    client(path, state);
-
-    return Reply.OK(query);
-  }
-
   /** Unsubscribes a client function from a given _resource ```path```_. If no path is specified, unsubscribes the client from all resources.
    * @param client A function representing a client.
    * @param path A _resource path_.
    * @returns An ```OK``` {@linkcode Reply}.
    */
-  unsubscribe(client: Function, path: string = null): Reply {
-    this.subscriptions.unlink(client, path);
-
-    // if the unsubscribed resource is a collection
-    const state = this.cache.get(path);
-    if (Array.isArray(state)) {
-      // unsubscribe the client from all resources in the collection as well
-      state.forEach((resource: Resource) => {
-        this.subscriptions.unlink(client, resource.path());
-      });
-    }
-
+  unsubscribe(client: Function, query: string = null): Reply {
+    this.subscriptions.unlink(client, query);
     return Reply.OK();
   }
 
@@ -110,38 +73,25 @@ export default class Manager {
 
   /** _**(async)**_ Recalculates state of all invalidated resources and sends new state to all subscribers. */
   async update(): Promise<Reply> {
-    // update all affected resources in order
     while (this.queue.length) {
-      const source = this.queue.shift();
-      const queries = this.queries.from(source);
-      for (let i = 0; i < queries.length; ++i) {
-        const query = queries[i];
+      for (const query of this.queries.from(this.queue.shift())) {
         const subscriptions = this.subscriptions.to(query);
 
-        if (!subscriptions.length) {
-          continue;
-        }
-
-        // start by getting the current state of the resource from the generator
-        const [path, args] = query.split("?");
-        const result = await this.generator("get", path, querystring.decode(args));
-
-        if (!result.isError()) {
-          // if it's not an error, update the cache and send the new state to all subscribers
+        if (subscriptions.length) {
+          const [path, args] = query.split("?");
+          const result = await this.read(query, true);
           const state = result.payload;
-          this.cache.set(path, state);
-          this.analyze(query, state);
-          subscriptions.forEach((client) => {
-            client(path, state);
-          });
-        } else if (result.status === 404) {
-          // otherwise, if the resource was not found, remove the resource from the cache
-          this.cache.delete(path);
-          // then unsubscribe all subscribers and alert them with the new state (undefined).
-          subscriptions.forEach((client) => {
-            this.unsubscribe(client, path);
-            client(path, null);
-          });
+
+          if (!result.isError()) {
+            subscriptions.forEach((client) => {
+              client(path, state);
+            });
+          } else if (result.status === 404) {
+            subscriptions.forEach((client) => {
+              this.unsubscribe(client, path);
+              client(path, null);
+            });
+          }
         }
       }
     }
@@ -149,78 +99,125 @@ export default class Manager {
     return undefined;
   }
 
-  /** _**(async)**_ Returns the current state of the resource at the specified ```path```. Uses the cached value when available, otherwise makes a ```GET``` request to the {@linkcode Manager.generator|generator}.
-   * @param path A _resource path_.
-   * @param data The arguments to be passed to the _endpoint_ method.
-   * @returns A promise evaluating to a {@linkcode Reply}.
-   */
-  async get(path: string, data: object = {}): Promise<Reply> {
-    if (this.cache.has(path)) {
-      return Reply.OK(this.cache.get(path));
+  async read(query: string, force: boolean = false) {
+    const [path] = query.split("?");
+
+    if (!path) return;
+
+    let result;
+    if (force || !this.cache.has(query)) {
+      result = await this.generator(path, query);
+    } else {
+      result = Reply.OK(this.cache.get(query));
     }
 
-    const result = await this.generator("get", path, data);
+    if (!(result instanceof Reply)) {
+      result = Reply.INTERNAL_SERVER_ERROR();
+    }
 
-    if (!result.isError()) {
-      this.cache.set(path, result.payload);
+    if (result.isError()) {
+      this.cache.delete(query);
+      return result;
+    }
+
+    const state = result.payload;
+    this.cache.set(query, state);
+
+    if (this.subscriptions.to(query).length) {
+      analyze(query, state, this.queries);
     }
 
     return result;
   }
 
-  /** _**(async)**_ Makes a ```POST ``` request to the {@linkcode Manager.generator|generator}.
-   * @param path A _resource path_.
-   * @param data The arguments to be passed to the _endpoint_ method.
-   * @returns A promise evaluating to the result of the request.
-   */
-  async post(path: string, data: object): Promise<Reply> {
-    this.notify(path);
-    const result = await this.generator("post", path, data);
-    if (!result.isError()) {
-      this.update();
+  async execute(path: string, request: Array<any>, client: Function = null) {
+    const { queue } = this;
+    this.queue = [];
+
+    let result = await this.generator(path, request);
+
+    if (typeof result === "string") {
+      const query = result;
+
+      result = await this.read(query);
+
+      const state = result.payload;
+      if (client && !result.isError()) {
+        if (!this.subscriptions.to(query).length) {
+          analyze(query, state, this.queries);
+        }
+
+        this.subscriptions.link(client, query);
+        client(path, state);
+        result = Reply.OK(query);
+      }
+
+      return result;
     }
+
+    if (!(result instanceof Reply)) {
+      result = Reply.INTERNAL_SERVER_ERROR();
+    }
+
+    if (!result.isError()) {
+      this.queue = [...queue, path, ...this.queue];
+      if (!queue.length) {
+        this.update();
+      }
+    }
+
     return result;
   }
 
-  /** _**(async)**_ Makes a ```PUT ``` request to the {@linkcode Manager.generator|generator}.
-   * @param path A _resource path_.
-   * @param data The arguments to be passed to the _endpoint_ method.
-   * @returns A promise evaluating to the result of the request.
-   */
-  async put(path: string, data: object): Promise<Reply> {
-    this.notify(path);
-    const result = await this.generator("put", path, data);
-    if (!result.isError()) {
-      this.update();
-    }
-    return result;
-  }
+  async ex(path: string, request: Array<any>, client: Function = null) {
+    const { queue } = this;
+    this.queue = [];
 
-  /** _**(async)**_ Makes a ```PATCH ``` request to the {@linkcode Manager.generator|generator}.
-   * @param path A _resource path_.
-   * @param data The arguments to be passed to the _endpoint_ method.
-   * @returns A promise evaluating to the result of the request.
-   */
-  async patch(path: string, data: object): Promise<Reply> {
-    this.notify(path);
-    const result = await this.generator("patch", path, data);
-    if (!result.isError()) {
-      this.update();
-    }
-    return result;
-  }
+    let result = await this.generator(path, request);
 
-  /** _**(async)**_ Makes a ```DELETE ``` request to the {@linkcode Manager.generator|generator}.
-   * @param path A _resource path_.
-   * @param data The arguments to be passed to the _endpoint_ method.
-   * @returns A promise evaluating to the result of the request.
-   */
-  async delete(path: string): Promise<Reply> {
-    this.notify(path);
-    const result = await this.generator("delete", path, null);
-    if (!result.isError()) {
-      this.update();
+    let query = null;
+    if (typeof result === "string") {
+      query = result; // read request
+      if (this.cache.has(query)) {
+        result = Reply.OK(this.cache.get(query));
+      } else {
+        result = await this.generator(path, query);
+      }
     }
+
+    if (!(result instanceof Reply)) {
+      result = Reply.INTERNAL_SERVER_ERROR();
+    }
+
+    if (result.isError()) {
+      this.cache.delete(query);
+      return result;
+    }
+
+    if (query) {
+      const state = result.payload;
+      this.cache.set(query, state);
+
+      if (client) {
+        this.subscriptions.link(client, query);
+        client(path, state);
+        result = Reply.OK(query);
+      }
+
+      if (this.subscriptions.to(query).length) {
+        this.queries.link(path, query);
+        (Array.isArray(state) ? state : [state]).forEach((resource: Resource) => {
+          this.queries.link(resource.path(), query);
+        });
+      }
+    } else {
+      // write request
+      this.queue = [...queue, path, ...this.queue];
+      if (!queue.length) {
+        this.update();
+      }
+    }
+
     return result;
   }
 }

@@ -1,11 +1,21 @@
+/* eslint-disable func-names */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
+import * as querystring from "querystring";
 import { Field, Schema, Reply, Manager } from ".";
-import { isCollectionOf, parseEndpoint, invokeChain } from "./util";
+import { isCollectionOf, parseEndpoint, invokeChain, Middleware } from "./util";
 import Controller from "./util/Controller";
 import Id from "./fields/Id";
+
+const querier = {
+  encode: (path, args) => (path ? `${path}?${querystring.encode(<any>args)}` : null),
+  decode: (path, query) => {
+    const qs = query.split(`${path}?`)[1];
+    return qs !== undefined ? querystring.decode(qs) : null;
+  },
+};
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
 export default class Resource {
@@ -94,9 +104,7 @@ export default class Resource {
 
     Object.keys(Class.endpoints).forEach((key: string) => {
       const { method, path } = parseEndpoint(key, [], Class.root());
-      controller.declare(method, path, async (args: object) => {
-        return Class.endpoints[key](args);
-      });
+      controller.declare(method, path, Class.endpoints[key]);
     });
   }
 
@@ -140,15 +148,12 @@ export default class Resource {
    * @param middleware A chain of functions to be executed when the _endpoint_ is requested. The return value of each function will be passed to the next in line.
    * @returns The last function in the middleware chain.
    */
-  static $endpoint(value: string, ...middleware: Array<Function>): Function {
+  static $endpoint(value: string, target: Middleware): Function {
     const Class = this;
-    const { method } = parseEndpoint(value);
+    const { method, path } = parseEndpoint(value);
 
     if (!method) {
       throw new Error(`Invalid endpoint '${value}'.`);
-    }
-    if (!isCollectionOf(Function, middleware)) {
-      throw new Error("Expected 'middleware' to be an array of functions.");
     }
 
     if (!Class.endpoints) {
@@ -156,31 +161,56 @@ export default class Resource {
     }
 
     // add a new function to the class's 'endpoints' object.
-    Class.endpoints[value] = async (...args) => {
-      let result: any;
+    Class.endpoints[value] = async (arg, rpath) => {
+      let result;
 
       try {
-        result = await invokeChain(middleware, ...args); // start by attempting to invoke the middleware chain
+        if (typeof arg === "object") {
+          if (method === "get") {
+            const probe: any = target.probe ? await target.probe(arg) : {};
+
+            if (!probe.args) {
+              probe.args = {};
+            }
+
+            return querier.encode(rpath, probe.args);
+          }
+
+          result = await target(arg);
+        } else if (typeof arg === "string") {
+          const query = querier.decode(rpath, arg);
+
+          if (!query) {
+            result = Reply.BAD_REQUEST();
+          } else {
+            result = await target(query);
+          }
+        }
+
+        // if the result is a Resource or array of Resources, convert it to a reply
+        if (result instanceof Resource || isCollectionOf(Resource, result)) {
+          result = new Reply(method === "post" ? 201 : 200, result);
+        }
+
+        // the result should now be an instance of Reply
+        if (!(result instanceof Reply)) {
+          console.log("Unexpected result: ", result);
+          throw new Error(`Unexpected result from endpoint '${value}'.`);
+        }
       } catch (err) {
-        console.log(err);
+        console.log("INTERNAL_SERVER_ERROR: ", err);
         result = Reply.INTERNAL_SERVER_ERROR(); // any unhandled errors produce a generic 500 reply
-      }
-
-      // if the result is a Resource or array of Resources, convert it to a reply
-      if (result instanceof Resource || isCollectionOf(Resource, result)) {
-        result = new Reply(method === "post" ? 201 : 200, result);
-      }
-
-      // the result should now be an instance of Reply
-      if (!(result instanceof Reply)) {
-        console.log(result);
-        throw new Error(`Unexpected result from endpoint '${value}'.`);
       }
 
       return result;
     };
 
-    return middleware[middleware.length - 1];
+    return async (args) => {
+      if (!Class.manager) {
+        return undefined;
+      }
+      return Class.manager.execute(path, [method, args]);
+    };
   }
 
   /** Returns a function which, when invoked, will validate its input arguments using the specified ```schema``` before calling the specified```target``` function.
@@ -194,15 +224,18 @@ export default class Resource {
       schema = new Schema(schema);
     }
 
-    return async (data) => {
-      const validated = await schema.validate(data);
-
-      if (typeof validated !== "object") {
-        return Reply.BAD_REQUEST(schema.lastError);
-      }
-
-      return target(validated);
-    };
+    return new Middleware(
+      async (...args) => {
+        const validated = await schema.validate(args[0] || {});
+        if (typeof validated !== "object") {
+          return Reply.BAD_REQUEST(schema.lastError);
+        }
+        return [validated];
+      },
+      target,
+      { schema },
+      (args) => ({ args })
+    );
   }
 
   /** Returns a function which, when invoked, will first call the ```target``` function and then attempt to notify the derived class's {@linkcode Resource.manager|manager} that the specified _resource ```paths```_ should be updated.
@@ -235,7 +268,8 @@ export const field = (instance: Field): Function => {
 
 export const endpoint = (path: string, ...middleware: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
-    Class.$endpoint(path, ...middleware, descriptor.value);
+    const method = descriptor.value; // class method to be decorated
+    descriptor.value = Class.$endpoint(path, method);
   };
 };
 
