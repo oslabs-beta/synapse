@@ -1,6 +1,7 @@
 /* eslint-disable valid-typeof */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
+
 import * as fs from "fs";
 
 /**
@@ -43,11 +44,28 @@ export const requireAll = (path: string) => {
   return files.map((file: string) => require(`${path}/${file}`));
 };
 
+export const mergePaths = (...paths) => {
+  let result = "";
+  // eslint-disable-next-line consistent-return
+  paths.forEach((path) => {
+    if (!path || path[0] !== "/") {
+      return undefined;
+    }
+    const end = path.length - 1;
+    if (path[end] === "/") {
+      // eslint-disable-next-line no-param-reassign
+      path = path.substr(0, end);
+    }
+    result += path;
+  });
+  return result || "/";
+};
+
 export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = "") => {
-  let [method, path] = endpoint.split(" ");
+  let [method, path] = (endpoint || "").split(" ");
 
   method = method.toLowerCase();
-  path = root + path;
+  path = mergePaths(root, path);
 
   const standard = ["get", "post", "put", "patch", "delete"];
   if (!standard.includes(method) && !custom.includes(method)) {
@@ -55,6 +73,13 @@ export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root
   }
 
   return { method, path };
+};
+
+export const routeToPath = (route: string, args: object) => {
+  return route
+    .split("/")
+    .map((seg) => (seg[0] === ":" ? args[seg.substr(1)] : seg))
+    .join("/");
 };
 
 export const invokeChain = async (middleware: Array<Function>, ...args) => {
@@ -78,4 +103,4 @@ export const invokeChain = async (middleware: Array<Function>, ...args) => {
 export { default as Controller } from "./Controller";
 export { default as Relation } from "./Relation";
 export { default as Store } from "./Store";
-export { default as Middleware } from "./Middleware";
+export { default as Functor } from "./Functor";

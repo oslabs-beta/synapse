@@ -5,7 +5,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { Resource, Reply } from "../../lib";
-import { field, endpoint, validator } from "../../lib/Resource";
+import { field, expose, schema } from "../../lib/Resource";
 import Id from "../../lib/fields/Id";
 import User from "./User";
 
@@ -33,9 +33,9 @@ export default class Session extends Resource {
   @field(new Id(36)) client_id: string;
   @field(new Id(36)) user_id: string;
 
-  @endpoint("POST /")
-  @validator(Session.union(User).select("username", "password", "client_id"))
-  static async create({ username, password, client_id }) {
+  @expose("POST /")
+  @schema(Session.union(User).select("username", "password", "client_id"))
+  static async open({ username, password, client_id }) {
     const result = await User.authenticate({ username, password });
 
     if (result instanceof User) {
@@ -45,8 +45,8 @@ export default class Session extends Resource {
     return result;
   }
 
-  @endpoint("GET /", authorizer)
-  @validator(Session.schema.select("client_id"))
+  @expose("GET /", authorizer)
+  @schema(Session.schema.select("client_id"))
   static async read({ client_id }) {
     return sessions[client_id];
   }

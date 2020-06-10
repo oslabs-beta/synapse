@@ -1,22 +1,24 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable import/extensions */
+
+import State from "./interface/State";
+
 /** Represents a response to a client. */
-export default class Reply {
-  /** An HTTP status code */
-  status: number;
-
-  /** The requested data */
-  payload: any;
-
-  /** Metadata associated with the reply. */
-  metadata: any;
-
+export default class Reply extends State {
   /**
    * @param status See {@linkcode Reply.status|Reply.prototype.status}.
    * @param payload See {@linkcode Reply.payload|Reply.prototype.payload}.
    */
   constructor(status: number, payload: any = null) {
-    this.status = status;
-    this.payload = payload;
-    this.metadata = {};
+    super();
+
+    this.__meta__.status = status;
+    this.__meta__.payload = payload;
+  }
+
+  status(): number {
+    return this.__meta__.status;
   }
 
   /** Checks if the instance's {@linkcode Reply.status|status} is a 4xx or 5xx error. */
@@ -24,19 +26,12 @@ export default class Reply {
     return ["4", "5"].includes(this.status.toString()[0]);
   }
 
-  /**
-   * @returns A string representation of the instance's {@linkcode Reply.payload|payload}.
-   */
-  toString(): string {
-    if (this.payload === null || this.payload === undefined) {
-      return "";
-    }
+  toObject(): object {
+    return this.__meta__;
+  }
 
-    if (typeof this.payload === "string" || typeof this.payload === "number") {
-      return <string>this.payload;
-    }
-
-    return JSON.stringify(this.payload);
+  getRefs(): Array<string> {
+    return [];
   }
 
   /** @category Factory */

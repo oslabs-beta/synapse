@@ -10,8 +10,13 @@ export default class Controller {
   /** An ```express``` router */
   router: Function;
 
-  constructor() {
+  transform: Function;
+
+  constructor(transform: Function = null) {
     this.router = Router();
+
+    this.transform =
+      transform || ((path, params, ...args) => [{ ...args.shift(), ...params }, path, ...args]);
   }
 
   /** Associates a callback function with an HTTP method and _resource path_
@@ -35,17 +40,19 @@ export default class Controller {
    * @param args An object containing the arguments to be passed to the callback method, if one is found.
    * @returns A promise that evaluates to the result of invoking the callback function associated with the provided method and path, or a ```NOT_FOUND``` {@linkcode Reply} if no matching _endpoint_ exists.
    */
-  request(method: string, path: string, callback: Function): Promise<any> {
-    const { method: _method } = parseEndpoint(method);
+  async request(method: string, path: string, ...args: Array<any>): Promise<any> {
+    return new Promise((resolve) => {
+      const { method: _method } = parseEndpoint(method);
 
-    if (!_method) {
-      callback(Reply.BAD_REQUEST());
-    }
+      if (!_method) {
+        resolve(Reply.BAD_REQUEST());
+      }
 
-    return this.router(
-      { method: _method.toUpperCase(), url: path },
-      { send: (result, params) => callback(result, params) },
-      () => callback(Reply.NOT_FOUND())
-    );
+      return this.router(
+        { method: _method.toUpperCase(), url: path },
+        { send: (callback, params) => resolve(callback(...this.transform(path, params, ...args))) },
+        () => resolve(Reply.NOT_FOUND())
+      );
+    });
   }
 }
