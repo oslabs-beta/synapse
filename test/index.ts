@@ -24,8 +24,7 @@ enableWs(app); // initialize express-ws
 // add routes for each supported API access protocol
 app.ws("/api", api.ws);
 app.use("/api", api.sse, api.http, (req, res) => {
-  const result = res.locals;
-  res.status(result.status).json(result.payload);
+  res.status(res.locals.status()).json(res.locals.render());
 });
 
 // serve static content

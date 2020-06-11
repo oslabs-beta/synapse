@@ -1,18 +1,13 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/extensions */
 
+import * as bcrypt from "bcryptjs";
 import Text from "./Text";
-
-import bcrypt = require("bcryptjs");
 
 export default class Hash extends Text {
   saltRounds: number;
 
-  constructor(
-    min: number = null,
-    max: number = null,
-    flags: number = null,
-    saltRounds: number = 10
-  ) {
+  constructor(min: number = null, max: number = null, flags: number = null, saltRounds: number = 10) {
     super(min, max, null, flags);
 
     this.saltRounds = saltRounds;
