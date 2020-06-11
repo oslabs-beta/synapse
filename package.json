@@ -5,7 +5,7 @@
   "main": "lib/index.ts",
   "scripts": {
     "build": "tsc",
-    "test": "NODE_ENV=test jest",
+    "test": "jest",
     "start": "NODE_ENV=production node ./build/server/server.js",
     "dev": "NODE_ENV=development nodemon",
     "doc": "npx typedoc --mode library --excludeExternals --stripInternal --theme minimal --out docs lib/index.ts"
@@ -37,12 +37,10 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "jest": "^26.0.1",
-    "jest-websocket-mock": "^2.0.2",
-    "mock-socket": "^9.0.3",
     "mongoose": "^5.9.16",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2",
-    "ts-jest": "^26.0.0",
+    "ts-jest": "^26.1.0",
     "ts-node": "^8.10.1",
     "typedoc": "^0.17.0-3",
     "typescript": "^3.9.3",

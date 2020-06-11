@@ -48,7 +48,10 @@ export default class Resource {
   /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}.
    * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
-  static async instantiate<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
+  static async instantiate<T extends typeof Resource>(
+    this: T,
+    data: object
+  ): Promise<InstanceType<T>> {
     const Type: any = this; // 'this' represents the class constructor in a static method.
 
     // validate in the input data using the derived class's schema.
