@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
-import Field from "../Field";
+import Field from "../validators/Field";
 
 export default class Text extends Field {
   /**
@@ -11,12 +11,7 @@ export default class Text extends Field {
    */
   rules = [];
 
-  constructor(
-    min: number = null,
-    max: number = null,
-    defaultVal: any = null,
-    flags: number = null
-  ) {
+  constructor(min: number = null, max: number = null, defaultVal: any = null, flags: number = null) {
     super(defaultVal, flags);
 
     if (min) {

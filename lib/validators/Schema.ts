@@ -3,7 +3,7 @@
 /* eslint-disable no-await-in-loop */
 
 import Field from "./Field";
-import { isCollectionOf } from "./util";
+import { isCollectionOf } from "../utilities";
 
 /** An instance of {@linkcode Schema} defines a set of parameters by name and _fieldtype_ (see {@linkcode Field}). */
 export default class Schema {
