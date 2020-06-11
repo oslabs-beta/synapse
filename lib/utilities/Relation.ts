@@ -3,22 +3,16 @@ export default class Relation<F, T> {
 
   toMap: Map<T, Set<F>> = new Map();
 
-  link(from: F, to: T, reverse: boolean = true) {
+  link(from: F, to: T) {
     if (!this.fromMap.has(from)) {
       this.fromMap.set(from, new Set());
     }
     this.fromMap.get(from).add(to);
 
-    if (reverse) {
-      if (!this.toMap.has(to)) {
-        this.toMap.set(to, new Set());
-      }
-      this.toMap.get(to).add(from);
+    if (!this.toMap.has(to)) {
+      this.toMap.set(to, new Set());
     }
-  }
-
-  point(from: F, to: T) {
-    return this.link(from, to, false);
+    this.toMap.get(to).add(from);
   }
 
   unlink(from: F = null, to: T = null) {
@@ -46,23 +40,11 @@ export default class Relation<F, T> {
     }
   }
 
-  from(val: F | Array<F>): Array<T> {
-    const result = [];
-    (Array.isArray(val) ? val : [val]).forEach((el) => {
-      if (this.fromMap.has(el)) {
-        result.push(...Array.from(this.fromMap.get(el)));
-      }
-    });
-    return result;
+  from(val: F): Array<T> {
+    return Array.from(this.fromMap.get(val) || []);
   }
 
-  to(val: T | Array<T>): Array<F> {
-    const result = [];
-    (Array.isArray(val) ? val : [val]).forEach((el) => {
-      if (this.toMap.has(el)) {
-        result.push(...Array.from(this.toMap.get(el)));
-      }
-    });
-    return result;
+  to(val: T): Array<F> {
+    return Array.from(this.toMap.get(val) || []);
   }
 }

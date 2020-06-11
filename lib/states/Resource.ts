@@ -4,13 +4,12 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import { mergePaths } from "./util";
-import State from "./interface/State";
+import Meta from "../traits/Meta";
 import Collection from "./Collection";
-import Schema from "./Schema";
-import Field from "./Field";
-import Meta from "./interface/Meta";
-import Id from "./fields/Id";
+import Schema from "../validators/Schema";
+import Field from "../validators/Field";
+import Id from "../fields/Id";
+import { mergePaths } from "../utilities";
 
 const { PRV } = Field.Flags;
 
@@ -32,15 +31,7 @@ export default class Resource extends Meta {
     throw new Error(`No field of type 'Id' found for class ${Class.name}.`);
   }
 
-  status(): number {
-    return this.__meta__.status;
-  }
-
-  isError(): boolean {
-    return false;
-  }
-
-  toObject(): object {
+  render(): object {
     const Class: any = this.constructor;
     const { fields } = Class.schema;
 
@@ -52,10 +43,6 @@ export default class Resource extends Meta {
       }
     });
     return result;
-  }
-
-  getRefs(): Array<string> {
-    return [this.path()];
   }
 
   /** Returns the _resource path_ from which all endpoints on the derived class originate. */
@@ -72,7 +59,7 @@ export default class Resource extends Meta {
   /** Returns a new {@linkcode Schema} containing all the fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to latter {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
    * @param Classes The {@linkcode Resource}
    */
-  static union(...Classes: Array<{ new (): Resource }>): Schema {
+  static union(...Classes: Array<typeof Resource>): Schema {
     const fields = [];
     Classes.forEach((Class: typeof Resource) => {
       if (Class.prototype instanceof Resource) {
@@ -88,27 +75,27 @@ export default class Resource extends Meta {
    * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
   static async restore<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
-    const Type: any = this;
+    const Type = <typeof Resource>this;
 
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
-      console.log(data);
-      throw new Error(Type.schema.lastError);
+      console.log(data, Type.schema.lastError);
+      throw new Error(`Invalid properties for type '${Type.name}'.`);
     }
 
     // transfer the resulting values to a new instance of the derived class
-    const instance = new Type();
+    const instance = new Type(200);
+    instance.__meta__.dependencies.add(instance.path());
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
 
-    instance.__meta__.status = 200;
-    return instance;
+    return <InstanceType<T>>instance;
   }
 
-  static async restoreAll<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
-    const Type: any = this;
+  static async collection<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
+    const Type = <typeof Resource>this;
 
     const pending = data.map((obj) => Type.restore(obj));
     return new Collection(await Promise.all(pending));
@@ -116,10 +103,7 @@ export default class Resource extends Meta {
 
   static async create<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const instance = await this.restore(data);
-
     instance.__meta__.status = 201;
     return instance;
   }
 }
-
-export { expose, schema, field, affect } from "./interface/Meta";

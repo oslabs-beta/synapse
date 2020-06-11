@@ -3,14 +3,16 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 
+import State from "../delegates/State";
 import Resource from "./Resource";
-import State from "./interface/State";
 
 export default class Collection extends State {
   resources: Array<Resource>;
 
   constructor(resources: Array<Resource>) {
-    super();
+    super(200);
+
+    this.resources = [];
 
     resources.forEach((el) => {
       if (!(el instanceof Resource)) {
@@ -20,19 +22,11 @@ export default class Collection extends State {
     });
   }
 
-  status(): number {
-    return 200;
+  render(): object {
+    return this.resources.map((el) => el.render());
   }
 
-  isError(): boolean {
-    return false;
-  }
-
-  toObject(): object {
-    return this.resources.map((el) => el.toObject());
-  }
-
-  getRefs(): Array<string> {
+  dependencies(): Array<string> {
     return this.resources.map((el) => el.path());
   }
 }

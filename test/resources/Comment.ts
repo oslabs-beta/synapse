@@ -1,8 +1,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Reply } from "../../lib";
-import { field, expose, schema, affect } from "../../lib/Resource";
+import { Resource, State } from "../../lib";
+import { field, expose, schema, affect } from "../../lib/meta";
 import { Id, Text, Integer } from "../../lib/fields";
 
 const pageSize = 10;
@@ -14,13 +14,13 @@ export default class Comment extends Resource {
 
   @expose("GET /last")
   static Last() {
-    return ledger[ledger.length - 1] || Reply.NOT_FOUND();
+    return ledger[ledger.length - 1] || State.NOT_FOUND();
   }
 
   @expose("GET /:id")
   @schema(Comment.schema.select("id"))
   static Find({ id }) {
-    return ledger[id] || Reply.NOT_FOUND();
+    return ledger[id] || State.NOT_FOUND();
   }
 
   @expose("GET /page/:index")

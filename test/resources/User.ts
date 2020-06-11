@@ -1,8 +1,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Reply } from "../../lib";
-import { field, schema, expose } from "../../lib/Resource";
+import { Resource, State } from "../../lib";
+import { field, schema, expose } from "../../lib/meta";
 import { Email, Hash, Word, Text } from "../../lib/fields";
 import MongoId from "../fields/MongoId";
 import mongo from "../etc/database";
@@ -20,7 +20,7 @@ export default class User extends Resource {
   static async find({ _id }) {
     const document = await collection.findById({ _id });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
     return User.restore(document.toObject());
   }
@@ -28,7 +28,7 @@ export default class User extends Resource {
   @expose("GET /")
   static async getAll() {
     const documents = await collection.find();
-    return User.restoreAll(documents.map((document) => document.toObject()));
+    return User.collection(documents.map((document) => document.toObject()));
   }
 
   @expose("POST /")
@@ -43,7 +43,7 @@ export default class User extends Resource {
   static async update({ _id, email }) {
     const document = await collection.findOneAndUpdate({ _id }, { email }, { new: true });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
     return User.restore(document.toObject());
   }
@@ -53,9 +53,9 @@ export default class User extends Resource {
   static async remove({ _id }) {
     const document = await collection.deleteOne({ _id });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
-    return Reply.OK("User Deleted");
+    return State.OK("User Deleted");
   }
 
   @schema(User.schema.select("username", "password"))
@@ -67,6 +67,6 @@ export default class User extends Resource {
         return user;
       }
     }
-    return Reply.FORBIDDEN("Incorrect username/password.");
+    return State.FORBIDDEN("Incorrect username/password.");
   }
 }

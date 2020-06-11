@@ -3,6 +3,7 @@
 /* eslint-disable import/extensions */
 
 import * as fs from "fs";
+import * as querystring from "querystring";
 
 /**
  * Verifies that all elements of the input collection are of type 'Type'.
@@ -48,8 +49,12 @@ export const mergePaths = (...paths) => {
   let result = "";
   // eslint-disable-next-line consistent-return
   paths.forEach((path) => {
-    if (!path || path[0] !== "/") {
+    if (!path) {
       return undefined;
+    }
+    if (path[0] !== "/") {
+      // eslint-disable-next-line no-param-reassign
+      path = `/${path}`;
     }
     const end = path.length - 1;
     if (path[end] === "/") {
@@ -62,7 +67,7 @@ export const mergePaths = (...paths) => {
 };
 
 export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = "") => {
-  let [method, path] = (endpoint || "").split(" ");
+  let [method, path] = endpoint.split(" ");
 
   method = method.toLowerCase();
   path = mergePaths(root, path);
@@ -75,11 +80,23 @@ export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root
   return { method, path };
 };
 
-export const routeToPath = (route: string, args: object) => {
-  return route
-    .split("/")
-    .map((seg) => (seg[0] === ":" ? args[seg.substr(1)] : seg))
-    .join("/");
+export const routeToPath = (route: string, args: object, query: boolean = false) => {
+  const segs = [];
+  const data = query ? { ...args } : {};
+
+  route.split("/").forEach((seg) => {
+    if (seg[0] === ":") {
+      const key = seg.substr(1);
+      segs.push(args[key]);
+      delete data[key];
+    } else {
+      segs.push(seg);
+    }
+  });
+
+  const qs = query ? `?${querystring.encode(data)}` : "";
+
+  return segs.join("/") + qs;
 };
 
 export const invokeChain = async (middleware: Array<Function>, ...args) => {
@@ -99,8 +116,3 @@ export const invokeChain = async (middleware: Array<Function>, ...args) => {
 
   return baton;
 };
-
-export { default as Controller } from "./Controller";
-export { default as Relation } from "./Relation";
-export { default as Store } from "./Store";
-export { default as Functor } from "./Functor";

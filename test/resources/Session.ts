@@ -4,8 +4,8 @@
 /* eslint-disable lines-between-class-members */
 
 import { v4 as uuidv4 } from "uuid";
-import { Resource, Reply } from "../../lib";
-import { field, expose, schema } from "../../lib/Resource";
+import { Resource, State } from "../../lib";
+import { field, expose, schema } from "../../lib/meta";
 import Id from "../../lib/fields/Id";
 import User from "./User";
 
@@ -23,7 +23,7 @@ export const authorizer = (args) => {
   const client = sessions[client_id];
 
   if (!client) {
-    return Reply.UNAUTHORIZED();
+    return State.UNAUTHORIZED();
   }
 
   return [args];

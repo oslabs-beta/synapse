@@ -2,15 +2,19 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
-import { Field, Schema, Endpoint, Manager } from "..";
-import { mergePaths, parseEndpoint } from "../util";
-import State from "./State";
+import State from "../delegates/State";
+import Nexus from "../controllers/Nexus";
+import Field from "../validators/Field";
+import Schema from "../validators/Schema";
+import { mergePaths, parseEndpoint } from "../utilities";
 
 export default class Meta extends State {
   /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
   static schema: Schema;
 
-  static root() {}
+  static root() {
+    throw new Error("Classes that extend Meta must implement the 'root' method.");
+  }
 
   static $field(field: Field, name: string) {
     const Class = this;
@@ -30,36 +34,30 @@ export default class Meta extends State {
     const Class = this;
 
     const { method, path } = parseEndpoint(pattern);
-
     if (!method || !path) {
-      throw new Error(`Invalid endpoint pattern '${pattern}'.`);
+      throw new Error(`Invalid pattern '${pattern}'.`);
     }
 
     const route = mergePaths(Class.root() + path);
-    const endpoint = target instanceof Endpoint ? target : new Endpoint(target);
+    const nexus = target instanceof Nexus ? target : new Nexus(target);
 
-    return Object.assign(endpoint, { authorizer, method, route });
+    return Object.assign(nexus, { authorizer, method, pattern: route });
   }
 
   static $schema(schema: Schema | object, target: Function): Function {
-    const Class = this;
-
-    const endpoint = target instanceof Endpoint ? target : new Endpoint(target);
-    endpoint.schema = schema instanceof Schema ? schema : new Schema(schema);
-    return endpoint;
+    const nexus = target instanceof Nexus ? target : new Nexus(target);
+    nexus.schema = schema instanceof Schema ? schema : new Schema(schema);
+    return nexus;
   }
 
   static $affect(paths: Array<string>, target: Function): Function {
-    const Class = this;
-
-    const endpoint = target instanceof Endpoint ? target : new Endpoint(target);
-    endpoint.callback = (result: any) => {
-      paths.forEach((path) => Manager.invalidate(mergePaths(Class.root(), path)));
-    };
-    return endpoint;
+    const nexus = target instanceof Nexus ? target : new Nexus(target);
+    nexus.dependents = paths;
+    return nexus;
   }
 }
 
+// decorators:
 export const field = (instance: Field): Function => {
   return (target, fieldName) => {
     const Class = target.constructor;

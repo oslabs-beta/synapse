@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-bitwise */
 
-import Field from "../Field";
+import Field from "../validators/Field";
 
 export default class Number extends Field {
   min: number;
