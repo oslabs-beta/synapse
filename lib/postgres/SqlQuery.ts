@@ -88,10 +88,3 @@ export default class SqlQuery {
     return "";
   }
 }
-
-// const select = new SqlQuery().select`name, password`.from`users`.where`id=${3}`;
-// const insert = new SqlQuery()
-//   .insert({ name: "bill", password: "secret" })
-//   .into("users");
-
-// console.log(select.evaluate());

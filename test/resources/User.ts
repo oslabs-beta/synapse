@@ -1,8 +1,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Reply } from "../../lib";
-import { field, endpoint, validator } from "../../lib/Resource";
+import { Resource, State } from "../../lib";
+import { field, schema, expose } from "../../lib/meta";
 import { Email, Hash, Word, Text } from "../../lib/fields";
 import MongoId from "../fields/MongoId";
 import mongo from "../etc/database";
@@ -15,58 +15,58 @@ export default class User extends Resource {
   @field(new Email(true)) email: string;
   @field(new Text()) password: string;
 
-  @endpoint("GET /:_id")
-  @validator(User.schema.select("_id"))
+  @expose("GET /:_id")
+  @schema(User.schema.select("_id"))
   static async find({ _id }) {
     const document = await collection.findById({ _id });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
-    return User.instantiate(document.toObject());
+    return User.restore(document.toObject());
   }
 
-  @endpoint("GET /")
+  @expose("GET /")
   static async getAll() {
     const documents = await collection.find();
-    return Promise.all(documents.map((document) => User.instantiate(document.toObject())));
+    return User.collection(documents.map((document) => document.toObject()));
   }
 
-  @endpoint("POST /")
-  @validator(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
+  @expose("POST /")
+  @schema(User.schema.exclude("_id", "password").extend({ password: new Hash(6) }))
   static async register({ username, email, password }) {
     const document = await collection.create({ username, email, password });
-    return User.instantiate(document.toObject());
+    return User.create(document.toObject());
   }
 
-  @endpoint("PATCH /:_id")
-  @validator(User.schema.select("_id", "email"))
+  @expose("PATCH /:_id")
+  @schema(User.schema.select("_id", "email"))
   static async update({ _id, email }) {
     const document = await collection.findOneAndUpdate({ _id }, { email }, { new: true });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
-    return User.instantiate(document.toObject());
+    return User.restore(document.toObject());
   }
 
-  @endpoint("DELETE /:_id")
-  @validator(User.schema.select("_id"))
+  @expose("DELETE /:_id")
+  @schema(User.schema.select("_id"))
   static async remove({ _id }) {
     const document = await collection.deleteOne({ _id });
     if (!document) {
-      return Reply.NOT_FOUND();
+      return State.NOT_FOUND();
     }
-    return Reply.OK("User Deleted");
+    return State.OK("User Deleted");
   }
 
-  @validator(User.schema.select("username", "password"))
+  @schema(User.schema.select("username", "password"))
   static async authenticate({ username, password }) {
     const document = await collection.findOne({ username });
     if (document) {
-      const user = await User.instantiate(document.toObject());
+      const user = await User.restore(document.toObject());
       if (await Hash.validate(password, user.password)) {
         return user;
       }
     }
-    return Reply.FORBIDDEN("Incorrect username/password.");
+    return State.FORBIDDEN("Incorrect username/password.");
   }
 }

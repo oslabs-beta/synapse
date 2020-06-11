@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-bitwise */
 
-import Field from "../Field";
+import Field from "../validators/Field";
 
 export default class Number extends Field {
   min: number;
@@ -9,9 +9,9 @@ export default class Number extends Field {
   max: number;
 
   constructor(
-    min: number = null,
-    max: number = null,
-    defaultVal: number = null,
+    min: number = undefined,
+    max: number = undefined,
+    defaultVal: number = undefined,
     flags: number = null
   ) {
     super(defaultVal, flags);
@@ -26,10 +26,9 @@ export default class Number extends Field {
    * @returns Undefined if the input is not a number or below/above the min/max character count, or the input itself if it is in the correct format and passes all tests.
    */
   async parse(value: any) {
-    const number =
-      typeof value === "number" ? value : <any>super.parse(value) - 0;
+    const number = typeof value === "number" ? value : <any>super.parse(value) - 0;
 
-    if (typeof value !== "number" || number < this.min || number > this.max) {
+    if (typeof value !== "number" || this.min < number || number > this.max) {
       return undefined;
     }
 
