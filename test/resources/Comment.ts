@@ -2,7 +2,7 @@
 /* eslint-disable lines-between-class-members */
 
 import { Resource, State } from "../../lib";
-import { field, expose, schema, affect } from "../../lib/meta";
+import { field, expose, schema, affect } from "../../lib/@";
 import { Id, Text, Integer } from "../../lib/fields";
 
 const pageSize = 10;

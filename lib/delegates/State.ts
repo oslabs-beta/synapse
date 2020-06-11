@@ -2,8 +2,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-import { invokeChain } from "../utilities";
-
 export default class State {
   __meta__: any = {};
 
@@ -33,24 +31,8 @@ export default class State {
     return this.__meta__.message;
   }
 
-  static async evaluate(fns, ...args) {
-    const chain = Array.isArray(fns) ? fns : [fns];
-
-    let result;
-
-    try {
-      result = await invokeChain(chain, ...args);
-
-      if (!(result instanceof State)) {
-        console.log("Unexpected result:", result);
-        throw new Error();
-      }
-    } catch (err) {
-      console.log(err);
-      result = State.INTERNAL_SERVER_ERROR("An error occurred.");
-    }
-
-    return result;
+  valueOf(): boolean {
+    return !this.isError();
   }
 
   /** @category Factory */

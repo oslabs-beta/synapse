@@ -4,7 +4,7 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Meta from "../traits/Meta";
+import Controllable from "../traits/Controllable";
 import Collection from "./Collection";
 import Schema from "../validators/Schema";
 import Field from "../validators/Field";
@@ -14,7 +14,10 @@ import { mergePaths } from "../utilities";
 const { PRV } = Field.Flags;
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
-export default class Resource extends Meta {
+export default class Resource extends Controllable {
+  /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
+  static schema: Schema;
+
   /** Returns the _resource path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
   path(): string {
     const Class = <typeof Resource>this.constructor;
@@ -106,4 +109,28 @@ export default class Resource extends Meta {
     instance.__meta__.status = 201;
     return instance;
   }
+
+  static $field(field: Field, name: string) {
+    const Class = this;
+
+    if (!(field instanceof Field)) {
+      throw new Error("Expected instance of Field.");
+    }
+
+    if (!Class.schema) {
+      Class.schema = new Schema();
+    }
+
+    Class.schema = Class.schema.extend({ [name]: field });
+  }
 }
+
+// decorators:
+export const field = (instance: Field): Function => {
+  return (target, fieldName) => {
+    const Class = target.constructor;
+    Class.$field(instance, fieldName);
+  };
+};
+
+export { expose, schema, affect } from "../traits/Controllable";

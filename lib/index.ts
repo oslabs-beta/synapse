@@ -3,17 +3,14 @@
 /* eslint-disable import/extensions */
 
 import State from "./delegates/State";
-import Resource from "./states/Resource";
 import Manager from "./controllers/Manager";
-import Nexus from "./controllers/Nexus";
-import Router from "./controllers/Router";
+import Controller from "./controllers/Controller";
 import { requireAll, tryParseJSON, parseEndpoint } from "./utilities";
 
 /**
  * Creates an ```express``` middleware function to handle HTTP requests
- * @param manager
  */
-const http = (router: Router): Function => {
+const http = (): Function => {
   return async (req: any, res: any, next: Function) => {
     const { method } = parseEndpoint(req.method);
 
@@ -24,7 +21,7 @@ const http = (router: Router): Function => {
 
     // then pass it to the manager
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
-    const result = await router.request(method, req.path, args);
+    const result = await Controller.request(method, req.path, args);
 
     res.locals = result;
     return next();
@@ -32,9 +29,8 @@ const http = (router: Router): Function => {
 };
 
 /** Creates an ```express-ws``` middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
- * @param manager
  */
-const ws = (router: Router): Function => {
+const ws = (): Function => {
   // the WebSocket interface accepts two custom methods
   const customMethods = ["subscribe", "unsubscribe"];
 
@@ -67,7 +63,7 @@ const ws = (router: Router): Function => {
         }
 
         if (method === "subscribe") {
-          const result = await router.request("get", path, args);
+          const result = await Controller.request("get", path, args);
           const { query } = result.__meta__;
 
           if (!query) {
@@ -78,7 +74,7 @@ const ws = (router: Router): Function => {
           return Manager.subscribe(client, query);
         }
 
-        return client(endpoint, await router.request(method, path, args));
+        return client(endpoint, await Controller.request(method, path, args));
       });
     });
 
@@ -90,9 +86,8 @@ const ws = (router: Router): Function => {
 };
 
 /** Creates an ```express``` middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
- * @param manager
  */
-const sse = (router: Router): Function => {
+const sse = (): Function => {
   return async (req: any, res: any, next: Function) => {
     next();
     // if (req.get("Accept") !== "text/event-stream") {
@@ -131,23 +126,12 @@ const sse = (router: Router): Function => {
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
 export function synapse(directory: string): object {
-  const router = new Router();
-
-  requireAll(directory).forEach((module: any) => {
-    const Class = module.default;
-    if (Class && Class.prototype instanceof Resource) {
-      Object.values(Class).forEach((nexus) => {
-        if (nexus instanceof Nexus && nexus.method) {
-          router.declare(nexus.method, nexus.pattern, nexus);
-        }
-      });
-    }
-  });
+  requireAll(directory);
 
   return {
-    http: http(router),
-    sse: sse(router),
-    ws: ws(router),
+    http: http(),
+    sse: sse(),
+    ws: ws(),
   };
 }
 
