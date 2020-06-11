@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 /* eslint-disable class-methods-use-this */
@@ -20,13 +21,11 @@ export default class Collection extends State {
       }
       this.resources.push(el);
     });
+
+    this.resources.forEach((el) => el.dependencies().forEach((path) => this.__meta__.dependencies.add(path)));
   }
 
   render(): object {
     return this.resources.map((el) => el.render());
-  }
-
-  dependencies(): Array<string> {
-    return this.resources.map((el) => el.path());
   }
 }

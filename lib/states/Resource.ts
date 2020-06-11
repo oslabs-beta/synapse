@@ -86,10 +86,10 @@ export default class Resource extends Meta {
 
     // transfer the resulting values to a new instance of the derived class
     const instance = new Type(200);
-    instance.__meta__.dependencies.add(instance.path());
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
+    instance.__meta__.dependencies.add(instance.path());
 
     return <InstanceType<T>>instance;
   }
