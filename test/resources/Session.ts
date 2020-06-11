@@ -26,7 +26,7 @@ export const authorizer = (args) => {
     return State.UNAUTHORIZED();
   }
 
-  return [args];
+  return args;
 };
 
 export default class Session extends Resource {

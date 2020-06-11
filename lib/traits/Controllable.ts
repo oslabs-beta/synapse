@@ -4,7 +4,6 @@
 
 import State from "../delegates/State";
 import Controller from "../controllers/Controller";
-import Field from "../validators/Field";
 import Schema from "../validators/Schema";
 import { mergePaths, parseEndpoint } from "../utilities";
 

@@ -33,6 +33,10 @@ export default class Controller extends Functor {
         return State.BAD_REQUEST(this.schema.lastError);
       }
 
+      if (!this.pattern) {
+        return target(validated);
+      }
+
       const path = routeToPath(this.pattern, validated);
       const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
       const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
@@ -44,19 +48,19 @@ export default class Controller extends Functor {
   }
 
   try = async (args: object) => {
-    const authorized = this.authorizer(args);
+    const authorized = this.authorizer ? this.authorizer(args) : args;
 
     if (authorized instanceof State) {
       return authorized;
     }
 
-    return this();
+    return this(authorized);
   };
 
   expose = (method, pattern): Controller => {
     this.pattern = pattern;
     this.cacheable = method === "get";
-    Controller.router.declare(method, pattern, this);
+    Controller.router.declare(method, pattern, (args) => this.try(args));
     return this;
   };
   static request = (method: string, path: string, args: object): Promise<State> => {
