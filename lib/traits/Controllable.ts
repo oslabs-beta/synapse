@@ -3,68 +3,44 @@
 /* eslint-disable no-param-reassign */
 
 import State from "../delegates/State";
-import Nexus from "../controllers/Nexus";
+import Controller from "../controllers/Controller";
 import Field from "../validators/Field";
 import Schema from "../validators/Schema";
 import { mergePaths, parseEndpoint } from "../utilities";
 
-export default class Meta extends State {
-  /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
-  static schema: Schema;
-
+export default class Controllable extends State {
   static root() {
-    throw new Error("Classes that extend Meta must implement the 'root' method.");
+    throw new Error("Classes that extend Controllable must implement the 'root' method.");
   }
 
-  static $field(field: Field, name: string) {
+  static $expose(endpoint: string, authorizer: Function, target: Function): Function {
     const Class = this;
 
-    if (!(field instanceof Field)) {
-      throw new Error("Expected instance of Field.");
-    }
-
-    if (!Class.schema) {
-      Class.schema = new Schema();
-    }
-
-    Class.schema = Class.schema.extend({ [name]: field });
-  }
-
-  static $expose(pattern: string, authorizer: Function, target: Function): Function {
-    const Class = this;
-
-    const { method, path } = parseEndpoint(pattern);
+    const { method, path } = parseEndpoint(endpoint);
     if (!method || !path) {
-      throw new Error(`Invalid pattern '${pattern}'.`);
+      throw new Error(`Invalid endpoint '${endpoint}'.`);
     }
 
-    const route = mergePaths(Class.root() + path);
-    const nexus = target instanceof Nexus ? target : new Nexus(target);
-
-    return Object.assign(nexus, { authorizer, method, pattern: route });
+    const pattern = mergePaths(Class.root() + path);
+    const nexus = target instanceof Controller ? target : new Controller(target);
+    nexus.authorizer = authorizer;
+    return nexus.expose(method, pattern);
   }
 
   static $schema(schema: Schema | object, target: Function): Function {
-    const nexus = target instanceof Nexus ? target : new Nexus(target);
+    const nexus = target instanceof Controller ? target : new Controller(target);
     nexus.schema = schema instanceof Schema ? schema : new Schema(schema);
     return nexus;
   }
 
   static $affect(paths: Array<string>, target: Function): Function {
-    const nexus = target instanceof Nexus ? target : new Nexus(target);
+    const nexus = target instanceof Controller ? target : new Controller(target);
     nexus.dependents = paths;
     return nexus;
   }
 }
 
 // decorators:
-export const field = (instance: Field): Function => {
-  return (target, fieldName) => {
-    const Class = target.constructor;
-    Class.$field(instance, fieldName);
-  };
-};
-
 export const expose = (path: string, authorizer: Function = null): Function => {
   return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated

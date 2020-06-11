@@ -5,8 +5,8 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { Resource, State } from "../../lib";
-import { field, expose, schema } from "../../lib/meta";
-import Id from "../../lib/fields/Id";
+import { field, expose, schema } from "../../lib/@";
+import { Id } from "../../lib/fields";
 import User from "./User";
 
 const sessions = {};
