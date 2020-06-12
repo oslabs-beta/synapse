@@ -1,5 +1,6 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-param-reassign */
+
 export default class Cache {
   static state: Map<string, any> = new Map();
 
@@ -25,13 +26,10 @@ export default class Cache {
       source = this.source.get(key);
     }
 
-    this.state.set(key, await source());
+    const state = await source();
 
-    const state = this.get(key);
-
-    if (state == false) {
-      this.remove(key);
-      return state;
+    if (state == true) {
+      this.state.set(key, state);
     }
 
     return state;
