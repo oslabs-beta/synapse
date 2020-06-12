@@ -14,7 +14,7 @@ export default (callback: Function): Function => {
 
   return (socket: any, req: any) => {
     // when a new connection is received, create a function to handle updates to that client
-    const client = (path: string, state: any) => {
+    const client = (path: string, state: State) => {
       const _req = {};
       const _res = {
         locals: state,
@@ -50,7 +50,7 @@ export default (callback: Function): Function => {
         if (method === "subscribe") {
           const result = await Controller.request("get", path, args);
 
-          Manager.subscribe(client, result.path());
+          Manager.subscribe(client, result.query());
           return client(endpoint, result);
         }
 

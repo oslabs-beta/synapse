@@ -19,7 +19,7 @@ export default class Resource extends Controllable {
   static schema: Schema;
 
   /** Returns the _resource path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
-  path(): string {
+  calcPath(): string {
     const Class = <typeof Resource>this.constructor;
 
     const { fields } = Class.schema;
@@ -92,6 +92,7 @@ export default class Resource extends Controllable {
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
+    instance.path(instance.calcPath());
     instance.dependencies(instance.path());
 
     return <InstanceType<T>>instance;
