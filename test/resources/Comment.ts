@@ -1,8 +1,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, State } from "../../lib";
-import { field, expose, schema, affect } from "../../lib/@";
+import { Resource, Collection, State } from "../../lib";
+import { field, expose, schema, affects, uses } from "../../lib/@";
 import { Id, Text, Integer } from "../../lib/fields";
 
 const pageSize = 10;
@@ -24,15 +24,15 @@ export default class Comment extends Resource {
   }
 
   @expose("GET /page/:index")
+  @uses("/")
   @schema({ index: new Integer() })
   static List({ index }) {
     const start = ledger.length - pageSize * index;
-    const result = ledger.slice(start, start + pageSize).reverse();
-    return result;
+    return new Collection(ledger.slice(start, start + pageSize).reverse());
   }
 
   @expose("POST /")
-  @affect("/last") // "/page/*" fix: support wildcards
+  @affects("/last")
   @schema(Comment.schema.select("text"))
   static async Post({ text }) {
     const comment = await Comment.create({ id: `${ledger.length}`, text });

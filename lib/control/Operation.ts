@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import Functor from "../utilities/Functor";
+import Functor from "../utility/Functor";
 import State from "./State";
 
 export default class Operation extends Functor {

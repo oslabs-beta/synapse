@@ -4,7 +4,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 
-import State from "../delegates/State";
+import State from "../control/State";
 import Resource from "./Resource";
 
 export default class Collection extends State {

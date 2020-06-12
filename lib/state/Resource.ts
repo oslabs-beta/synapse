@@ -4,12 +4,12 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Controllable from "../traits/Controllable";
+import Controllable from "../abstract/Controllable";
 import Collection from "./Collection";
-import Schema from "../validators/Schema";
-import Field from "../validators/Field";
+import Schema from "./Schema";
+import Field from "./Field";
 import Id from "../fields/Id";
-import { mergePaths } from "../utilities";
+import { mergePaths } from "../utility";
 
 const { PRV } = Field.Flags;
 
@@ -109,28 +109,7 @@ export default class Resource extends Controllable {
     instance.__meta__.status = 201;
     return instance;
   }
-
-  static $field(field: Field, name: string) {
-    const Class = this;
-
-    if (!(field instanceof Field)) {
-      throw new Error("Expected instance of Field.");
-    }
-
-    if (!Class.schema) {
-      Class.schema = new Schema();
-    }
-
-    Class.schema = Class.schema.extend({ [name]: field });
-  }
 }
 
-// decorators:
-export const field = (instance: Field): Function => {
-  return (target, fieldName) => {
-    const Class = target.constructor;
-    Class.$field(instance, fieldName);
-  };
-};
-
-export { expose, schema, affect } from "../traits/Controllable";
+export { field } from "../abstract/Validatable";
+export { expose, schema, affects, uses } from "../abstract/Controllable";

@@ -1,17 +1,14 @@
-/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable lines-between-class-members */
-/* eslint-disable no-param-reassign */
 /* eslint-disable import/extensions */
-/* eslint-disable import/no-cycle */
+/* eslint-disable lines-between-class-members */
 
-import Functor from "../utilities/Functor";
-import State from "../delegates/State";
-import Schema from "../validators/Schema";
-import Operation from "../delegates/Operation";
+import Functor from "../utility/Functor";
+import State from "./State";
+import Schema from "../state/Schema";
+import Operation from "./Operation";
 import Manager from "./Manager";
-import Router from "../utilities/Router";
-import { routeToPath } from "../utilities";
+import Router from "../utility/Router";
+import { routeToPath } from "../utility";
 
 export default class Controller extends Functor {
   static router = new Router();
