@@ -5,7 +5,7 @@
 import Validatable from "./Validatable";
 import Controller from "../control/Controller";
 import Schema from "../state/Schema";
-import { mergePaths, parseEndpoint } from "../utility";
+import { mergePaths, parseEndpoint, invokeChain } from "../utility";
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
@@ -16,8 +16,19 @@ export default class Controllable extends Validatable {
     throw new Error("Classes that extend Controllable must implement the 'root' method.");
   }
 
-  static $expose(endpoint: string, authorizer: Function, target: Function): Function {
+  static $expose(endpoint: string, ...chain: Array<Function>): Function {
     const Class = this;
+
+    if (!chain.length) {
+      throw new Error("Expected at least one function in 'chain'.");
+    }
+
+    const target = chain.pop();
+    const authorizer = async (args: object) => {
+      const result = await invokeChain(chain, args);
+      console.log(result);
+      return Array.isArray(result) ? result[0] : result;
+    };
 
     const { method, path } = parseEndpoint(endpoint);
     if (!method || !path) {
@@ -50,10 +61,10 @@ export default class Controllable extends Validatable {
 }
 
 // decorators:
-export const expose = (path: string, authorizer: Function = null): Function => {
+export const expose = (path: string, ...authorizers: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated
-    descriptor.value = Class.$expose(path, authorizer, method);
+    descriptor.value = Class.$expose(path, ...authorizers, method);
   };
 };
 
