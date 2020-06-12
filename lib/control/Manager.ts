@@ -39,10 +39,10 @@ export default class Manager extends Cache {
     });
 
     subscriptions.forEach((client) => {
-      client(query, state.render());
+      client(query, state);
     });
 
-    Object.assign(state.__meta__, { query }); // fix
+    state.path(query);
 
     return state;
   }

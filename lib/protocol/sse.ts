@@ -42,9 +42,8 @@ export default (callback: Function): Function => {
     const endpoint = `${req.method} ${req.path}`;
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const result = await Controller.request("get", req.path, args);
-    const { query } = result.__meta__;
 
-    Manager.subscribe(client, query);
+    Manager.subscribe(client, result.path());
     return client(endpoint, result);
   };
 };

@@ -92,7 +92,7 @@ export default class Resource extends Controllable {
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
-    instance.__meta__.dependencies.add(instance.path());
+    instance.dependencies(instance.path());
 
     return <InstanceType<T>>instance;
   }
@@ -106,7 +106,7 @@ export default class Resource extends Controllable {
 
   static async create<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const instance = await this.restore(data);
-    instance.__meta__.status = 201;
+    instance.status(201);
     return instance;
   }
 }

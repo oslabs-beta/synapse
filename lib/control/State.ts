@@ -2,81 +2,62 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-export default class State {
-  __meta__: any = {};
+import HttpRespondable from "../abstract/HttpRespondable";
 
-  constructor(status: number, message: string = "") {
-    Object.assign(this.__meta__, {
-      status: status >= 100 && status < 600 ? status : 500,
-      message,
-      path: null,
-      dependencies: new Set<string>(),
-    });
-  }
+export default class State extends HttpRespondable {
+  __meta__: {
+    status: number;
+    message: string;
+    path: string;
+    dependencies: Set<string>;
+  };
 
-  status(): number {
-    return this.__meta__.status;
-  }
+  constructor(status: number, message: string = "", path: string = null, uses: Array<string> = []) {
+    super();
 
-  dependencies(): Array<string> {
-    return Array.from(this.__meta__.dependencies);
-  }
+    if (!(status >= 100 && status < 600)) {
+      throw new Error(`Invalid status '${status}'.`);
+    }
 
-  /** Checks if the instance's {@linkcode State.status|status} is a 4xx or 5xx error. */
-  isError(): boolean {
-    return ["4", "5"].includes(this.status().toString()[0]);
-  }
-
-  render(): any {
-    return this.__meta__.message;
+    this.__meta__ = { status, message, path, dependencies: new Set(uses) };
   }
 
   valueOf(): boolean {
     return !this.isError();
   }
 
-  /** @category Factory */
-  static OK(payload: any = null) {
-    return new State(200, payload);
+  status(value: number = null): number {
+    if (value) {
+      this.__meta__.status = value;
+    }
+    return this.__meta__.status;
   }
 
-  /** @category Factory */
-  static CREATED(payload: any = null) {
-    return new State(201, payload);
+  message(value: string = null): string {
+    if (value) {
+      this.__meta__.message = value;
+    }
+    return this.__meta__.message;
   }
 
-  /** @category Factory */
-  static NO_CONTENT() {
-    return new State(204);
+  path(value: string = null) {
+    if (value) {
+      this.__meta__.path = value;
+    }
+    return this.__meta__.path;
   }
 
-  /** @category Factory */
-  static BAD_REQUEST(payload: any = null) {
-    return new State(400, payload);
+  dependencies(...paths: Array<string>): Array<string> {
+    paths.forEach((path) => this.__meta__.dependencies.add(path));
+    return Array.from(this.__meta__.dependencies);
   }
 
-  /** @category Factory */
-  static UNAUTHORIZED(payload: any = null) {
-    return new State(401, payload);
+  render(): any {
+    return this.__meta__.message;
   }
 
-  /** @category Factory */
-  static FORBIDDEN(payload: any = null) {
-    return new State(403, payload);
-  }
-
-  /** @category Factory */
-  static NOT_FOUND(payload: any = null) {
-    return new State(404, payload);
-  }
-
-  /** @category Factory */
-  static CONFLICT(payload: any = null) {
-    return new State(409, payload);
-  }
-
-  /** @category Factory */
-  static INTERNAL_SERVER_ERROR(payload: any = null) {
-    return new State(500, payload);
+  /** Checks if the instance's {@linkcode State.status|status} is a 4xx or 5xx error. */
+  isError(): boolean {
+    return ["4", "5"].includes(this.status().toString()[0]);
   }
 }

@@ -29,7 +29,7 @@ export default class Operation extends Functor {
         result = State.INTERNAL_SERVER_ERROR("An error occurred.");
       }
 
-      this.dependencies.forEach((_path) => result.__meta__.dependencies.add(_path));
+      result.dependencies(...this.dependencies);
 
       return result;
     };

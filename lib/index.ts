@@ -13,12 +13,12 @@ import { requireAll } from "./utility";
 export function synapse(directory: string): object {
   requireAll(directory);
 
-  const filter = [];
+  const chain = [];
   const callback = async (req, res) => {
     let index = 0;
     const next = () => {
-      if (index < filter.length) {
-        filter[index++](req, res, next);
+      if (index < chain.length) {
+        chain[index++](req, res, next);
       }
     };
     next();
@@ -28,7 +28,7 @@ export function synapse(directory: string): object {
     http: http(callback),
     sse: sse(callback),
     ws: ws(callback),
-    use: (...middleware) => filter.push(...middleware),
+    use: (...middleware) => chain.push(...middleware),
   };
 }
 

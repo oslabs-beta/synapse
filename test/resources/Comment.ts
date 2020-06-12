@@ -24,16 +24,16 @@ export default class Comment extends Resource {
   }
 
   @expose("GET /page/:index")
-  @uses("/")
   @schema({ index: new Integer() })
+  @uses("/")
   static List({ index }) {
     const start = ledger.length - pageSize * index;
     return new Collection(ledger.slice(start, start + pageSize).reverse());
   }
 
   @expose("POST /")
-  @affects("/last")
   @schema(Comment.schema.select("text"))
+  @affects("/last")
   static async Post({ text }) {
     const comment = await Comment.create({ id: `${ledger.length}`, text });
     ledger.push(comment);

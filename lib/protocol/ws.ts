@@ -28,7 +28,7 @@ export default (callback: Function): Function => {
       // make sure the message can be parsed to an object
       const data = tryParseJSON(msg);
       if (typeof data !== "object") {
-        return client("/", State.BAD_REQUEST("Invalid Format"));
+        return client("?", State.BAD_REQUEST("Invalid Format"));
       }
 
       // attempt to execute each request on the object
@@ -37,7 +37,7 @@ export default (callback: Function): Function => {
         // make sure each method is valid
         const { method, path } = parseEndpoint(endpoint, customMethods);
         if (!method) {
-          return client("/", State.BAD_REQUEST("Invalid Method"));
+          return client(endpoint, State.BAD_REQUEST("Invalid Method"));
         }
 
         const args = { ...req.cookies, ...data[endpoint] };
@@ -49,9 +49,8 @@ export default (callback: Function): Function => {
 
         if (method === "subscribe") {
           const result = await Controller.request("get", path, args);
-          const { query } = result.__meta__;
 
-          Manager.subscribe(client, query);
+          Manager.subscribe(client, result.path());
           return client(endpoint, result);
         }
 
