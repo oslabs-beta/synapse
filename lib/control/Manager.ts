@@ -17,19 +17,22 @@ export default class Manager extends Cache {
   /** Maps clients (represented by callback functions) to _query strings_ and vice versa. */
   static subscriptions: Relation<Function, string> = new Relation();
 
+  static remove(query: string) {
+    super.remove(query);
+
+    this.dependents.unlink(null, query);
+
+    this.subscriptions.to(query).forEach((client) => {
+      this.unsubscribe(client, query);
+      client(query, null);
+    });
+  }
+
   static async set(query: string, source: Function = null) {
     const state: State = await super.set(query, source);
 
-    const subscriptions = this.subscriptions.to(query);
-
     if (state.isError()) {
-      this.dependents.unlink(null, query);
-
-      subscriptions.forEach((client) => {
-        this.unsubscribe(client, query);
-        client(query, null);
-      });
-
+      this.remove(query);
       return state;
     }
 
@@ -38,11 +41,9 @@ export default class Manager extends Cache {
       this.dependents.link(path, query);
     });
 
-    subscriptions.forEach((client) => {
+    this.subscriptions.to(query).forEach((client) => {
       client(query, state);
     });
-
-    state.path(query);
 
     return state;
   }
@@ -54,10 +55,17 @@ export default class Manager extends Cache {
       if (this.has(query)) {
         return this.get(query);
       }
-      return this.set(query, () => op(args));
+
+      return this.set(query, async () => {
+        const state = await op(args);
+        state.query(query);
+        return state;
+      });
     }
 
     const state = await op(args);
+    state.query(query);
+
     op.dependents.forEach((path) => {
       const queries = this.dependents.from(path);
       queries.forEach(async (_query) => this.set(_query));

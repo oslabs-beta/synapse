@@ -8,18 +8,25 @@ export default class State extends HttpRespondable {
   __meta__: {
     status: number;
     message: string;
-    path: string;
+    path: string | null;
+    query: string | null;
     dependencies: Set<string>;
   };
 
-  constructor(status: number, message: string = "", path: string = null, uses: Array<string> = []) {
+  constructor(
+    status: number,
+    message: string = "",
+    path: string = null,
+    uses: Array<string> = [],
+    query: string = null
+  ) {
     super();
 
     if (!(status >= 100 && status < 600)) {
       throw new Error(`Invalid status '${status}'.`);
     }
 
-    this.__meta__ = { status, message, path, dependencies: new Set(uses) };
+    this.__meta__ = { status, message, path, dependencies: new Set(uses), query };
   }
 
   valueOf(): boolean {
@@ -45,6 +52,13 @@ export default class State extends HttpRespondable {
       this.__meta__.path = value;
     }
     return this.__meta__.path;
+  }
+
+  query(value: string = null) {
+    if (value) {
+      this.__meta__.query = value;
+    }
+    return this.__meta__.query;
   }
 
   dependencies(...paths: Array<string>): Array<string> {

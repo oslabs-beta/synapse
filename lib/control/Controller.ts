@@ -45,7 +45,7 @@ export default class Controller extends Functor {
   }
 
   try = async (args: object) => {
-    const authorized = this.authorizer ? this.authorizer(args) : args;
+    const authorized = this.authorizer ? await this.authorizer(args) : args;
 
     if (authorized instanceof State) {
       return authorized;
