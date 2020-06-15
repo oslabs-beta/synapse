@@ -13,13 +13,13 @@ describe("HTTP requests", () => {
     }
   });
 
-  xdescribe("GET / ", () => {
+  describe("GET / ", () => {
     it("Should respond with 200 status", async () => {
       const response = await request(server).get("/");
       expect(response.statusCode).toBe(200);
     });
   });
-  xdescribe("GET /api/user ", () => {
+  describe("GET /api/user ", () => {
     it("Should respond with an array of users", async () => {
       const response = await request(server).get("/api/user");
       expect(response.statusCode).toBe(200);
@@ -35,7 +35,7 @@ describe("HTTP requests", () => {
       });
     });
   });
-  xdescribe("POST /api/user ", () => {
+  describe("POST /api/user ", () => {
     it("Should successfully add another user", async () => {
       const responseBefore = await request(server).get("/api/user");
       const postResponse = await request(server)
@@ -87,7 +87,7 @@ describe("HTTP requests", () => {
       expect(Object.prototype.hasOwnProperty.call(res4.body, "password")).toBeTruthy();
     });
   });
-  xdescribe("PATCH /api/user ", async () => {
+  describe("PATCH /api/user ", async () => {
     const body = {
       username: "validUser",
       password: "1234567",
@@ -168,15 +168,15 @@ describe("HTTP requests", () => {
       }
     });
   });
-  describe("DELETE /api/user ", () => {
+  xdescribe("DELETE /api/user ", async () => {
+    const body = {
+      username: "validuser",
+      password: "validpassword",
+      email: "valid@gmail.com",
+    };
+    const user = await request(server).post(`/api/user`).send(body);
+    const { _id } = user.body;
     it("Should successfully delete user", async () => {
-      const body = {
-        username: "validuser",
-        password: "validpassword",
-        email: "valid@gmail.com",
-      };
-      const user = await request(server).post(`/api/user`).send(body);
-      const { _id } = user.body;
       const userGetBefore = await request(server).get(`/api/user`);
       const deleteUser = await request(server).delete(`/api/user/${_id}`);
       const userGetAfter = await request(server).get("/api/user");
