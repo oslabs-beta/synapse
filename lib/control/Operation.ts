@@ -18,7 +18,7 @@ export default class Operation extends Functor {
       let result;
 
       try {
-        result = await fn(args);
+        result = <State>await fn(args);
 
         if (!(result instanceof State)) {
           console.log("Unexpected result:", result);
@@ -29,7 +29,7 @@ export default class Operation extends Functor {
         result = State.INTERNAL_SERVER_ERROR("An error occurred.");
       }
 
-      result.dependencies(...this.dependencies);
+      result.$dependencies(...this.dependencies);
 
       return result;
     };
@@ -39,11 +39,7 @@ export default class Operation extends Functor {
     this.dependencies = cacheable ? [path, ...dependencies] : [];
   }
 
-  isRead() {
+  isCacheable() {
     return this.dependents.length === 0;
-  }
-
-  isWrite() {
-    return this.dependents.length > 0;
   }
 }

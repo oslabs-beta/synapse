@@ -5,12 +5,14 @@
 import HttpRespondable from "../abstract/HttpRespondable";
 
 export default class State extends HttpRespondable {
-  __meta__: {
+  $: {
+    type: string;
     status: number;
     message: string;
     path: string | null;
     query: string | null;
     dependencies: Set<string>;
+    flags: object;
   };
 
   constructor(
@@ -18,7 +20,8 @@ export default class State extends HttpRespondable {
     message: string = "",
     path: string = null,
     uses: Array<string> = [],
-    query: string = null
+    query: string = null,
+    flags: object = {}
   ) {
     super();
 
@@ -26,52 +29,71 @@ export default class State extends HttpRespondable {
       throw new Error(`Invalid status '${status}'.`);
     }
 
-    this.__meta__ = { status, message, path, dependencies: new Set(uses), query };
+    this.$ = {
+      type: this.constructor.name,
+      status,
+      message,
+      path,
+      dependencies: new Set(uses),
+      query,
+      flags,
+    };
   }
 
-  valueOf(): boolean {
-    return !this.isError();
-  }
-
-  status(value: number = null): number {
+  $status(value: number = null): number {
     if (value) {
-      this.__meta__.status = value;
+      this.$.status = value;
     }
-    return this.__meta__.status;
+    return this.$.status;
   }
 
-  message(value: string = null): string {
+  $message(value: string = null): string {
     if (value) {
-      this.__meta__.message = value;
+      this.$.message = value;
     }
-    return this.__meta__.message;
+    return this.$.message;
   }
 
-  path(value: string = null) {
+  $path(value: string = null) {
     if (value) {
-      this.__meta__.path = value;
+      this.$.path = value;
     }
-    return this.__meta__.path;
+    return this.$.path;
   }
 
-  query(value: string = null) {
+  $query(value: string = null) {
     if (value) {
-      this.__meta__.query = value;
+      this.$.query = value;
     }
-    return this.__meta__.query;
+    return this.$.query;
   }
 
-  dependencies(...paths: Array<string>): Array<string> {
-    paths.forEach((path) => this.__meta__.dependencies.add(path));
-    return Array.from(this.__meta__.dependencies);
+  $dependencies(...paths: Array<string>): Array<string> {
+    paths.forEach((path) => this.$.dependencies.add(path));
+    return Array.from(this.$.dependencies);
   }
 
-  render(): any {
-    return this.__meta__.message;
+  $flags(value: any = null) {
+    if (value) {
+      this.$.flags = value;
+    }
+    return this.$.flags;
   }
 
   /** Checks if the instance's {@linkcode State.status|status} is a 4xx or 5xx error. */
   isError(): boolean {
-    return ["4", "5"].includes(this.status().toString()[0]);
+    return ["4", "5"].includes(this.$status().toString()[0]);
+  }
+
+  render(): any {
+    return this.$.message;
+  }
+
+  toJSON() {
+    const result = this.render();
+    if (typeof result === "object") {
+      return Object.assign(result, { $: this.$ });
+    }
+    return result;
   }
 }

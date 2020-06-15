@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+/* eslint-disable no-param-reassign */
 /* eslint-disable import/extensions */
 
 import State from "../control/State";
@@ -21,9 +23,10 @@ export default class Validatable extends State {
 }
 
 // decorators:
-export const field = (instance: Field): Function => {
+export const field = (instance: Field, flags: number = 0): Function => {
   return (target, fieldName) => {
     const Class = target.constructor;
+    instance.flags |= flags;
     Class.$field(instance, fieldName);
   };
 };

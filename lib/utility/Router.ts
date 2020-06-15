@@ -55,4 +55,14 @@ export default class Router {
       );
     });
   }
+
+  async getOptions(path: string) {
+    return new Promise((resolve) => {
+      return this.router(
+        { method: "OPTIONS", url: path },
+        { set: () => {}, send: (options) => resolve(options.split(",")) },
+        () => resolve(State.NOT_FOUND())
+      );
+    });
+  }
 }
