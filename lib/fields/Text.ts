@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
-import Field from "../validators/Field";
+import Field from "../state/Field";
 
 export default class Text extends Field {
   /**

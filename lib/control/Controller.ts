@@ -1,0 +1,66 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable import/extensions */
+/* eslint-disable lines-between-class-members */
+
+import Functor from "../utility/Functor";
+import State from "./State";
+import Schema from "../state/Schema";
+import Operation from "./Operation";
+import Manager from "./Manager";
+import Router from "../utility/Router";
+import { routeToPath } from "../utility";
+
+export default class Controller extends Functor {
+  static router = new Router();
+
+  pattern: string;
+  dependencies: Array<string> = [];
+  dependents: Array<string> = [];
+  schema: Schema = new Schema();
+  authorizer: Function;
+  cacheable: boolean;
+
+  constructor(target: Function) {
+    super();
+
+    this.__call__ = async (...args) => {
+      const validated = await this.schema.validate(args[0]);
+
+      if (!validated) {
+        return State.BAD_REQUEST(this.schema.lastError);
+      }
+
+      if (!this.pattern) {
+        return target(validated);
+      }
+
+      const path = routeToPath(this.pattern, validated);
+      const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
+      const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
+
+      const op = new Operation(path, target, this.cacheable, dependents, dependencies);
+
+      return Manager.execute(op, validated);
+    };
+  }
+
+  try = async (args: object) => {
+    const authorized = this.authorizer ? await this.authorizer(args) : args;
+
+    if (authorized instanceof State) {
+      return authorized;
+    }
+
+    return this(authorized);
+  };
+
+  expose = (method, pattern): Controller => {
+    this.pattern = pattern;
+    this.cacheable = method === "get";
+    Controller.router.declare(method, pattern, (args) => this.try(args));
+    return this;
+  };
+  static request = (method: string, path: string, args: object): Promise<State> => {
+    return Controller.router.request(method, path, args);
+  };
+}

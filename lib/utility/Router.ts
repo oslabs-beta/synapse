@@ -2,8 +2,8 @@
 /* eslint-disable import/extensions */
 
 import * as express from "express";
-import State from "../delegates/State";
-import { parseEndpoint } from "../utilities";
+import State from "../control/State";
+import { parseEndpoint } from ".";
 
 /** Generic wrapper for an ```express``` router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
 export default class Router {
