@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="form" name="publish">
+      <select name="protocol" id="protocol">
+        <option value="WS">WS</option>
+        <option value="HTTP">HTTP</option>
+        <option value="SSE">SSE</option>
+      </select>
+        <select name="methods" id="methods">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="PATCH">PATCH</option>
+        <option value="DELETE">DELETE</option>
+        <option value="SUBSCRIBE">SUBSCRIBE</option>
+        <option value="UNSUBSCRIBE">UNSUBSCRIBE</option>
+      </select>
+      <input id="path" placeholder="Path" type="text"></input>
+      <button id="add">Add key/value</button>
+      <button id="remove">Remove key/value</button>
+      <ul id="list">
+        <li><input placeholder="key" class="key" name="key"></input><input placeholder="value" class="value" name="value"></input></li>
+      </ul>
+      <input type="submit" value="Send" />
+    </form>
+    <div style="display: flex; flex-direction: row; justify-content: space-evenly;" id="screen">
+      <div id="incoming">
+      </div>
+      <div id="terminal">
+        TERMINAL
+      </div>
+    </div>
+    
+  </body>
+  <script>
+    const webSocket = new WebSocket("ws://localhost:3000/rapi");
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const state = {
+        // '/user': true
+      };
+      function parseResource(stateResource) {
+                let resource = document.createElement('div');
+                resource.style = " display: block;word-wrap:break-word; max-width: 300px; border: solid 1px grey; overflow-wrap: break-word; white-space: normal;"
+                resource.classList.add('resource');
+                Object.keys(stateResource).forEach((prop) => {
+                  const property = document.createElement('div')
+                property.style = 'display: flex; flex-direction: column'
+                const keySpan = document.createElement('span')
+                const valueSpan = document.createElement('span')
+                keySpan.textContent = `${prop}:`
+                keySpan.style = "font-weight: bold"
+                valueSpan.textContent = JSON.stringify(stateResource[prop])
+                property.append(keySpan,valueSpan)
+                resource.append(property)
+                document.querySelector("#incoming").append(resource);
+                })
+              }
+      function postToTerminal(method, path, status) {
+          let terminalPost = document.createElement('div');
+          terminalPost.style = "display: flex; flex-direction: column; max-width: 300px; border: solid 1px grey;"
+          terminalPost.classList.add('terminalPost')
+          const methodSpan = document.createElement('span')
+          methodSpan.textContent = `METHOD: ${method}`
+
+          const pathSpan = document.createElement('span')
+          pathSpan.textContent = `PATH: ${path}`
+          const statusSpan = document.createElement('span')
+          statusSpan.textContent = `STATUS: ${status}`
+          terminalPost.append(methodSpan, pathSpan, statusSpan)
+          document.querySelector("#terminal").append(terminalPost);
+        }
+
+      const form = document.querySelector("#form");
+      form.onsubmit = function (e) {
+        e.preventDefault();
+
+        // declare variables to use for HTTP and WS
+        const method = document.querySelector("#methods").value
+        const path = document.querySelector("#path").value
+        const keys = document.querySelectorAll(".key")
+        const values = document.querySelectorAll(".value")
+        const protocol = document.querySelector("#protocol").value
+        const payload = {}
+        // iterate over our html inputs and attach values to the payload
+        // clear the fields after
+        keys.forEach((key, index) => {
+          payload[key.value] = values[index].value
+          keys.value = '';
+          values[index].value = '';
+        })
+        // stringfiy payload
+        const body = JSON.stringify(payload)
+        // if we're sending a WS msg
+        if (protocol === "WS") {
+          if (method === 'SUBSCRIBE'){
+            state[path] = true;
+          }
+          const key = `${method} ${path}`
+          const request = {
+          [key]:payload
+        }
+        console.log('asdas')
+        console.log(JSON.stringify(request))
+        webSocket.send(JSON.stringify(request));
+        // if sending HTTP
+        } else if (protocol === "HTTP") {
+          // construct request object
+          const reqObj = {
+          method,
+          headers: {
+              'Content-Type': 'application/json',
+            },
+        };
+        // add body IF its not a GET request
+        let status
+        if (method !== 'GET') reqObj.body = body
+        console.log(reqObj)
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => {
+            status = response.status
+            return response.json()
+          })
+          .then((data)=>{
+
+            postToTerminal(method, path, status)
+           
+          })
+        } else if (protocol === "SSE") {
+          console.log('youre making SSE request')
+          const reqObj = {
+          method,
+          headers: {
+            Connection: "keep-alive",
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",            },
+          };
+          if (method !== 'GET') reqObj.body = body
+<<<<<<< HEAD
+=======
+
+          if (!!window.EventSource) {
+            const source = new EventSource(`rapi/${path}`);
+
+            source.addEventListener(
+              "message",
+              function (e) {
+                console.log('SSE Message: ', e.data)
+                document.getElementById("data").innerHTML = e.data;
+              },
+              false
+            );
+
+            source.addEventListener(
+              "open",
+              function (e) {
+                console.log('SSE connection is open.')
+                document.getElementById("state").innerHTML = "Connected";
+              },
+              false
+            );
+
+            source.addEventListener(
+              "error",
+              function (e) {
+                const id_state = document.getElementById("state");
+                if (e.eventPhase == EventSource.CLOSED) source.close();
+                if (e.target.readyState == EventSource.CLOSED) {
+                  console.log('SSE connection is closed.')
+                  id_state.innerHTML = "Disconnected";
+                } else if (e.target.readyState == EventSource.CONNECTING) {
+                  console.log('SSE connecting...')
+                  id_state.innerHTML = "Connecting...";
+                }
+              },
+              false
+            );
+          } else {
+            console.log("Your browser doesn't support SSE");
+          }
+>>>>>>> 79f27f0a5be9976035f1a6ce3cde638cf8bf6287
+          fetch(`http://localhost:3000/api${path}`, reqObj)
+          .then((response) => response.json())
+          .then((data)=>{
+            console.log("we got something back in response to SSE:", data)
+            // display incoming data in "terminal"
+            let terminalPost = document.createElement('div');
+            terminalPost.style = "max-width: 300px; border: solid 1px grey; word-wrap: break-word"
+            terminalPost.classList.add('terminalPost')
+            terminalPost.textContent = JSON.stringify(data)
+            document.querySelector("#terminal").append(terminalPost);
+          })
+        }
+        return false;
+      };
+
+      const addButton = document.querySelector("#add")
+      addButton.onclick = function (e) {
+        e.preventDefault()
+        const newLi = document.createElement('li');
+        const newKey = document.createElement('input');
+        newKey.setAttribute('placeholder', 'key')
+        newKey.classList.add("key");
+        const newValue = document.createElement('input');
+        newValue.classList.add('value')
+        newValue.setAttribute('placeholder', 'value')
+        newLi.append(newKey, newValue);
+        document.querySelector("#list").append(newLi)
+      }
+
+      const removeButton = document.querySelector("#remove")
+      removeButton.onclick = function (e) {
+        e.preventDefault()
+        const listItems = document.querySelectorAll('li')
+        listItems[listItems.length-1].remove()
+      }
+
+
+      webSocket.onopen = (event) => {
+        console.log('WS connection is open.')
+      };
+      webSocket.onmessage = (event) => {
+        console.log('Incoming WS message')
+        // validate and dont attempt to render if its null
+        // parse the data
+        const data = JSON.parse(event.data)
+        console.log(data)
+        const key = Object.keys(data)[0]
+        const [method, path] = key.split(' ')
+        // if we're subscribed - update the local state
+        // if we are but data is undefined - clear the local state(data was deleted, we're unsubbed now)
+        if (state.hasOwnProperty(path)) {
+          console.log('You are subscribed to the resource from this message')
+          if(data[key] === undefined) {
+            delete state[path]
+          }
+          
+          // if there's new data - update state and render new info on the page
+          if(data[key].payload) {
+            
+            state[path] = data[key].payload
+            document.querySelector("#incoming").innerHTML = '';
+
+            Object.keys(state).forEach((path) => {
+              //create header
+              let resourceHeader = document.createElement('div');
+              resourceHeader.textContent = `PATH: ${path}`;
+              resourceHeader.style = "max-width: 300px; border: solid 1px red;"
+              document.querySelector("#incoming").append(resourceHeader);
+              //create resource
+
+              if(Array.isArray(state[path])) {
+                state[path].forEach((instance) => {
+                  parseResource(instance)
+                })
+              } else {
+                parseResource(state[path])
+              }
+            })
+          }
+        }
+        // if we arent subbed - just post incoming data in the terminal
+        postToTerminal(method, path, data[key].status)
+        const length = document.querySelectorAll(".terminalPost").length
+        if (length >= 10) {
+          document.querySelector("#terminal").firstChild.remove();
+        }
+      };
+    });
+   // check the path/method state update
+   // update state based on http response if im subbed 
+  </script>
+</html>
+

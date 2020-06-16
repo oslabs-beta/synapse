@@ -79,7 +79,6 @@ export default class Resource extends Controllable {
    */
   static async restore<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const Type = <typeof Resource>this;
-
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
@@ -98,7 +97,10 @@ export default class Resource extends Controllable {
     return <InstanceType<T>>instance;
   }
 
-  static async collection<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
+  static async collection<T extends typeof Resource>(
+    this: T,
+    data: Array<object>
+  ): Promise<Collection> {
     const Type = <typeof Resource>this;
 
     const pending = data.map((obj) => Type.restore(obj));
