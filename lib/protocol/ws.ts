@@ -19,7 +19,7 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
     const isPeer = req.isPeer || whitelist.indexOf(req.connection.remoteAddress) !== -1;
 
     // create a function to handle updates to that client
-    const client = (path: string, state: State) => {
+    const client = (path: string, state: State, render: boolean = true) => {
       if (isPeer) {
         const { ignore } = <any>state.$flags();
         if (!ignore) {
@@ -32,7 +32,7 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
         const _res = {
           locals: state,
           status: () => _res,
-          json: () => socket.send(JSON.stringify({ [path]: state })),
+          json: () => socket.send(JSON.stringify({ [path]: render ? state.render() : state })),
         };
         callback(_req, _res);
       }
@@ -68,16 +68,16 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
 
         if (method === "unsubscribe") {
           Manager.unsubscribe(client, path);
-          return client(endpoint, State.OK());
+          return client(endpoint, State.OK(), false);
         }
 
         if (method === "subscribe") {
           const state = await Controller.request("get", path, args, { method });
           Manager.subscribe(client, state.$query());
-          return client(endpoint, state);
+          return client(endpoint, state, false);
         }
 
-        return client(endpoint, await Controller.request(method, path, args, { method }));
+        return client(endpoint, await Controller.request(method, path, args, { method }), false);
       });
     });
 
