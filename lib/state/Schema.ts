@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/extensions */
 /* eslint-disable no-await-in-loop */
@@ -46,7 +47,15 @@ export default class Schema {
    * @param keys The names of the fields which should be transferred to the new schema.
    * @return A new instance of {@linkcode Schema}.
    */
-  select(...keys: Array<string>): Schema {
+  select(fields: object | string = null, ...keys: Array<string>): Schema {
+    if (typeof fields === "object") {
+      return this.select(...Object.keys(fields)).default(fields);
+    }
+
+    if (typeof fields === "string") {
+      keys.unshift(fields);
+    }
+
     const result = {};
     keys.forEach((key) => {
       result[key] = this.fields[key];
@@ -64,6 +73,18 @@ export default class Schema {
       delete result[key];
     });
     return new Schema(result);
+  }
+
+  default(values): Schema {
+    const fields = {};
+    Object.keys(this.fields).forEach((name) => {
+      const field = this.fields[name].clone();
+      if (values[name]) {
+        field.default = values[name];
+      }
+      fields[name] = field;
+    });
+    return new Schema(fields);
   }
 
   /** _**(async)**_ Determines if the key-value pairs in ```data``` match, or can be converted to, the format of the instance's _fieldset_.

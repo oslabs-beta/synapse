@@ -59,12 +59,12 @@ export default class Resource extends Controllable {
     return `/${name}`;
   }
 
-  /** Returns a new {@linkcode Schema} containing all the fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to latter {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
+  /** Returns a new {@linkcode Schema} containing all fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to former {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
    * @param Classes The {@linkcode Resource}
    */
   static union(...Classes: Array<typeof Resource>): Schema {
     const fields = [];
-    Classes.forEach((Class: typeof Resource) => {
+    Classes.reverse().forEach((Class: typeof Resource) => {
       if (Class.prototype instanceof Resource) {
         fields.push(Class.schema.fields);
       }
@@ -91,8 +91,8 @@ export default class Resource extends Controllable {
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
-    instance.path(instance.calcPath());
-    instance.dependencies(instance.path());
+    instance.$path(instance.calcPath());
+    instance.$dependencies(instance.$path());
 
     return <InstanceType<T>>instance;
   }
@@ -109,7 +109,7 @@ export default class Resource extends Controllable {
 
   static async create<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const instance = await this.restore(data);
-    instance.status(201);
+    instance.$status(201);
     return instance;
   }
 }

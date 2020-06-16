@@ -33,6 +33,11 @@ export default class Field {
     return !!(this.flags & flag);
   }
 
+  clone() {
+    const Type = <{ new (): Field }>this.constructor;
+    return Object.assign(new Type(), this);
+  }
+
   /** _**(async)**_ Checks if the input ```value``` is, or can be converted to, a valid case of the instance's _fieldtype_. If the input is ```null``` or ```undefined```, uses the {@linkcode Field.default|default} value in its place.
    * @param value The value to be parsed.
    * @returns The parsed value, or ```undefined``` if the ```input``` was invalid.

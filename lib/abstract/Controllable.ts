@@ -19,6 +19,11 @@ export default class Controllable extends Validatable {
   static $expose(endpoint: string, ...chain: Array<Function>): Function {
     const Class = this;
 
+    const { method, path } = parseEndpoint(endpoint);
+
+    if (!method || !path) {
+      throw new Error(`Invalid endpoint '${endpoint}'.`);
+    }
     if (!chain.length) {
       throw new Error("Expected at least one function in 'chain'.");
     }
@@ -26,14 +31,8 @@ export default class Controllable extends Validatable {
     const target = chain.pop();
     const authorizer = async (args: object) => {
       const result = await invokeChain(chain, args);
-      console.log(result);
       return Array.isArray(result) ? result[0] : result;
     };
-
-    const { method, path } = parseEndpoint(endpoint);
-    if (!method || !path) {
-      throw new Error(`Invalid endpoint '${endpoint}'.`);
-    }
 
     const pattern = mergePaths(Class.root(), path);
     return toController(target, { authorizer }).expose(method, pattern);

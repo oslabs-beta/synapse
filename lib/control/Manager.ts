@@ -17,6 +17,8 @@ export default class Manager extends Cache {
   /** Maps clients (represented by callback functions) to _query strings_ and vice versa. */
   static subscriptions: Relation<Function, string> = new Relation();
 
+  static listeners: Set<Function> = new Set();
+
   static remove(query: string) {
     super.remove(query);
 
@@ -37,7 +39,7 @@ export default class Manager extends Cache {
     }
 
     this.dependents.unlink(null, query);
-    state.dependencies().forEach((path: string) => {
+    state.$dependencies().forEach((path: string) => {
       this.dependents.link(path, query);
     });
 
@@ -48,32 +50,45 @@ export default class Manager extends Cache {
     return state;
   }
 
-  static async execute(op: Operation, args: object) {
+  static invalidate(path: string, flags: object = {}) {
+    this.listeners.forEach((client) => {
+      const state = State.OK();
+      state.$flags(flags);
+      client(path, state);
+    });
+
+    const queries = this.dependents.from(path);
+    queries.forEach(async (_query) => this.set(_query));
+  }
+
+  static async execute(op: Operation, args: object, flags: object = {}) {
     const query = routeToPath(op.path, args, true);
 
-    if (op.isRead()) {
+    const calc = async () => {
+      const state = await op(args);
+      state.$query(query);
+      state.$flags(flags);
+      return state;
+    };
+
+    if (op.isCacheable()) {
       if (this.has(query)) {
         return this.get(query);
       }
-
-      return this.set(query, async () => {
-        const state = await op(args);
-        state.query(query);
-        return state;
-      });
+      return this.set(query, calc);
     }
 
-    const state = await op(args);
-    state.query(query);
-
-    op.dependents.forEach((path) => {
-      const queries = this.dependents.from(path);
-      queries.forEach(async (_query) => this.set(_query));
-    });
+    const state = await calc();
+    op.dependents.forEach((path) => this.invalidate(path, flags));
     return state;
   }
 
-  static subscribe(client: Function, query: string) {
+  static subscribe(client: Function, query: string = null) {
+    if (query === null) {
+      this.listeners.add(client);
+      return true;
+    }
+
     if (!this.has(query)) {
       return false;
     }
@@ -83,6 +98,10 @@ export default class Manager extends Cache {
   }
 
   static unsubscribe(client: Function, query: string = null) {
+    if (query === null) {
+      this.listeners.delete(client);
+    }
+
     this.subscriptions.unlink(client, query);
   }
 }

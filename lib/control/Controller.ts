@@ -23,8 +23,8 @@ export default class Controller extends Functor {
   constructor(target: Function) {
     super();
 
-    this.__call__ = async (...args) => {
-      const validated = await this.schema.validate(args[0]);
+    this.__call__ = async (args: object, flags: object = {}) => {
+      const validated = await this.schema.validate(args);
 
       if (!validated) {
         return State.BAD_REQUEST(this.schema.lastError);
@@ -40,27 +40,33 @@ export default class Controller extends Functor {
 
       const op = new Operation(path, target, this.cacheable, dependents, dependencies);
 
-      return Manager.execute(op, validated);
+      return Manager.execute(op, validated, flags);
     };
   }
 
-  try = async (args: object) => {
+  try = async (args: object, flags: object = {}) => {
     const authorized = this.authorizer ? await this.authorizer(args) : args;
 
     if (authorized instanceof State) {
       return authorized;
     }
 
-    return this(authorized);
+    return this(authorized, flags);
   };
 
-  expose = (method, pattern): Controller => {
+  expose = (method: string, pattern: string): Controller => {
     this.pattern = pattern;
     this.cacheable = method === "get";
-    Controller.router.declare(method, pattern, (args) => this.try(args));
+    Controller.router.declare(method, pattern, (args, flags) => this.try(args, flags));
     return this;
   };
-  static request = (method: string, path: string, args: object): Promise<State> => {
-    return Controller.router.request(method, path, args);
+
+  static request = async (
+    method: string,
+    path: string,
+    args: object = {},
+    flags: object = {}
+  ): Promise<State> => {
+    return Controller.router.request(method, path, args, flags);
   };
 }

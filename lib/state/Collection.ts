@@ -22,7 +22,7 @@ export default class Collection extends State {
       this.resources.push(el);
     });
 
-    this.resources.forEach((el) => this.dependencies(...el.dependencies()));
+    this.resources.forEach((el) => this.$dependencies(...el.$dependencies()));
   }
 
   render(): object {
