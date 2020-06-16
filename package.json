@@ -2,7 +2,7 @@
   "name": "synapse",
   "version": "1.0.0",
   "description": "Realtime API Library",
-  "main": "build/lib/index.js",
+  "main": "./build/lib/index.js",
   "scripts": {
     "build": "tsc",
     "test": "NODE_ENV=test jest",

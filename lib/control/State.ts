@@ -90,10 +90,6 @@ export default class State extends HttpRespondable {
   }
 
   toJSON() {
-    const result = this.render();
-    if (typeof result === "object") {
-      return Object.assign(result, { $: this.$ });
-    }
-    return result;
+    return { ...this.$, payload: this.render() };
   }
 }

@@ -20,7 +20,6 @@ export function synapse(directory: string, peers: Array<string> = [], pattern: A
     sse: sse(callback),
     ws: ws(callback, peers, pattern),
     use: callback.add,
-    options: Controller.router.router,
   };
 }
 
