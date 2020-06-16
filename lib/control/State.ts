@@ -40,7 +40,7 @@ export default class State extends HttpRespondable {
     return this.__meta__.status;
   }
 
-  message(value: string = null): string {
+  $message(value: string = null): string {
     if (value) {
       this.__meta__.message = value;
     }

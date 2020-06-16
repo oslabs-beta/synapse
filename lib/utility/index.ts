@@ -72,7 +72,7 @@ export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root
   method = method.toLowerCase();
   path = mergePaths(root, path);
 
-  const standard = ["get", "post", "put", "patch", "delete"];
+  const standard = ["get", "post", "put", "patch", "delete", "options"];
   if (!standard.includes(method) && !custom.includes(method)) {
     return {};
   }
