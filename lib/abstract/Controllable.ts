@@ -6,6 +6,7 @@ import Validatable from "./Validatable";
 import Controller from "../control/Controller";
 import Schema from "../state/Schema";
 import { mergePaths, parseEndpoint, invokeChain } from "../utility";
+import { authorizer } from "../../test/resources/Session";
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
@@ -14,6 +15,27 @@ const toController = (target: Function, props: object = {}) => {
 export default class Controllable extends Validatable {
   static root() {
     throw new Error("Classes that extend Controllable must implement the 'root' method.");
+  }
+
+  static $endpoint(options, target) {
+    const controller = new Controller(target);
+    if (options.uses) {
+      this.$uses(options.uses, controller);
+    }
+    if (options.affects) {
+      this.$affects(options.affects, controller);
+    }
+    if (options.schema) {
+      this.$schema(options.schema, controller);
+    }
+    if (options.pattern) {
+      if (Array.isArray(options.authorizer)) {
+        this.$expose(options.pattern, ...options.authorizer);
+      } else {
+        this.$expose(options.pattern, options.authorizer);
+      }
+    }
+    return controller;
   }
 
   static $expose(endpoint: string, ...chain: Array<Function>): Function {
