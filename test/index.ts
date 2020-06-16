@@ -9,28 +9,28 @@ const cors = require("cors");
 const { synapse } = require("../lib/index");
 const { identifier } = require("./resources/Session");
 
-const PORT = 3000;
+const PORT = process.argv[2] || 3000;
+const PEERS = process.argv.slice(3).map((port) => `ws://[::1]:${port}/api`);
+
 const app = express();
 enableWs(app);
 
 // standard parsers
-app.use(express.json(), express.urlencoded({ extended: true }), cookieParser(), cors());
+app.use(express.json(), express.urlencoded({ extended: true }), cookieParser()); // , cors()
 
 // ensure that all clients have a client_id cookie
 app.use("/", identifier);
 
 // initialize an instance of the synapse API with the directory containing the Resource definitions
-const api = synapse(path.resolve(__dirname, "./resources"));
-
-// route requests to api routers by protocol
-app.ws("/api", api.ws);
-app.use("/api", api.sse, api.http);
-
+const api = synapse(path.resolve(__dirname, "./resources")); // ["::1"], PEERS
 // define global middleware for all api requests
 api.use((req, res) => {
   const state = res.locals;
-  res.status(state.status()).json(state.render());
+  res.status(state.$status()).json(state.render());
 });
+// route requests to api routers by protocol
+app.ws("/api", api.ws);
+app.use("/api", api.sse, api.http);
 
 // serve static content
 app.use(express.static(path.resolve(__dirname, "./public")));

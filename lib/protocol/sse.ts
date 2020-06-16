@@ -41,9 +41,9 @@ export default (callback: Function): Function => {
     // validate the request by attempting to GET the requested resource
     const endpoint = `${req.method} ${req.path}`;
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
-    const result = await Controller.request("get", req.path, args);
+    const state = await Controller.request("get", req.path, args);
 
-    Manager.subscribe(client, result.path());
-    return client(endpoint, result);
+    Manager.subscribe(client, state.$path());
+    return client(endpoint, state);
   };
 };

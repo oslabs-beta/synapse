@@ -1,34 +1,26 @@
 /* eslint-disable import/extensions */
 
+import Controller from "./control/Controller";
 import http from "./protocol/http";
 import sse from "./protocol/sse";
 import ws from "./protocol/ws";
-import Router from "./utility/Router";
-import { requireAll } from "./utility";
+import { requireAll, makeChain } from "./utility";
 
 /** Initializes API request handlers from {@linkcode Resource} definitions in the given ```directory```.
  * @param directory A directory containing {@linkcode Resource} definitions.
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-export function synapse(directory: string): object {
+export function synapse(directory: string, peers: Array<string> = [], pattern: Array<string> = []): object {
   requireAll(directory);
 
-  const chain = [];
-  const callback = async (req, res) => {
-    let index = 0;
-    const next = () => {
-      if (index < chain.length) {
-        chain[index++](req, res, next);
-      }
-    };
-    next();
-  };
+  const callback: any = makeChain();
 
   return {
     http: http(callback),
     sse: sse(callback),
-    ws: ws(callback),
-    use: (...middleware) => chain.push(...middleware),
+    ws: ws(callback, peers, pattern),
+    use: callback.add,
+    options: Controller.router.router,
   };
 }
 

@@ -1,14 +1,11 @@
+/* eslint-disable lines-between-class-members */
 /* eslint-disable prefer-destructuring */
 
 export default class Query {
   table: string;
-
   columns: string;
-
   values: Array<any>;
-
   conditions: Array<any>;
-
   action: string;
 
   static $(frags = null, ...values) {

@@ -27,11 +27,7 @@ export default class Cache {
     }
 
     const state = await source();
-
-    if (state == true) {
-      this.state.set(key, state);
-    }
-
+    this.state.set(key, state);
     return state;
   }
 }
