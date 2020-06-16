@@ -2,7 +2,8 @@
   "name": "synapse",
   "version": "1.0.0",
   "description": "Realtime API Library",
-  "main": "lib/index.ts",
+  "main": "build/lib/index.js",
+  "types": "build/lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
