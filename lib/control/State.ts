@@ -54,11 +54,7 @@ export default class State extends HttpRespondable {
     return this.$.message;
   }
 
-<<<<<<< HEAD
-  $message(value: string = null): string {
-=======
   $path(value: string = null) {
->>>>>>> 963392ddbc1d7a6688e647807b1793e2d28ce90a
     if (value) {
       this.$.path = value;
     }
