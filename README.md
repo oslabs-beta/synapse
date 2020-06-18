@@ -7,6 +7,12 @@ https://oslabs-beta.github.io/synapse/classes/field.html
 
 - [Installing and Running](#installing-and-running)
 
+- [Setup for the local development environment](#setup-for-the-local-development-environment)
+
+  - [Server Setup](#server-setup)
+
+  - [Resource example](#resource-example)
+
 - [Authors](#authors)
 
 #### Installing and Running
