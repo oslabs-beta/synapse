@@ -25,7 +25,7 @@ const synapse = require("synapse");
 
 ## Authors
 
-Madison Brown - [Github](https://github.com/madisonbrown)
-Mark Lee - [Github](https://github.com/markcmlee)
-Denys Dekhtiarenko - [Github](https://github.com/denskarlet)
+Madison Brown - [Github](https://github.com/madisonbrown)  
+Mark Lee - [Github](https://github.com/markcmlee)  
+Denys Dekhtiarenko - [Github](https://github.com/denskarlet)  
 Hang Xu - [Github](https://github.com/nplaner)
