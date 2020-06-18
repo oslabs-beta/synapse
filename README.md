@@ -111,7 +111,7 @@ export default class User extends Resource {
     - [State.NOT_FOUND()](https://oslabs-beta.github.io/synapse/classes/reply.html#not_found), for example, corresponds to a 404 error and will only return this status code.
     - If it were [State.NOT_FOUND("This user does not exist")](https://oslabs-beta.github.io/synapse/classes/reply.html#not_found), this message will be passed along as well.
 
-#### Authors
+## Authors
 
 Madison Brown - [Github](https://github.com/madisonbrown)  
 Mark Lee - [Github](https://github.com/markcmlee)  
