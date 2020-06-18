@@ -1,5 +1,5 @@
 {
-  "name": "synapse",
+  "name": "@synapsejs/synapse",
   "version": "1.0.0",
   "description": "Realtime API Library",
   "main": "build/lib/index.js",
