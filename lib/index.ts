@@ -28,3 +28,6 @@ export { default as Resource } from "./state/Resource";
 export { default as Collection } from "./state/Collection";
 export { default as Field } from "./state/Field";
 export { default as Schema } from "./state/Schema";
+
+export * as fields from "./fields";
+export * as decorators from "./@";

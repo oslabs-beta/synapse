@@ -6,7 +6,6 @@ import Validatable from "./Validatable";
 import Controller from "../control/Controller";
 import Schema from "../state/Schema";
 import { mergePaths, parseEndpoint, invokeChain } from "../utility";
-import { authorizer } from "../../test/resources/Session";
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
