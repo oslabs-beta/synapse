@@ -67,12 +67,16 @@ export const mergePaths = (...paths) => {
 };
 
 export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = "") => {
+  if (!endpoint || typeof endpoint !== "string") {
+    return {};
+  }
+
   let [method, path] = endpoint.split(" ");
 
   method = method.toLowerCase();
   path = mergePaths(root, path);
 
-  const standard = ["get", "post", "put", "patch", "delete"];
+  const standard = ["get", "post", "put", "patch", "delete", "options"];
   if (!standard.includes(method) && !custom.includes(method)) {
     return {};
   }
@@ -115,4 +119,19 @@ export const invokeChain = async (middleware: Array<Function>, ...args) => {
   }
 
   return baton;
+};
+
+export const makeChain = () => {
+  const chain = [];
+  async function caller(...args) {
+    let index = 0;
+    const next = () => {
+      if (index < chain.length) {
+        chain[index++](...args, next);
+      }
+    };
+    next();
+  }
+  caller.add = (...middleware) => chain.push(...middleware);
+  return caller;
 };

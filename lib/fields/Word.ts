@@ -5,8 +5,13 @@ import Text from "./Text";
 export default class Word extends Text {
   saltRounds: number;
 
-  constructor(min: number = null, max: number = null, flags: number = null) {
-    super(min, max, null, flags);
+  constructor(
+    min: number = null,
+    max: number = null,
+    defaultVal: any = undefined,
+    flags: number = null
+  ) {
+    super(min, max, defaultVal, flags);
 
     this.assert(/[^\w]/, false, "must contain only alphanumeric characters");
   }

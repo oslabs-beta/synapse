@@ -1,11 +1,13 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, State } from "../../lib";
-import { field, schema, expose } from "../../lib/meta";
+import { Resource, State, Field } from "../../lib";
+import { field, schema, expose } from "../../lib/@";
 import { Email, Hash, Word, Text } from "../../lib/fields";
 import MongoId from "../fields/MongoId";
 import mongo from "../etc/database";
+
+const { PRV } = Field.Flags;
 
 const collection = mongo("User");
 
@@ -13,7 +15,7 @@ export default class User extends Resource {
   @field(new MongoId()) _id: string;
   @field(new Word(3, 16)) username: string;
   @field(new Email(true)) email: string;
-  @field(new Text()) password: string;
+  @field(new Text(), PRV) password: string;
 
   @expose("GET /:_id")
   @schema(User.schema.select("_id"))

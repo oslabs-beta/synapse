@@ -4,19 +4,22 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Meta from "../traits/Meta";
+import Controllable from "../abstract/Controllable";
 import Collection from "./Collection";
-import Schema from "../validators/Schema";
-import Field from "../validators/Field";
+import Schema from "./Schema";
+import Field from "./Field";
 import Id from "../fields/Id";
-import { mergePaths } from "../utilities";
+import { mergePaths } from "../utility";
 
 const { PRV } = Field.Flags;
 
 /** Abstract class representing a RESTful resource exposed by the synapse API. */
-export default class Resource extends Meta {
+export default class Resource extends Controllable {
+  /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
+  static schema: Schema;
+
   /** Returns the _resource path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
-  path(): string {
+  calcPath(): string {
     const Class = <typeof Resource>this.constructor;
 
     const { fields } = Class.schema;
@@ -56,12 +59,12 @@ export default class Resource extends Meta {
     return `/${name}`;
   }
 
-  /** Returns a new {@linkcode Schema} containing all the fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to latter {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
+  /** Returns a new {@linkcode Schema} containing all fields of the derived class's schema plus all fields defined on the schemas of each {@linkcode Resource} type in ```Classes```. In case of a collision between field names, precedence will be given to former {@linkcode Resource|Resources} in ```Classes```, with highest precedence given to the derived class on which the method was called.
    * @param Classes The {@linkcode Resource}
    */
   static union(...Classes: Array<typeof Resource>): Schema {
     const fields = [];
-    Classes.forEach((Class: typeof Resource) => {
+    Classes.reverse().forEach((Class: typeof Resource) => {
       if (Class.prototype instanceof Resource) {
         fields.push(Class.schema.fields);
       }
@@ -76,7 +79,6 @@ export default class Resource extends Meta {
    */
   static async restore<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const Type = <typeof Resource>this;
-
     // validate in the input data using the derived class's schema.
     const result = await Type.schema.validate(data);
     if (!result) {
@@ -89,12 +91,16 @@ export default class Resource extends Meta {
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
-    instance.__meta__.dependencies.add(instance.path());
+    instance.$path(instance.calcPath());
+    instance.$dependencies(instance.$path());
 
     return <InstanceType<T>>instance;
   }
 
-  static async collection<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
+  static async collection<T extends typeof Resource>(
+    this: T,
+    data: Array<object>
+  ): Promise<Collection> {
     const Type = <typeof Resource>this;
 
     const pending = data.map((obj) => Type.restore(obj));
@@ -103,7 +109,10 @@ export default class Resource extends Meta {
 
   static async create<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const instance = await this.restore(data);
-    instance.__meta__.status = 201;
+    instance.$status(201);
     return instance;
   }
 }
+
+export { field } from "../abstract/Validatable";
+export { expose, schema, affects, uses } from "../abstract/Controllable";

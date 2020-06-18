@@ -1,14 +1,11 @@
+/* eslint-disable lines-between-class-members */
 /* eslint-disable prefer-destructuring */
 
-export default class SqlQuery {
+export default class Query {
   table: string;
-
   columns: string;
-
   values: Array<any>;
-
   conditions: Array<any>;
-
   action: string;
 
   static $(frags = null, ...values) {
@@ -38,7 +35,7 @@ export default class SqlQuery {
 
   where(...args: any) {
     if (Array.isArray(args[0])) {
-      this.conditions = SqlQuery.$(...args);
+      this.conditions = Query.$(...args);
     } else if (typeof args[0] === "object") {
       const data = args[0];
       const text = [];
@@ -54,7 +51,7 @@ export default class SqlQuery {
     if (!columns.length) {
       this.columns = "*";
     } else if (Array.isArray(columns[0])) {
-      this.columns = SqlQuery.$(...columns)[0];
+      this.columns = Query.$(...columns)[0];
     } else if (typeof columns[0] === "object") {
       this.columns = Object.keys(columns[0]).join(", ");
     } else {

@@ -2,8 +2,8 @@
 /* eslint-disable import/extensions */
 
 import * as express from "express";
-import State from "../delegates/State";
-import { parseEndpoint } from "../utilities";
+import State from "../control/State";
+import { parseEndpoint } from ".";
 
 /** Generic wrapper for an ```express``` router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
 export default class Router {
@@ -51,6 +51,16 @@ export default class Router {
       return this.router(
         { method: _method.toUpperCase(), url: path },
         { send: (callback, params) => resolve(callback(...this.transform(path, params, ...args))) },
+        () => resolve(State.NOT_FOUND())
+      );
+    });
+  }
+
+  async getOptions(path: string) {
+    return new Promise((resolve) => {
+      return this.router(
+        { method: "OPTIONS", url: path },
+        { set: () => {}, send: (options) => resolve(options.split(",")) },
         () => resolve(State.NOT_FOUND())
       );
     });
