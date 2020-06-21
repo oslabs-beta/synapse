@@ -11,7 +11,7 @@ export default class Text extends Field {
    */
   rules = [];
 
-  constructor(min: number = null, max: number = null, defaultVal: any = null, flags: number = null) {
+  constructor(min: number = null, max: number = null, defaultVal: any = undefined, flags: number = null) {
     super(defaultVal, flags);
 
     if (min) {

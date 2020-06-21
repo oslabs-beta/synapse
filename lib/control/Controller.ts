@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import Functor from "../utility/Functor";
+import Callable from "../utility/Callable";
 import State from "./State";
 import Schema from "../state/Schema";
 import Operation from "./Operation";
@@ -10,7 +10,7 @@ import Manager from "./Manager";
 import Router from "../utility/Router";
 import { routeToPath } from "../utility";
 
-export default class Controller extends Functor {
+export default class Controller extends Callable {
   static router = new Router();
 
   pattern: string;
@@ -21,9 +21,7 @@ export default class Controller extends Functor {
   cacheable: boolean;
 
   constructor(target: Function) {
-    super();
-
-    this.__call__ = async (args: object, flags: object = {}) => {
+    super(async (args: object, flags: object = {}) => {
       const validated = await this.schema.validate(args);
 
       if (!validated) {
@@ -41,7 +39,7 @@ export default class Controller extends Functor {
       const op = new Operation(path, target, this.cacheable, dependents, dependencies);
 
       return Manager.execute(op, validated, flags);
-    };
+    });
   }
 
   try = async (args: object, flags: object = {}) => {

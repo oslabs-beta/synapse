@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import Functor from "../utility/Functor";
+import Callable from "../utility/Callable";
 import State from "./State";
 
-export default class Operation extends Functor {
+export default class Operation extends Callable {
   path: string;
 
   dependencies: Array<string>;
@@ -12,9 +12,7 @@ export default class Operation extends Functor {
   dependents: Array<string>;
 
   constructor(path: string, fn: Function, cacheable: boolean, dependents = [], dependencies = []) {
-    super();
-
-    this.__call__ = async (args) => {
+    super(async (args) => {
       let result;
 
       try {
@@ -32,14 +30,14 @@ export default class Operation extends Functor {
       result.$dependencies(...this.dependencies);
 
       return result;
-    };
+    });
 
     this.path = path;
     this.dependents = cacheable ? [] : [path, ...dependents];
     this.dependencies = cacheable ? [path, ...dependencies] : [];
   }
 
-  isCacheable() {
+  isCacheable = () => {
     return this.dependents.length === 0;
-  }
+  };
 }
