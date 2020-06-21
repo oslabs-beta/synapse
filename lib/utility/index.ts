@@ -2,8 +2,8 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import * as fs from "fs";
-import * as querystring from "querystring";
+import * as fs from 'fs';
+import * as querystring from 'querystring';
 
 /**
  * Verifies that all elements of the input collection are of type 'Type'.
@@ -18,8 +18,8 @@ export const isCollectionOf = (type: any, col: object, assert: boolean = false) 
   }
   for (let i = 0; i < col.length; ++i) {
     const invalid =
-      (typeof type === "string" && typeof col[i] !== type) ||
-      (typeof type === "function" && !(col[i] instanceof type));
+      (typeof type === 'string' && typeof col[i] !== type) ||
+      (typeof type === 'function' && !(col[i] instanceof type));
 
     if (invalid) {
       if (assert) {
@@ -46,37 +46,37 @@ export const requireAll = (path: string) => {
 };
 
 export const mergePaths = (...paths) => {
-  let result = "";
+  let result = '';
   // eslint-disable-next-line consistent-return
   paths.forEach((path) => {
     if (!path) {
       return undefined;
     }
-    if (path[0] !== "/") {
+    if (path[0] !== '/') {
       // eslint-disable-next-line no-param-reassign
       path = `/${path}`;
     }
     const end = path.length - 1;
-    if (path[end] === "/") {
+    if (path[end] === '/') {
       // eslint-disable-next-line no-param-reassign
       path = path.substr(0, end);
     }
     result += path;
   });
-  return result || "/";
+  return result || '/';
 };
 
-export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = "") => {
-  if (!endpoint || typeof endpoint !== "string") {
+export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = '') => {
+  if (!endpoint || typeof endpoint !== 'string') {
     return {};
   }
 
-  let [method, path] = endpoint.split(" ");
+  let [method, path] = endpoint.split(' ');
 
   method = method.toLowerCase();
   path = mergePaths(root, path);
 
-  const standard = ["get", "post", "put", "patch", "delete", "options"];
+  const standard = ['get', 'post', 'put', 'patch', 'delete', 'options'];
   if (!standard.includes(method) && !custom.includes(method)) {
     return {};
   }
@@ -88,8 +88,8 @@ export const routeToPath = (route: string, args: object, query: boolean = false)
   const segs = [];
   const data = query ? { ...args } : {};
 
-  route.split("/").forEach((seg) => {
-    if (seg[0] === ":") {
+  route.split('/').forEach((seg) => {
+    if (seg[0] === ':') {
       const key = seg.substr(1);
       segs.push(args[key]);
       delete data[key];
@@ -98,9 +98,9 @@ export const routeToPath = (route: string, args: object, query: boolean = false)
     }
   });
 
-  const qs = query ? `?${querystring.encode(data)}` : "";
+  const qs = query ? `?${querystring.encode(data)}` : '';
 
-  return segs.join("/") + qs;
+  return segs.join('/') + qs;
 };
 
 export const invokeChain = async (middleware: Array<Function>, ...args) => {

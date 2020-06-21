@@ -2,17 +2,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import * as WebSocket from "ws";
-import State from "../control/State";
-import Manager from "../control/Manager";
-import Controller from "../control/Controller";
-import { tryParseJSON, parseEndpoint } from "../utility";
+import * as WebSocket from 'ws';
+import State from '../control/State';
+import Manager from '../control/Manager';
+import Controller from '../control/Controller';
+import { tryParseJSON, parseEndpoint } from '../utility';
 
 /** Creates an ```express-ws``` middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
  */
 export default (callback: Function, whitelist: Array<string> = [], peers: Array<string>): Function => {
   // the WebSocket interface accepts two custom methods
-  const customMethods = ["subscribe", "unsubscribe", "update"];
+  const customMethods = ['subscribe', 'unsubscribe', 'update'];
 
   const initialize = (socket: any, req: any) => {
     // when a new connection is received, determine if the client is a peer server
@@ -42,11 +42,11 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
       Manager.subscribe(client);
     }
 
-    socket.on("message", async (msg: string) => {
+    socket.on('message', async (msg: string) => {
       // make sure the message can be parsed to an object
       const data = tryParseJSON(msg);
-      if (typeof data !== "object") {
-        return client("?", State.BAD_REQUEST("Invalid Format"));
+      if (typeof data !== 'object') {
+        return client('?', State.BAD_REQUEST('Invalid Format'));
       }
 
       // attempt to execute each request on the object
@@ -55,24 +55,24 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
         // make sure each method is valid
         const { method, path } = parseEndpoint(endpoint, customMethods);
 
-        if (!method || (method === "update" && !isPeer)) {
-          return client(endpoint, State.BAD_REQUEST("Invalid Method"));
+        if (!method || (method === 'update' && !isPeer)) {
+          return client(endpoint, State.BAD_REQUEST('Invalid Method'));
         }
 
         const args = { ...req.cookies, ...data[endpoint] };
 
-        if (method === "update") {
+        if (method === 'update') {
           console.log(msg);
           return Manager.invalidate(path, { ignore: true });
         }
 
-        if (method === "unsubscribe") {
+        if (method === 'unsubscribe') {
           Manager.unsubscribe(client, path);
           return client(endpoint, State.OK(), false);
         }
 
-        if (method === "subscribe") {
-          const state = await Controller.request("get", path, args, { method });
+        if (method === 'subscribe') {
+          const state = await Controller.request('get', path, args, { method });
           Manager.subscribe(client, state.$query());
           return client(endpoint, state, false);
         }
@@ -82,7 +82,7 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
     });
 
     // when a client disconnects, cancel all their subscriptions
-    socket.on("close", () => {
+    socket.on('close', () => {
       Manager.unsubscribe(client);
     });
   };

@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import Callable from "../utility/Callable";
-import State from "./State";
+import Callable from '../utility/Callable';
+import State from './State';
 
 export default class Operation extends Callable {
   path: string;
@@ -19,12 +19,12 @@ export default class Operation extends Callable {
         result = <State>await fn(args);
 
         if (!(result instanceof State)) {
-          console.log("Unexpected result:", result);
-          throw new Error("Internal Server Error.");
+          console.log('Unexpected result:', result);
+          throw new Error('Internal Server Error.');
         }
       } catch (err) {
         console.log(err);
-        result = State.INTERNAL_SERVER_ERROR("An error occurred.");
+        result = State.INTERNAL_SERVER_ERROR('An error occurred.');
       }
 
       result.$dependencies(...this.dependencies);

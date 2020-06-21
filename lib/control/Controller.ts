@@ -2,13 +2,13 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import Callable from "../utility/Callable";
-import State from "./State";
-import Schema from "../state/Schema";
-import Operation from "./Operation";
-import Manager from "./Manager";
-import Router from "../utility/Router";
-import { routeToPath } from "../utility";
+import Callable from '../utility/Callable';
+import State from './State';
+import Schema from '../state/Schema';
+import Operation from './Operation';
+import Manager from './Manager';
+import Router from '../utility/Router';
+import { routeToPath } from '../utility';
 
 export default class Controller extends Callable {
   static router = new Router();
@@ -54,7 +54,7 @@ export default class Controller extends Callable {
 
   expose = (method: string, pattern: string): Controller => {
     this.pattern = pattern;
-    this.cacheable = method === "get";
+    this.cacheable = method === 'get';
     Controller.router.declare(method, pattern, (args, flags) => this.try(args, flags));
     return this;
   };

@@ -10,10 +10,10 @@ export default class Query {
 
   static $(frags = null, ...values) {
     if (!frags) {
-      return ["", []];
+      return ['', []];
     }
 
-    if (typeof frags === "string") {
+    if (typeof frags === 'string') {
       return [frags, []];
     }
 
@@ -36,41 +36,41 @@ export default class Query {
   where(...args: any) {
     if (Array.isArray(args[0])) {
       this.conditions = Query.$(...args);
-    } else if (typeof args[0] === "object") {
+    } else if (typeof args[0] === 'object') {
       const data = args[0];
       const text = [];
       Object.keys(data).forEach((key, i) => {
         text.push(`${key}=$${i + 1}`);
       });
-      this.conditions = [text.join(", "), Object.values(data)];
+      this.conditions = [text.join(', '), Object.values(data)];
     }
     return this;
   }
 
   select(...columns) {
     if (!columns.length) {
-      this.columns = "*";
+      this.columns = '*';
     } else if (Array.isArray(columns[0])) {
       this.columns = Query.$(...columns)[0];
-    } else if (typeof columns[0] === "object") {
-      this.columns = Object.keys(columns[0]).join(", ");
+    } else if (typeof columns[0] === 'object') {
+      this.columns = Object.keys(columns[0]).join(', ');
     } else {
-      this.columns = columns.join(", ");
+      this.columns = columns.join(', ');
     }
-    this.action = "SELECT";
+    this.action = 'SELECT';
     return this;
   }
 
   insert(data) {
     const values = Object.values(data);
-    this.columns = Object.keys(data).join(", ");
+    this.columns = Object.keys(data).join(', ');
     this.values = [values.map((val, i) => `$${i + 1}`), values];
-    this.action = "INSERT";
+    this.action = 'INSERT';
     return this;
   }
 
   evaluate() {
-    if (this.action === "SELECT") {
+    if (this.action === 'SELECT') {
       let query = `SELECT ${this.columns} FROM ${this.table}`;
       let values = [];
       if (this.conditions) {
@@ -79,9 +79,9 @@ export default class Query {
       }
       return [`${query};`, values];
     }
-    if (this.action === "INSERT") {
+    if (this.action === 'INSERT') {
       return [`INSERT INTO ${this.table}(${this.columns}) VALUES(${this.values[0]});`, this.values[1]];
     }
-    return "";
+    return '';
   }
 }

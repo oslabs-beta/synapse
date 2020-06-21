@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-import HttpRespondable from "../abstract/HttpRespondable";
+import HttpRespondable from '../abstract/HttpRespondable';
 
 export default class State extends HttpRespondable {
   $: {
@@ -17,7 +17,7 @@ export default class State extends HttpRespondable {
 
   constructor(
     status: number,
-    message: string = "",
+    message: string = '',
     path: string = null,
     uses: Array<string> = [],
     query: string = null,
@@ -82,7 +82,7 @@ export default class State extends HttpRespondable {
 
   /** Checks if the instance's {@linkcode State.status|status} is a 4xx or 5xx error. */
   isError(): boolean {
-    return ["4", "5"].includes(this.$status().toString()[0]);
+    return ['4', '5'].includes(this.$status().toString()[0]);
   }
 
   render(): any {

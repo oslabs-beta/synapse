@@ -4,8 +4,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 
-import State from "../control/State";
-import Resource from "./Resource";
+import State from '../control/State';
+import Resource from './Resource';
 
 export default class Collection extends State {
   resources: Array<Resource>;
@@ -17,7 +17,7 @@ export default class Collection extends State {
 
     resources.forEach((el) => {
       if (!(el instanceof Resource)) {
-        throw new Error("Expected array containing only values of type Resource.");
+        throw new Error('Expected array containing only values of type Resource.');
       }
       this.resources.push(el);
     });

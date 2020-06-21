@@ -1,8 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/extensions */
 
-import * as bcrypt from "bcryptjs";
-import Text from "./Text";
+import * as bcrypt from 'bcryptjs';
+import Text from './Text';
 
 export default class Hash extends Text {
   saltRounds: number;

@@ -3,8 +3,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-await-in-loop */
 
-import Field from "./Field";
-import { isCollectionOf } from "../utility";
+import Field from './Field';
+import { isCollectionOf } from '../utility';
 
 /** An instance of {@linkcode Schema} defines a set of parameters by name and _fieldtype_ (see {@linkcode Field}). */
 export default class Schema {
@@ -48,11 +48,11 @@ export default class Schema {
    * @return A new instance of {@linkcode Schema}.
    */
   select(fields: object | string = null, ...keys: Array<string>): Schema {
-    if (typeof fields === "object") {
+    if (typeof fields === 'object') {
       return this.select(...Object.keys(fields)).default(fields);
     }
 
-    if (typeof fields === "string") {
+    if (typeof fields === 'string') {
       keys.unshift(fields);
     }
 

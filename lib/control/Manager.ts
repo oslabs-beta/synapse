@@ -3,11 +3,11 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Cache from "../utility/Cache";
-import State from "./State";
-import Relation from "../utility/Relation";
-import Operation from "./Operation";
-import { routeToPath } from "../utility";
+import Cache from '../utility/Cache';
+import State from './State';
+import Relation from '../utility/Relation';
+import Operation from './Operation';
+import { routeToPath } from '../utility';
 
 /** Represents an instance of an API server. Acts as an abstraction layer between network protocols and resource business logic. Manages caching, subscription, and state management of resources. */
 export default class Manager extends Cache {

@@ -2,10 +2,10 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
-import Validatable from "./Validatable";
-import Controller from "../control/Controller";
-import Schema from "../state/Schema";
-import { mergePaths, parseEndpoint, invokeChain } from "../utility";
+import Validatable from './Validatable';
+import Controller from '../control/Controller';
+import Schema from '../state/Schema';
+import { mergePaths, parseEndpoint, invokeChain } from '../utility';
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);

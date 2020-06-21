@@ -4,12 +4,12 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Controllable from "../abstract/Controllable";
-import Collection from "./Collection";
-import Schema from "./Schema";
-import Field from "./Field";
-import Id from "../fields/Id";
-import { mergePaths } from "../utility";
+import Controllable from '../abstract/Controllable';
+import Collection from './Collection';
+import Schema from './Schema';
+import Field from './Field';
+import Id from '../fields/Id';
+import { mergePaths } from '../utility';
 
 const { PRV } = Field.Flags;
 
@@ -54,7 +54,7 @@ export default class Resource extends Controllable {
 
     const name = Class.name
       .split(/(?=[A-Z])/)
-      .join("_")
+      .join('_')
       .toLowerCase();
     return `/${name}`;
   }
@@ -97,10 +97,7 @@ export default class Resource extends Controllable {
     return <InstanceType<T>>instance;
   }
 
-  static async collection<T extends typeof Resource>(
-    this: T,
-    data: Array<object>
-  ): Promise<Collection> {
+  static async collection<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
     const Type = <typeof Resource>this;
 
     const pending = data.map((obj) => Type.restore(obj));
@@ -114,5 +111,5 @@ export default class Resource extends Controllable {
   }
 }
 
-export { field } from "../abstract/Validatable";
-export { expose, schema, affects, uses } from "../abstract/Controllable";
+export { field } from '../abstract/Validatable';
+export { expose, schema, affects, uses } from '../abstract/Controllable';

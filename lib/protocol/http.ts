@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import Controller from "../control/Controller";
-import { parseEndpoint } from "../utility";
-import State from "../control/State";
+import Controller from '../control/Controller';
+import { parseEndpoint } from '../utility';
+import State from '../control/State';
 
 /**
  * Creates an ```express``` middleware function to handle HTTP requests
@@ -13,10 +13,10 @@ export default (callback: Function): Function => {
     const { method } = parseEndpoint(req.method);
 
     let result;
-    if (method === "options") {
+    if (method === 'options') {
       const options = await Controller.router.getOptions(req.path);
       if (Array.isArray(options)) {
-        res.set("Allow", options.join(","));
+        res.set('Allow', options.join(','));
         result = State.NO_CONTENT();
       }
     } else {
