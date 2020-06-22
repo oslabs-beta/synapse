@@ -1,95 +1,81 @@
+/* eslint-disable lines-between-class-members */
+/* eslint-disable max-classes-per-file */
 /* eslint-disable import/extensions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-import HttpRespondable from '../abstract/HttpRespondable';
+/** Represents both 1) a response to a request, and 2) the state at a given _path_. Properties prefixed with ```$``` represent _metadata_ associated with the request/response cycle that produced the instance, while _payload_ data encompasses all other properties attached to the instance by derived classes. */
+export default class State {
+  /** The derived class name of the instance. */
+  $type: string = null;
+  /** An HTTP status code describing the response. */
+  $status: number;
+  /** A string describing the response. */
+  $message: string = '';
+  /** An HTTP query string representing the requested _path_ and validated arguments. */
+  $query: string = null;
+  /** An object containing any identifiers needed to track the request. */
+  $flags: object = {};
+  /** An array of _paths_ upon which the response data depends. */
+  $dependencies: Array<string> = [];
 
-export default class State extends HttpRespondable {
-  $: {
-    type: string;
-    status: number;
-    message: string;
-    path: string | null;
-    query: string | null;
-    dependencies: Set<string>;
-    flags: object;
-  };
+  /**
+   * @param status The HTTP status code to be assigned to the instance's _metadata_.
+   * @param message A string message to be assigned to the instance's _metadata_.
+   */
+  constructor(status: number, message: string = '') {
+    this.$type = this.constructor.name;
+    this.$status = status;
+    this.$message = message;
+  }
 
-  constructor(
-    status: number,
-    message: string = '',
-    path: string = null,
-    uses: Array<string> = [],
-    query: string = null,
-    flags: object = {}
-  ) {
-    super();
+  /** Checks if the instance represents an error. */
+  isError(): boolean {
+    // return true if the status code is a 4xx or 5xx error
+    return ['4', '5'].includes(this.$status.toString()[0]);
+  }
 
-    if (!(status >= 100 && status < 600)) {
-      throw new Error(`Invalid status '${status}'.`);
-    }
+  /** Returns a public representation of the instance _payload_. By default, this is the instance's {@linkcode State.$message|message}, though derived classes should override this behavior. */
+  render(): any {
+    return this.$message;
+  }
 
-    this.$ = {
-      type: this.constructor.name,
-      status,
-      message,
-      path,
-      dependencies: new Set(uses),
-      query,
-      flags,
+  /** Returns a public representation of the instance _metadata_, with the instance's {@linkcode State.render|rendered} _payload_ assigned to the property ```payload``` on the resulting object. Called when an the instance is converted to JSON via ```JSON.stringify```. */
+  toJSON() {
+    return {
+      type: this.$type,
+      status: this.$status,
+      message: this.$message,
+      query: this.$query,
+      payload: this.render(),
     };
   }
 
-  $status(value: number = null): number {
-    if (value) {
-      this.$.status = value;
-    }
-    return this.$.status;
+  static OK(message: any = null) {
+    return new State(200, message);
   }
-
-  $message(value: string = null): string {
-    if (value) {
-      this.$.message = value;
-    }
-    return this.$.message;
+  static CREATED(message: any = null) {
+    return new State(201, message);
   }
-
-  $path(value: string = null) {
-    if (value) {
-      this.$.path = value;
-    }
-    return this.$.path;
+  static NO_CONTENT() {
+    return new State(204);
   }
-
-  $query(value: string = null) {
-    if (value) {
-      this.$.query = value;
-    }
-    return this.$.query;
+  static BAD_REQUEST(message: any = null) {
+    return new State(400, message);
   }
-
-  $dependencies(...paths: Array<string>): Array<string> {
-    paths.forEach((path) => this.$.dependencies.add(path));
-    return Array.from(this.$.dependencies);
+  static UNAUTHORIZED(message: any = null) {
+    return new State(401, message);
   }
-
-  $flags(value: any = null) {
-    if (value) {
-      this.$.flags = value;
-    }
-    return this.$.flags;
+  static FORBIDDEN(message: any = null) {
+    return new State(403, message);
   }
-
-  /** Checks if the instance's {@linkcode State.status|status} is a 4xx or 5xx error. */
-  isError(): boolean {
-    return ['4', '5'].includes(this.$status().toString()[0]);
+  static NOT_FOUND(message: any = null) {
+    return new State(404, message);
   }
-
-  render(): any {
-    return this.$.message;
+  static CONFLICT(message: any = null) {
+    return new State(409, message);
   }
-
-  toJSON() {
-    return { ...this.$, payload: this.render() };
+  static INTERNAL_SERVER_ERROR(message: any = null) {
+    return new State(500, message);
   }
 }

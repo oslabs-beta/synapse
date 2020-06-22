@@ -1,6 +1,5 @@
 /* eslint-disable import/extensions */
 
-import Controller from './control/Controller';
 import http from './protocol/http';
 import sse from './protocol/sse';
 import ws from './protocol/ws';

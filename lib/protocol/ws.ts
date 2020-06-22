@@ -10,18 +10,27 @@ import { tryParseJSON, parseEndpoint } from '../utility';
 
 /** Creates an ```express-ws``` middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
  */
-export default (callback: Function, whitelist: Array<string> = [], peers: Array<string>): Function => {
+export default (
+  callback: Function,
+  accept: Array<string> | Promise<Array<string>> = [],
+  join: Array<string> | Promise<Array<string>> = []
+): Function => {
   // the WebSocket interface accepts two custom methods
   const customMethods = ['subscribe', 'unsubscribe', 'update'];
 
+  Promise.resolve(accept).then((ips) => {
+    accept = ips;
+  });
+  accept = [];
+
   const initialize = (socket: any, req: any) => {
     // when a new connection is received, determine if the client is a peer server
-    const isPeer = req.isPeer || whitelist.indexOf(req.connection.remoteAddress) !== -1;
+    const isPeer = req.isPeer || (<Array<string>>accept).indexOf(req.connection.remoteAddress) !== -1;
 
     // create a function to handle updates to that client
     const client = (path: string, state: State, render: boolean = true) => {
       if (isPeer) {
-        const { ignore } = <any>state.$flags();
+        const { ignore } = <any>state.$flags;
         if (!ignore) {
           console.log(`${path} changed -- notifying peers.`);
           socket.send(JSON.stringify({ [`UPDATE ${path}`]: {} }));
@@ -39,7 +48,7 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
     };
 
     if (isPeer) {
-      Manager.subscribe(client);
+      Manager.listen(client);
     }
 
     socket.on('message', async (msg: string) => {
@@ -73,7 +82,7 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
 
         if (method === 'subscribe') {
           const state = await Controller.request('get', path, args, { method });
-          Manager.subscribe(client, state.$query());
+          Manager.subscribe(client, state.$query);
           return client(endpoint, state, false);
         }
 
@@ -83,12 +92,18 @@ export default (callback: Function, whitelist: Array<string> = [], peers: Array<
 
     // when a client disconnects, cancel all their subscriptions
     socket.on('close', () => {
-      Manager.unsubscribe(client);
+      if (isPeer) {
+        Manager.unlisten(client);
+      } else {
+        Manager.unsubscribe(client);
+      }
     });
   };
 
-  peers.forEach((uri) => {
-    initialize(new WebSocket(uri), { isPeer: true });
+  Promise.resolve(join).then((peers) => {
+    peers.forEach((uri) => {
+      initialize(new WebSocket(uri), { isPeer: true });
+    });
   });
 
   return initialize;

@@ -14,7 +14,7 @@ export default (callback: Function): Function => {
 
     let result;
     if (method === 'options') {
-      const options = await Controller.router.getOptions(req.path);
+      const options = await Controller.router.options(req.path);
       if (Array.isArray(options)) {
         res.set('Allow', options.join(','));
         result = State.NO_CONTENT();

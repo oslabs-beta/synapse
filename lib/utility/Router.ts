@@ -56,7 +56,7 @@ export default class Router {
     });
   }
 
-  async getOptions(path: string) {
+  async options(path: string) {
     return new Promise((resolve) => {
       return this.router(
         { method: 'OPTIONS', url: path },

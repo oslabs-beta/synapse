@@ -7,6 +7,7 @@
 import State from '../control/State';
 import Resource from './Resource';
 
+/** Represents of a collection of {@linkcode Resource} instances. As the {@linkcode Collection} class inherits from {@linkcode State}, instances of {@linkcode Collection} also represent valid request responses. */
 export default class Collection extends State {
   resources: Array<Resource>;
 
@@ -22,7 +23,7 @@ export default class Collection extends State {
       this.resources.push(el);
     });
 
-    this.resources.forEach((el) => this.$dependencies(...el.$dependencies()));
+    this.resources.forEach((el) => this.$dependencies.push(...el.$dependencies));
   }
 
   render(): object {
