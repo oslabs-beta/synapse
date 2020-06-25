@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
+import Router from '../control/Router';
 import Manager from '../control/Manager';
-import Controller from '../control/Controller';
 import { parseEndpoint } from '../utility';
 
 /** Creates an ```express``` middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
  */
-export default (callback: Function): Function => {
+export default (router: Router, callback: Function): Function => {
   return async (req: any, res: any, next: Function) => {
     if (req.get('Accept') !== 'text/event-stream') {
       return next();
@@ -41,7 +41,7 @@ export default (callback: Function): Function => {
     // validate the request by attempting to GET the requested resource
     const endpoint = `${req.method} ${req.path}`;
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
-    const state = await Controller.request('get', req.path, args);
+    const state = await router.request('get', req.path, args);
 
     Manager.subscribe(client, state.$query);
     return client(endpoint, state);

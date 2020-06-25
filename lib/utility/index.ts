@@ -135,3 +135,6 @@ export const makeChain = () => {
   caller.add = (...middleware) => chain.push(...middleware);
   return caller;
 };
+
+export { default as Callable } from './Callable';
+export { default as Relation } from './Relation';

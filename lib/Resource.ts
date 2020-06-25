@@ -4,12 +4,12 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Controllable from '../abstract/Controllable';
+import Controllable from './abstract/Controllable';
 import Collection from './Collection';
 import Schema from './Schema';
 import Field from './Field';
-import Id from '../fields/Id';
-import { mergePaths } from '../utility';
+import Id from './fields/Id';
+import { mergePaths } from './utility';
 
 const { PRV } = Field.Flags;
 
@@ -117,5 +117,5 @@ export default class Resource extends Controllable {
   }
 }
 
-export { field } from '../abstract/Validatable';
-export { expose, schema, affects, uses } from '../abstract/Controllable';
+export { field } from './abstract/Validatable';
+export { expose, schema, affects, uses } from './abstract/Controllable';

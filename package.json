@@ -9,7 +9,7 @@
     "test": "jest",
     "start": "NODE_ENV=production node ./build/server/server.js",
     "dev": "NODE_ENV=development nodemon",
-    "doc": "npx typedoc --mode library --excludeExternals --stripInternal --theme minimal --out docs lib/index.ts"
+    "doc": "typedoc"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,6 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "jest": "^26.0.1",
     "mongoose": "^5.9.16",
@@ -45,6 +44,7 @@
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.1",
     "typedoc": "^0.17.0-3",
+    "typedoc-plugin-external-module-name": "^4.0.3",
     "typescript": "^3.9.3",
     "uuid": "^8.1.0"
   },

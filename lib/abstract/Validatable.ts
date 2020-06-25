@@ -2,9 +2,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/extensions */
 
-import State from '../control/State';
-import Schema from '../state/Schema';
-import Field from '../state/Field';
+import State from '../State';
+import Schema from '../Schema';
+import Field from '../Field';
 
 export default class Validatable extends State {
   static $field(field: Field, name: string) {

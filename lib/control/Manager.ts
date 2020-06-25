@@ -1,41 +1,42 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Cache from '../utility/Cache';
-import State from './State';
+import State from '../State';
 import Relation from '../utility/Relation';
 import Operation from './Operation';
-import { routeToPath } from '../utility';
 
 /** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode States} via _queries_ and notifies relevant subscribers whenever cached {@linkcode States} change. */
-export default class Manager extends Cache {
+export default class Manager {
+  /** Maps _queries_ to the {@linkcode State|states} produced by invoking their associated {@linkcode Manager.operations|operations}. */
+  private static states: Map<string, State> = new Map();
+
+  /** Maps _queries_ to cacheable {@linkcode Operation|operations} that will be invoked to recalculate their {@linkcode Manager.states|state}. */
+  private static operations: Map<string, Operation> = new Map();
+
   /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.set|recalculated}. */
   private static dependents: Relation<string, string> = new Relation();
 
-  /** Maps _subscriber_ functions ```(path, state) => {}``` to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.set|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
+  /** Maps _subscribers_ (represented by callback functions) to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.set|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
   private static subscriptions: Relation<Function, string> = new Relation();
 
   /** A set containing functions ```(path, internal) => {...}``` which will be invoked when any _path_ is invalidated, with the invalidated _path_ string and a boolean denoting whether the invalidating initiated by a caller other than the {@linkcode Manager}. */
   private static listeners: Set<Function> = new Set();
 
-  static remove(query: string): void {
-    super.remove(query);
+  /** Executes the given {@linkcode Operation|operation} and stores it as well as the resulting {@linkcode State|state} in association with the operation's {@linkcode Operation.query|query}.
+   */
+  private static async cache(operation: Operation): Promise<State> {
+    const { query } = operation;
 
-    this.dependents.unlink(null, query);
+    this.operations.set(query, operation);
 
-    this.subscriptions.to(query).forEach((subscriber) => {
-      this.unsubscribe(subscriber, query);
-      subscriber(query, null);
-    });
-  }
-
-  static async set(query: string, source: Function = null): Promise<State> {
-    const state: State = await super.set(query, source);
+    const state = await operation();
+    this.states.set(query, state);
 
     if (state.isError()) {
-      this.remove(query);
+      this.unset(query);
       return state;
     }
 
@@ -44,48 +45,66 @@ export default class Manager extends Cache {
       this.dependents.link(path, query);
     });
 
-    this.subscriptions.to(query).forEach((subscriber) => {
-      subscriber(query, state);
+    this.subscriptions.to(query).forEach((client) => {
+      client(query, state);
     });
 
     return state;
   }
 
+  /** Given a _query_, checks for an associated, cached {@linkcode Manager.operations|operation} and, if one exists, recalculates its cached state.
+   * @param query A _query_ string.
+   */
+  private static reset(query: string): void {
+    if (!this.operations.has(query)) {
+      this.cache(this.operations.get(query));
+    }
+  }
+
+  /** Removes a _query_ from the cache along with all of its associations.
+   * @param query A _query_ string.
+   */
+  private static unset(query: string): void {
+    this.states.delete(query);
+    this.operations.delete(query);
+
+    this.dependents.unlink(null, query);
+
+    this.subscriptions.to(query).forEach((client) => {
+      this.unsubscribe(client, query);
+      client(query, null);
+    });
+  }
+
   /** Invalidates a _path_, alerting {@linkcode Manager.listeners|listeners} and causing all associated _queries_ to be recalculated.
    * @param path A _path_ string.
-   * @param flags
    */
   static invalidate(path: string, flags: object = {}): void {
-    this.listeners.forEach((subscriber) => {
+    this.listeners.forEach((client) => {
       const state = State.OK();
       Object.assign(state.$flags, flags);
-      subscriber(path, state);
+      client(path, state);
     });
 
     const queries = this.dependents.from(path);
-    queries.forEach(async (_query) => this.set(_query));
+    queries.forEach(async (_query) => this.reset(_query));
   }
 
   /** Safely invokes an {@linkcode Operation|operation}, caching the resulting {@linkcode State|state} if applicable or otherwise invalidating dependent paths. */
-  static async execute(operation: Operation, args: object, flags: object = {}): Promise<State> {
-    const query = routeToPath(operation.path, args, true);
-
-    const calc = async () => {
-      const state = await operation(args);
-      state.$query = query;
-      Object.assign(state.$flags, flags);
-      return state;
-    };
+  static async execute(operation: Operation, flags: object = {}): Promise<State> {
+    const { query } = operation;
 
     if (operation.isCacheable()) {
-      if (this.has(query)) {
-        return this.get(query);
+      if (this.states.has(query)) {
+        return this.states.get(query);
       }
-      return this.set(query, calc);
+      return this.cache(operation);
     }
 
-    const state = await calc();
+    const state = await operation();
+
     new Set(operation.dependents).forEach((path) => this.invalidate(path, flags));
+
     return state;
   }
 
@@ -104,16 +123,16 @@ export default class Manager extends Cache {
   /** Registers a ```subscriber``` to be invoked whenever the state of ```query``` changes.
    * @param callback A function ```(path, state) => {}```.
    */
-  static subscribe(subscriber: Function, query: string = null): boolean {
-    if (!this.has(query)) {
+  static subscribe(client: Function, query: string = null): boolean {
+    if (!this.states.has(query)) {
       return false;
     }
-    this.subscriptions.link(subscriber, query);
+    this.subscriptions.link(client, query);
     return true;
   }
 
   /** Unregisters a ```subscriber``` from the given ```query```, or from all subscribed queries if no ```query``` is provided. */
-  static unsubscribe(subscriber: Function, query: string = null): void {
-    this.subscriptions.unlink(subscriber, query);
+  static unsubscribe(client: Function, query: string = null): void {
+    this.subscriptions.unlink(client, query);
   }
 }

@@ -4,7 +4,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 
-import State from '../control/State';
+import State from './State';
 import Resource from './Resource';
 
 /** Represents of a collection of {@linkcode Resource} instances. As the {@linkcode Collection} class inherits from {@linkcode State}, instances of {@linkcode Collection} also represent valid request responses. */

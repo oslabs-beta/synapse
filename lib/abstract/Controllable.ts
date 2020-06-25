@@ -4,7 +4,7 @@
 
 import Validatable from './Validatable';
 import Controller from '../control/Controller';
-import Schema from '../state/Schema';
+import Schema from '../Schema';
 import { mergePaths, parseEndpoint, invokeChain } from '../utility';
 
 const toController = (target: Function, props: object = {}) => {
@@ -56,7 +56,7 @@ export default class Controllable extends Validatable {
     };
 
     const pattern = mergePaths(Class.root(), path);
-    return toController(target, { authorizer }).expose(method, pattern);
+    return toController(target, { authorizer, method, pattern });
   }
 
   static $schema(from: Schema | object, target: Function): Function {

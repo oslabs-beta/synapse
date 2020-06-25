@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-bitwise */
 
-import Field from '../state/Field';
+import Field from '../Field';
 
 export default class Text extends Field {
   rules = [];

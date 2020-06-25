@@ -3,14 +3,15 @@
 /* eslint-disable import/extensions */
 
 import * as WebSocket from 'ws';
-import State from '../control/State';
+import State from '../State';
+import Router from '../control/Router';
 import Manager from '../control/Manager';
-import Controller from '../control/Controller';
 import { tryParseJSON, parseEndpoint } from '../utility';
 
 /** Creates an ```express-ws``` middleware function to handle new WebSocket connections. Receives messages in the form of an object whose keys represent endpoints in the format 'METHOD /path' and whose values are objects containing the arguments to be passed to the associated endpoint.
  */
 export default (
+  router: Router,
   callback: Function,
   accept: Array<string> | Promise<Array<string>> = [],
   join: Array<string> | Promise<Array<string>> = []
@@ -81,12 +82,12 @@ export default (
         }
 
         if (method === 'subscribe') {
-          const state = await Controller.request('get', path, args, { method });
+          const state = await router.request('get', path, args, { method });
           Manager.subscribe(client, state.$query);
           return client(endpoint, state, false);
         }
 
-        return client(endpoint, await Controller.request(method, path, args, { method }), false);
+        return client(endpoint, await router.request(method, path, args, { method }), false);
       });
     });
 
