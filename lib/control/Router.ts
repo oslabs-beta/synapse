@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import * as express from "express";
-import State from "../control/State";
-import { parseEndpoint } from ".";
+import * as express from 'express';
+import State from '../State';
+import { parseEndpoint } from '../utility';
 
 /** Generic wrapper for an ```express``` router. Associates _endpoint templates_ in the format ```METHOD /path/:param``` with handler functions. */
 export default class Router {
@@ -19,24 +19,24 @@ export default class Router {
       transform || ((path, params, ...args) => [{ ...args.shift(), ...params }, path, ...args]);
   }
 
-  /** Associates a callback function with an HTTP method and _resource path_
+  /** Associates a callback function with an HTTP method and _route_.
    * @param method An HTTP method
-   * @param path A _route_ in the ```express``` syntax (e.g ```/user/:id```)
+   * @param route A _route_ in the ```express``` syntax (e.g ```/user/:id```)
    * @param callback A callback function
    */
-  declare(method: string, path: string, callback: Function): void {
+  declare(method: string, route: string, callback: Function): void {
     const { method: _method } = parseEndpoint(method);
 
     if (!_method) {
       throw new Error(`Unkown method '${method}'.`);
     }
 
-    this.router[_method](path, (req, res) => res.send(callback, req.params));
+    this.router[_method](route, (req, res) => res.send(callback, req.params));
   }
 
   /** _**(async)**_ Attempts to execute a request using the constructed router.
-   * @param method An HTTP method
-   * @param path A _resource path_
+   * @param method An HTTP method.
+   * @param path A _path_ string.
    * @param args An object containing the arguments to be passed to the callback method, if one is found.
    * @returns A promise that evaluates to the result of invoking the callback function associated with the provided method and path, or a ```NOT_FOUND``` {@linkcode State} if no matching _endpoint_ exists.
    */
@@ -56,11 +56,14 @@ export default class Router {
     });
   }
 
-  async getOptions(path: string) {
+  /** _**(async)**_ Returns a promise resolving to either: 1) an array containing all HTTP methods available at the given ```path```, or 2) a ```NOT_FOUND``` error.
+   * @param path A _path_ string.
+   */
+  async options(path: string): Promise<Array<string> | State> {
     return new Promise((resolve) => {
       return this.router(
-        { method: "OPTIONS", url: path },
-        { set: () => {}, send: (options) => resolve(options.split(",")) },
+        { method: 'OPTIONS', url: path },
+        { set: () => {}, send: (options) => resolve(options.split(',')) },
         () => resolve(State.NOT_FOUND())
       );
     });

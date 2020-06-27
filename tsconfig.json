@@ -1,10 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./build",
     "rootDir": "./",
     "experimentalDecorators": true
+  },
+  "typedocOptions": {
+    "name": "synapse",
+    "inputFiles": "lib",
+    "out": "docs",
+    "mode": "modules",
+    "exclude": ["**/index.ts", "lib/postgres/*.ts"],
+    "excludeNotExported": true
   }
 }

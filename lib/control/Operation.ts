@@ -1,45 +1,69 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 
-import Functor from "../utility/Functor";
-import State from "./State";
+import Callable from '../utility/Callable';
+import State from '../State';
+import { routeToPath } from '../utility';
 
-export default class Operation extends Functor {
-  path: string;
+/** Callable type representing a function that either _reads_ or _writes_ the state at a given _path_. When invoked, returns an instance of {@linkcode State}. */
+export default class Operation extends Callable {
+  /** The _query_ representing the operation. */
+  query: string;
 
-  dependencies: Array<string>;
-
+  /** The _paths_ which should be invalidated whenever the operation is invoked. */
   dependents: Array<string>;
 
-  constructor(path: string, fn: Function, cacheable: boolean, dependents = [], dependencies = []) {
-    super();
+  /** The _paths_ upon which any {@linkcode State} instance produced by invoking the operation will depend. */
+  dependencies: Array<string>;
 
-    this.__call__ = async (args) => {
-      let result;
+  /**
+   *
+   * @param path The _path_ which the operation evaluates. Used to determine the resulting _query_.
+   * @param func The function that will be invoked when the instance is invoked.
+   * @param args The arguments with which the ```func``` will be invoked and which will be used to construct the instance's {@linkcode Operation.query|query} string.
+   * @param isRead Determines whether is the operation is a _read_ or _write_. If the operation is a _read_, it will also be considered {@linkcode Operation.isCacheable|cacheable}. If it's a _write_, the ```path``` will considered a {@linkcode Operation.dependents|dependent}.
+   * @param dependents See {@linkcode Operation.dependents}.
+   * @param dependencies See {@linkcode Operation.dependencies}.
+   */
+  constructor(
+    path: string,
+    func: Function,
+    args: object,
+    isRead: boolean,
+    dependents = [],
+    dependencies = []
+  ) {
+    super(async () => {
+      let result: State;
 
       try {
-        result = <State>await fn(args);
+        result = <State>await func(args);
 
         if (!(result instanceof State)) {
-          console.log("Unexpected result:", result);
-          throw new Error("Internal Server Error.");
+          console.log('Unexpected result:', result);
+          throw new Error('Internal Server Error.');
         }
       } catch (err) {
         console.log(err);
-        result = State.INTERNAL_SERVER_ERROR("An error occurred.");
+        result = State.INTERNAL_SERVER_ERROR('An error occurred.');
       }
 
-      result.$dependencies(...this.dependencies);
+      console.log(path, 'op', this.dependencies);
+      console.log(path, 'state', result.$dependencies);
+
+      result.$query = this.query;
+      result.$dependencies.push(...this.dependencies);
 
       return result;
-    };
+    });
 
-    this.path = path;
-    this.dependents = cacheable ? [] : [path, ...dependents];
-    this.dependencies = cacheable ? [path, ...dependencies] : [];
+    this.query = routeToPath(path, args, true);
+    this.dependents = isRead ? [] : [path, ...dependents];
+    this.dependencies = isRead ? [path, ...dependencies] : [];
   }
 
-  isCacheable() {
+  /** Returns true if the operation is cacheable (and therefore a _read_ operation), otherwise false. */
+  isCacheable = (): boolean => {
     return this.dependents.length === 0;
-  }
+  };
 }

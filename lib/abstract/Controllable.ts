@@ -2,11 +2,10 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 
-import Validatable from "./Validatable";
-import Controller from "../control/Controller";
-import Schema from "../state/Schema";
-import { mergePaths, parseEndpoint, invokeChain } from "../utility";
-import { authorizer } from "../../test/resources/Session";
+import Validatable from './Validatable';
+import Controller from '../control/Controller';
+import Schema from '../Schema';
+import { mergePaths, parseEndpoint, invokeChain } from '../utility';
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
@@ -57,7 +56,7 @@ export default class Controllable extends Validatable {
     };
 
     const pattern = mergePaths(Class.root(), path);
-    return toController(target, { authorizer }).expose(method, pattern);
+    return toController(target, { authorizer, method, pattern });
   }
 
   static $schema(from: Schema | object, target: Function): Function {
@@ -81,7 +80,7 @@ export default class Controllable extends Validatable {
   }
 }
 
-// decorators:
+// ts decorators:
 export const expose = (path: string, ...authorizers: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated

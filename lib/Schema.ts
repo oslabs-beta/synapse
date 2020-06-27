@@ -3,8 +3,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-await-in-loop */
 
-import Field from "./Field";
-import { isCollectionOf } from "../utility";
+import Field from './Field';
+import { isCollectionOf } from './utility';
 
 /** An instance of {@linkcode Schema} defines a set of parameters by name and _fieldtype_ (see {@linkcode Field}). */
 export default class Schema {
@@ -48,11 +48,11 @@ export default class Schema {
    * @return A new instance of {@linkcode Schema}.
    */
   select(fields: object | string = null, ...keys: Array<string>): Schema {
-    if (typeof fields === "object") {
+    if (typeof fields === 'object') {
       return this.select(...Object.keys(fields)).default(fields);
     }
 
-    if (typeof fields === "string") {
+    if (typeof fields === 'string') {
       keys.unshift(fields);
     }
 
@@ -67,7 +67,7 @@ export default class Schema {
    * @param keys The names of the fields which should not be transferred to the new schema.
    * @return A new instance of {@linkcode Schema}.
    */
-  exclude(...keys): Schema {
+  exclude(...keys: Array<string>): Schema {
     const result = { ...this.fields };
     keys.forEach((key) => {
       delete result[key];
@@ -75,7 +75,11 @@ export default class Schema {
     return new Schema(result);
   }
 
-  default(values): Schema {
+  /** Given an object ```values``` whose keys correspond to fields on the instance's _fieldset_ and whose values represent default values of those fields, applies those default values to the corresponding fields on a clone of the instance.
+   * @param values An object with keys corresponding to field names and values representing default field values.
+   * @return A new instance of {@linkcode Schema}.
+   */
+  default(values: object): Schema {
     const fields = {};
     Object.keys(this.fields).forEach((name) => {
       const field = this.fields[name].clone();

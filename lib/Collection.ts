@@ -4,9 +4,10 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 
-import State from "../control/State";
-import Resource from "./Resource";
+import State from './State';
+import Resource from './Resource';
 
+/** Represents of a collection of {@linkcode Resource} instances. As the {@linkcode Collection} class inherits from {@linkcode State}, instances of {@linkcode Collection} also represent valid request responses. */
 export default class Collection extends State {
   resources: Array<Resource>;
 
@@ -17,12 +18,12 @@ export default class Collection extends State {
 
     resources.forEach((el) => {
       if (!(el instanceof Resource)) {
-        throw new Error("Expected array containing only values of type Resource.");
+        throw new Error('Expected array containing only values of type Resource.');
       }
       this.resources.push(el);
     });
 
-    this.resources.forEach((el) => this.$dependencies(...el.$dependencies()));
+    this.resources.forEach((el) => this.$dependencies.push(...el.$dependencies));
   }
 
   render(): object {

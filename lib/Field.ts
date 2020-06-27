@@ -3,6 +3,8 @@
 /** Abstract class representing a subset of any primitive value type, herein referred to as a _fieldtype_. For example, a hypothetical ```class Email extends Field``` would represent a subset of ```string``` (i.e. strings that are valid email addresses). A class which extends {@linkcode Field} should define the requirements of its _fieldtype_ by overriding {@linkcode Field.parse|Field.prototype.parse}. Instances of {@linkcode Field} are used to validate values and compose {@linkcode Schema|Schemas}. */
 export default class Field {
   static Flags = {
+    /** _OPTIONAL_ denotes that a field should have a default value of null. */
+    OPT: 0b001,
     /** _PRIVATE_ denotes that a field should not be exposed. */
     PRV: 0b010,
   };
@@ -22,7 +24,7 @@ export default class Field {
    */
   constructor(defaultVal: any = undefined, flags: number = null) {
     this.default = defaultVal;
-    this.flags = flags;
+    this.flags = flags || 0;
   }
 
   /** Checks if the specified flag is set on {@linkcode Field.flags|Field.prototype.flags}.
@@ -33,7 +35,8 @@ export default class Field {
     return !!(this.flags & flag);
   }
 
-  clone() {
+  /** Returns a copy of the {@linkcode Field} instance. */
+  clone(): Field {
     const Type = <{ new (): Field }>this.constructor;
     return Object.assign(new Type(), this);
   }
@@ -45,6 +48,9 @@ export default class Field {
   async parse(value: any): Promise<any> {
     this.lastError = null;
     if (value === undefined || value === null) {
+      if (this.hasFlag(Field.Flags.OPT) && this.default === undefined) {
+        return null;
+      }
       return this.default;
     }
     return value;

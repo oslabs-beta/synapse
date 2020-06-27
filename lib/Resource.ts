@@ -4,22 +4,22 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
-import Controllable from "../abstract/Controllable";
-import Collection from "./Collection";
-import Schema from "./Schema";
-import Field from "./Field";
-import Id from "../fields/Id";
-import { mergePaths } from "../utility";
+import Controllable from './abstract/Controllable';
+import Collection from './Collection';
+import Schema from './Schema';
+import Field from './Field';
+import Id from './fields/Id';
+import { mergePaths } from './utility';
 
 const { PRV } = Field.Flags;
 
-/** Abstract class representing a RESTful resource exposed by the synapse API. */
+/** Abstract class representing a RESTful resource exposed by the synapse API. As the {@linkcode Resource} class inherits from {@linkcode State}, instances of {@linkcode Resource} also represent valid request responses. */
 export default class Resource extends Controllable {
   /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
   static schema: Schema;
 
-  /** Returns the _resource path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
-  calcPath(): string {
+  /** Returns the _path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
+  path(): string {
     const Class = <typeof Resource>this.constructor;
 
     const { fields } = Class.schema;
@@ -48,13 +48,24 @@ export default class Resource extends Controllable {
     return result;
   }
 
-  /** Returns the _resource path_ from which all endpoints on the derived class originate. */
+  /** Returns an object containing all properties of the instance, excluding {@linkcode State} _metadata_. */
+  export(): object {
+    const result = { ...this };
+    Object.keys(result).forEach((key) => {
+      if (key[0] === '$') {
+        delete result[key];
+      }
+    });
+    return result;
+  }
+
+  /** Returns the _path_ from which all endpoints on the derived class originate. */
   static root(): string {
     const Class = this;
 
     const name = Class.name
       .split(/(?=[A-Z])/)
-      .join("_")
+      .join('_')
       .toLowerCase();
     return `/${name}`;
   }
@@ -74,7 +85,7 @@ export default class Resource extends Controllable {
     return new Schema(Object.assign({}, ...fields, Class.schema.fields));
   }
 
-  /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}.
+  /** _**(async)**_ Attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}. The resulting {@linkcode State} will have the HTTP status ```OK```.
    * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
    */
   static async restore<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
@@ -91,28 +102,31 @@ export default class Resource extends Controllable {
     Object.keys(result).forEach((key) => {
       instance[key] = result[key];
     });
-    instance.$path(instance.calcPath());
-    instance.$dependencies(instance.$path());
+    instance.$dependencies.push(instance.path());
 
     return <InstanceType<T>>instance;
   }
 
-  static async collection<T extends typeof Resource>(
-    this: T,
-    data: Array<object>
-  ): Promise<Collection> {
+  /** _**(async)**_ Given an array of objects ```data```, attempts to {@linkcode Resource.restore|restore} each object and convert the resulting {@linkcode Resource} instances to a {@linkcode Collection}.
+   * @param data An array of objects representing resource states.
+   * @return A promise resolving to a collection of resources.
+   */
+  static async collection<T extends typeof Resource>(this: T, data: Array<object>): Promise<Collection> {
     const Type = <typeof Resource>this;
 
     const pending = data.map((obj) => Type.restore(obj));
     return new Collection(await Promise.all(pending));
   }
 
+  /** _**(async)**_ Like {@linkcode Resource.restore}, attempts to create a new instance of the derived class from the plain object ```data```. Throws an ```Error``` if ```data``` cannot be validated using the derived class's {@linkcode Resource.schema|schema}. The resulting {@linkcode State} will have the HTTP status ```CREATED```.
+   * @param data The key-value pairs from which to construct the {@linkcode Resource} instance.
+   */
   static async create<T extends typeof Resource>(this: T, data: object): Promise<InstanceType<T>> {
     const instance = await this.restore(data);
-    instance.$status(201);
+    instance.$status = 201;
     return instance;
   }
 }
 
-export { field } from "../abstract/Validatable";
-export { expose, schema, affects, uses } from "../abstract/Controllable";
+export { field } from './abstract/Validatable';
+export { expose, schema, affects, uses } from './abstract/Controllable';
