@@ -43,7 +43,7 @@ export default class Controller extends Callable {
       const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
       const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
 
-      const op = new Operation(path, target, args, this.method === 'get', dependents, dependencies);
+      const op = new Operation(path, target, validated, this.method === 'get', dependents, dependencies);
 
       return Manager.execute(op, flags);
     });

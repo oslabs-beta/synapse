@@ -80,7 +80,7 @@ export default class Controllable extends Validatable {
   }
 }
 
-// decorators:
+// ts decorators:
 export const expose = (path: string, ...authorizers: Array<Function>): Function => {
   return (Class, methodName, descriptor) => {
     const method = descriptor.value; // class method to be decorated

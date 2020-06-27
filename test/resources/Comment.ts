@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
 
-import { Resource, Collection, State } from '../../lib';
+import { Resource, State } from '../../lib';
 import { field, expose, schema, affects, uses } from '../../lib/decorators';
 import { Id, Text, Integer } from '../../lib/fields';
 
@@ -14,13 +14,19 @@ export default class Comment extends Resource {
 
   @expose('GET /last')
   static Last() {
-    return ledger[ledger.length - 1] || State.NOT_FOUND();
+    if (!ledger[ledger.length - 1]) {
+      return State.NOT_FOUND();
+    }
+    return Comment.restore(ledger[ledger.length - 1]);
   }
 
   @expose('GET /:id')
   @schema(Comment.schema.select('id'))
   static Find({ id }) {
-    return ledger[id] || State.NOT_FOUND();
+    if (!ledger[id]) {
+      return State.NOT_FOUND();
+    }
+    return Comment.restore(ledger[id]);
   }
 
   @expose('GET /page/:index')
@@ -28,7 +34,7 @@ export default class Comment extends Resource {
   @uses('/')
   static List({ index }) {
     const start = ledger.length - pageSize * index;
-    return new Collection(ledger.slice(start, start + pageSize).reverse());
+    return Comment.collection(ledger.slice(start, start + pageSize).reverse());
   }
 
   @expose('POST /')
@@ -36,7 +42,7 @@ export default class Comment extends Resource {
   @affects('/last')
   static async Post({ text }) {
     const comment = await Comment.create({ id: `${ledger.length}`, text });
-    ledger.push(comment);
+    ledger.push(comment.export());
     return comment;
   }
 }

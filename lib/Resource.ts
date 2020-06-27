@@ -48,6 +48,17 @@ export default class Resource extends Controllable {
     return result;
   }
 
+  /** Returns an object containing all properties of the instance, excluding {@linkcode State} _metadata_. */
+  export(): object {
+    const result = { ...this };
+    Object.keys(result).forEach((key) => {
+      if (key[0] === '$') {
+        delete result[key];
+      }
+    });
+    return result;
+  }
+
   /** Returns the _path_ from which all endpoints on the derived class originate. */
   static root(): string {
     const Class = this;

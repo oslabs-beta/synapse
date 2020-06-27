@@ -18,10 +18,10 @@ export default class Operation extends Callable {
 
   /**
    *
-   * @param path See {@linkcode Operation.path}.
+   * @param path The _path_ which the operation evaluates. Used to determine the resulting _query_.
    * @param func The function that will be invoked when the instance is invoked.
    * @param args The arguments with which the ```func``` will be invoked and which will be used to construct the instance's {@linkcode Operation.query|query} string.
-   * @param isRead Determines whether is the operation is a _read_ or _write_. If the operation is a _read_, it will also be considered {@linkcode Operation.isCacheable:cacheable}. If it's a _write_, its ```path``` will considered a {@linkcode Operation.dependents|dependent}.
+   * @param isRead Determines whether is the operation is a _read_ or _write_. If the operation is a _read_, it will also be considered {@linkcode Operation.isCacheable|cacheable}. If it's a _write_, the ```path``` will considered a {@linkcode Operation.dependents|dependent}.
    * @param dependents See {@linkcode Operation.dependents}.
    * @param dependencies See {@linkcode Operation.dependencies}.
    */
@@ -47,6 +47,9 @@ export default class Operation extends Callable {
         console.log(err);
         result = State.INTERNAL_SERVER_ERROR('An error occurred.');
       }
+
+      console.log(path, 'op', this.dependencies);
+      console.log(path, 'state', result.$dependencies);
 
       result.$query = this.query;
       result.$dependencies.push(...this.dependencies);

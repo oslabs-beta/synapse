@@ -8,7 +8,7 @@ import State from '../State';
 import Relation from '../utility/Relation';
 import Operation from './Operation';
 
-/** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode States} via _queries_ and notifies relevant subscribers whenever cached {@linkcode States} change. */
+/** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode State} via _queries_ and notifies relevant subscribers whenever cached {@linkcode State} change. */
 export default class Manager {
   /** Maps _queries_ to the {@linkcode State|states} produced by invoking their associated {@linkcode Manager.operations|operations}. */
   private static states: Map<string, State> = new Map();
@@ -16,10 +16,10 @@ export default class Manager {
   /** Maps _queries_ to cacheable {@linkcode Operation|operations} that will be invoked to recalculate their {@linkcode Manager.states|state}. */
   private static operations: Map<string, Operation> = new Map();
 
-  /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.set|recalculated}. */
+  /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.cache|recalculated}. */
   private static dependents: Relation<string, string> = new Relation();
 
-  /** Maps _subscribers_ (represented by callback functions) to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.set|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
+  /** Maps _subscribers_ (represented by callback functions) to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.cache|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
   private static subscriptions: Relation<Function, string> = new Relation();
 
   /** A set containing functions ```(path, internal) => {...}``` which will be invoked when any _path_ is invalidated, with the invalidated _path_ string and a boolean denoting whether the invalidating initiated by a caller other than the {@linkcode Manager}. */
@@ -56,8 +56,8 @@ export default class Manager {
    * @param query A _query_ string.
    */
   private static reset(query: string): void {
-    if (!this.operations.has(query)) {
-      this.cache(this.operations.get(query));
+    if (this.operations.has(query)) {
+      const temp = this.cache(this.operations.get(query));
     }
   }
 
