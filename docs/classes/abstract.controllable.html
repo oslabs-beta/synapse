@@ -70,7 +70,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Represents a type which can be exposed by a Synapse API. Defines the functionality necessary to create <a href="control.controller.html"><code>Controllers</code></a>.</p>
+						<p>Represents a type which can be exposed by a Synapse API. Defines the functionality necessary to create <a href="control.controller.html"><code>Controllers</code></a> and add them to a static <a href="abstract.controllable.html#router"><code>router</code></a> property on the derived class.</p>
 					</div>
 				</div>
 			</section>
@@ -102,7 +102,7 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="abstract.controllable.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="abstract.controllable.html#_dependencies" class="tsd-kind-icon">$dependencies</a></li>
@@ -111,6 +111,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="abstract.controllable.html#_query" class="tsd-kind-icon">$query</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="abstract.controllable.html#_status" class="tsd-kind-icon">$status</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="abstract.controllable.html#_type" class="tsd-kind-icon">$type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="abstract.controllable.html#router" class="tsd-kind-icon">router</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="abstract.controllable.html#schema" class="tsd-kind-icon">schema</a></li>
 							</ul>
 						</section>
@@ -149,7 +150,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L20">lib/State.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L20">lib/State.ts:20</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -178,7 +179,7 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_dependencies" class="tsd-anchor"></a>
@@ -187,7 +188,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_dependencies">$dependencies</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L20">lib/State.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L20">lib/State.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -203,7 +204,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_flags">$flags</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L18">lib/State.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L18">lib/State.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -219,7 +220,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_message">$message</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L14">lib/State.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L14">lib/State.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -235,7 +236,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_query">$query</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L16">lib/State.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L16">lib/State.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -251,7 +252,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_status">$status</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L12">lib/State.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L12">lib/State.ts:12</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -267,7 +268,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_type">$type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L10">lib/State.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L10">lib/State.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -276,6 +277,16 @@
 						</div>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="router" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> router</h3>
+					<div class="tsd-signature tsd-kind-icon">router<span class="tsd-signature-symbol">:</span> <a href="control.router.html" class="tsd-signature-type">Router</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/abstract/Controllable.ts#L69">lib/abstract/Controllable.ts:69</a></li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="schema" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> schema</h3>
@@ -283,7 +294,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="abstract.validatable.html">Validatable</a>.<a href="abstract.validatable.html#schema">schema</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Validatable.ts#L24">lib/abstract/Validatable.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/abstract/Validatable.ts#L24">lib/abstract/Validatable.ts:24</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -306,7 +317,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#iserror">isError</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L33">lib/State.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L33">lib/State.ts:33</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -329,7 +340,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#render">render</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L39">lib/State.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L39">lib/State.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -352,7 +363,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#tojson">toJSON</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L44">lib/State.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L44">lib/State.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -392,7 +403,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#bad_request">BAD_REQUEST</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L63">lib/State.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L63">lib/State.ts:63</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -416,7 +427,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#conflict">CONFLICT</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L75">lib/State.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L75">lib/State.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -440,7 +451,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#created">CREATED</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L57">lib/State.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L57">lib/State.ts:57</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -464,7 +475,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#forbidden">FORBIDDEN</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L69">lib/State.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L69">lib/State.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -488,7 +499,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#internal_server_error">INTERNAL_SERVER_ERROR</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L78">lib/State.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L78">lib/State.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -512,7 +523,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#not_found">NOT_FOUND</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L72">lib/State.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L72">lib/State.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -536,7 +547,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#no_content">NO_CONTENT</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L60">lib/State.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L60">lib/State.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
@@ -554,7 +565,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#ok">OK</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L54">lib/State.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L54">lib/State.ts:54</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -578,7 +589,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#unauthorized">UNAUTHORIZED</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/State.ts#L66">lib/State.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/State.ts#L66">lib/State.ts:66</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -601,7 +612,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L70">lib/abstract/Controllable.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/abstract/Controllable.ts#L80">lib/abstract/Controllable.ts:80</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -638,7 +649,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L62">lib/abstract/Controllable.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/4699c0b/lib/abstract/Controllable.ts#L72">lib/abstract/Controllable.ts:72</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -717,6 +728,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="abstract.controllable.html#_type" class="tsd-kind-icon">$type</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="abstract.controllable.html#router" class="tsd-kind-icon">router</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 								<a href="abstract.controllable.html#schema" class="tsd-kind-icon">schema</a>

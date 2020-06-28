@@ -24,14 +24,15 @@ export default class Router {
    * @param route A _route_ in the ```express``` syntax (e.g ```/user/:id```)
    * @param callback A callback function
    */
-  declare(method: string, route: string, callback: Function): void {
-    const { method: _method } = parseEndpoint(method);
-
-    if (!_method) {
+  declare(method: string, route: string, callback: Function | Router): void {
+    if (!this.router[method]) {
       throw new Error(`Unkown method '${method}'.`);
     }
 
-    this.router[_method](route, (req, res) => res.send(callback, req.params));
+    const handler =
+      callback instanceof Router ? callback.router : (req, res) => res.send(callback, req.params);
+
+    this.router[method](route, handler);
   }
 
   /** _**(async)**_ Attempts to execute a request using the constructed router.

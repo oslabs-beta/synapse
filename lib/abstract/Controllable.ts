@@ -4,16 +4,9 @@
 
 import Validatable from './Validatable';
 import Controller from '../control/Controller';
+import Router from '../control/Router';
 import Schema from '../Schema';
 import { mergePaths, parseEndpoint, invokeChain } from '../utility';
-
-export interface ControllerOptions {
-  uses: Array<string>;
-  affects: Array<string>;
-  schema: Schema | object;
-  endpoint: string;
-  authorizer: Array<Function>;
-}
 
 const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
@@ -25,39 +18,56 @@ const applyExpose = (Class: any, endpoint: string, ...chain: Array<Function>) =>
   if (!method || !path) {
     throw new Error(`Invalid endpoint '${endpoint}'.`);
   }
-  if (!chain.length) {
-    throw new Error("Expected at least one function in 'chain'.");
+
+  const controller = toController(chain.pop(), {
+    pattern: mergePaths(Class.root(), path),
+    cacheable: method === 'get',
+    authorizer: async (args: object) => {
+      const result = await invokeChain(chain, args);
+      return Array.isArray(result) ? result[0] : result;
+    },
+  });
+
+  if (!Class.router) {
+    Class.router = new Router();
   }
+  Class.router.declare(method, controller.pattern, controller.try);
 
-  const target = chain.pop();
-  const authorizer = async (args: object) => {
-    const result = await invokeChain(chain, args);
-    return Array.isArray(result) ? result[0] : result;
-  };
-
-  const pattern = mergePaths(Class.root(), path);
-  return toController(target, { authorizer, method, pattern });
+  return controller;
 };
 
 const applySchema = (Class: any, from: Schema | object, target: Function) => {
-  const schema = from instanceof Schema ? from : new Schema(from);
-  return toController(target, { schema });
+  return toController(target, {
+    schema: from instanceof Schema ? from : new Schema(from),
+  });
 };
 
 const applyAffects = (Class: any, paths: Array<string>, target: Function) => {
   const root = Class.root();
-  const dependents = paths.map((path) => mergePaths(root, path));
-  return toController(target, { dependents });
+  return toController(target, {
+    dependents: paths.map((path) => mergePaths(root, path)),
+  });
 };
 
 const applyUses = (Class: any, paths: Array<string>, target: Function) => {
   const root = Class.root();
-  const dependencies = paths.map((path) => mergePaths(root, path));
-  return toController(target, { dependencies });
+  return toController(target, {
+    dependencies: paths.map((path) => mergePaths(root, path)),
+  });
 };
 
-/** Represents a type which can be exposed by a Synapse API. Defines the functionality necessary to create {@linkcode Controller|Controllers}. */
+export interface ControllerOptions {
+  uses: Array<string>;
+  affects: Array<string>;
+  schema: Schema | object;
+  endpoint: string;
+  authorizer: Array<Function>;
+}
+
+/** Represents a type which can be exposed by a Synapse API. Defines the functionality necessary to create {@linkcode Controller|Controllers} and add them to a static {@linkcode Controllable.router|router} property on the derived class. */
 export default class Controllable extends Validatable {
+  static router: Router;
+
   /** _**(abstract)**_ Returns the _path_ from which all endpoints on the derived class originate. */
   static root(): string {
     throw new Error("Classes that extend Controllable must implement the 'root' method.");
