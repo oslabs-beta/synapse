@@ -42,7 +42,7 @@ export { default as Field } from './Field';
 export { default as Schema } from './Schema';
 
 export * as control from './control';
-export * as decorators from './decorators';
+export * as decorators from './abstract/decorators';
 export * as fields from './fields';
 export * as protocol from './protocol';
 export * as utility from './utility';

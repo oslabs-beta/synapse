@@ -12,7 +12,7 @@
     "inputFiles": "lib",
     "out": "docs",
     "mode": "modules",
-    "exclude": ["**/index.ts", "lib/postgres/*.ts"],
+    "exclude": ["index.ts", "**/index.ts", "lib/postgres/*.ts"],
     "excludeNotExported": true
   }
 }

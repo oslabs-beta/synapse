@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>fields | synapse</title>
+	<title>ControllerOptions | synapse</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,34 +54,95 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="fields.html">fields</a>
+					<a href="../modules/abstract.html">abstract</a>
+				</li>
+				<li>
+					<a href="abstract.controlleroptions.html">ControllerOptions</a>
 				</li>
 			</ul>
-			<h1>Module fields</h1>
+			<h1>Interface ControllerOptions</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ControllerOptions</span>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Classes</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.email.html" class="tsd-kind-icon">Email</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.float.html" class="tsd-kind-icon">Float</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.hash.html" class="tsd-kind-icon">Hash</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.id.html" class="tsd-kind-icon">Id</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.integer.html" class="tsd-kind-icon">Integer</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.number.html" class="tsd-kind-icon">Number</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.text.html" class="tsd-kind-icon">Text</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/fields.word.html" class="tsd-kind-icon">Word</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="abstract.controlleroptions.html#affects" class="tsd-kind-icon">affects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="abstract.controlleroptions.html#authorizer" class="tsd-kind-icon">authorizer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="abstract.controlleroptions.html#endpoint" class="tsd-kind-icon">endpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="abstract.controlleroptions.html#schema" class="tsd-kind-icon">schema</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="abstract.controlleroptions.html#uses" class="tsd-kind-icon">uses</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="affects" class="tsd-anchor"></a>
+					<h3>affects</h3>
+					<div class="tsd-signature tsd-kind-icon">affects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L12">lib/abstract/Controllable.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="authorizer" class="tsd-anchor"></a>
+					<h3>authorizer</h3>
+					<div class="tsd-signature tsd-kind-icon">authorizer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L15">lib/abstract/Controllable.ts:15</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="endpoint" class="tsd-anchor"></a>
+					<h3>endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L14">lib/abstract/Controllable.ts:14</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="schema" class="tsd-anchor"></a>
+					<h3>schema</h3>
+					<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <a href="../classes/index.schema.html" class="tsd-signature-type">Schema</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L13">lib/abstract/Controllable.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="uses" class="tsd-anchor"></a>
+					<h3>uses</h3>
+					<div class="tsd-signature tsd-kind-icon">uses<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/628ccf3/lib/abstract/Controllable.ts#L11">lib/abstract/Controllable.ts:11</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -91,48 +152,84 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="abstract.html">abstract</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="control.html">control</a>
-					</li>
 					<li class="current tsd-kind-module">
-						<a href="fields.html">fields</a>
+						<a href="../modules/abstract.html">abstract</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="index.html">index</a>
+						<a href="../modules/control.html">control</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="utility.html">utility</a>
+						<a href="../modules/fields.html">fields</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/index.html">index</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/utility.html">utility</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.email.html" class="tsd-kind-icon">Email</a>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/abstract.html#affects" class="tsd-kind-icon">affects</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/abstract.html#expose" class="tsd-kind-icon">expose</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/abstract.html#field" class="tsd-kind-icon">field</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/abstract.html#schema" class="tsd-kind-icon">schema</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/abstract.html#uses" class="tsd-kind-icon">uses</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.float.html" class="tsd-kind-icon">Float</a>
+						<a href="../classes/abstract.controllable.html" class="tsd-kind-icon">Controllable</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.hash.html" class="tsd-kind-icon">Hash</a>
+						<a href="../classes/abstract.validatable.html" class="tsd-kind-icon">Validatable</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.id.html" class="tsd-kind-icon">Id</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="abstract.controlleroptions.html" class="tsd-kind-icon">Controller<wbr>Options</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="abstract.controlleroptions.html#affects" class="tsd-kind-icon">affects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="abstract.controlleroptions.html#authorizer" class="tsd-kind-icon">authorizer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="abstract.controlleroptions.html#endpoint" class="tsd-kind-icon">endpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="abstract.controlleroptions.html#schema" class="tsd-kind-icon">schema</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="abstract.controlleroptions.html#uses" class="tsd-kind-icon">uses</a>
+							</li>
+						</ul>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.integer.html" class="tsd-kind-icon">Integer</a>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/abstract.html#affects-1" class="tsd-kind-icon">affects</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.number.html" class="tsd-kind-icon">Number</a>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/abstract.html#expose-1" class="tsd-kind-icon">expose</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.text.html" class="tsd-kind-icon">Text</a>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/abstract.html#field-1" class="tsd-kind-icon">field</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/fields.word.html" class="tsd-kind-icon">Word</a>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/abstract.html#schema-1" class="tsd-kind-icon">schema</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/abstract.html#uses-1" class="tsd-kind-icon">uses</a>
 					</li>
 				</ul>
 			</nav>

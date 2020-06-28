@@ -2,7 +2,7 @@
 /* eslint-disable lines-between-class-members */
 
 import { Resource, State, Field } from '../../lib';
-import { field, schema, expose } from '../../lib/decorators';
+import { field, schema, expose } from '../../lib/abstract/decorators';
 import { Email, Hash, Word, Text } from '../../lib/fields';
 import MongoId from '../fields/MongoId';
 import mongo from '../etc/database';
