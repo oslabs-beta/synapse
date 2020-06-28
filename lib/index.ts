@@ -39,6 +39,7 @@ export { default as Collection } from './Collection';
 export { default as Field } from './Field';
 export { default as Schema } from './Schema';
 
+export * as abstract from './abstract';
 export * as control from './control';
 export * as decorators from './abstract/@';
 export * as fields from './fields';

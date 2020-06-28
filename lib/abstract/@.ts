@@ -1,4 +1,6 @@
 /* eslint-disable import/extensions */
 
-export { field } from './Validatable';
-export { expose, schema, affects, uses } from './Controllable';
+import { field } from './Validatable';
+import { expose, schema, affects, uses } from './Controllable';
+
+export default { field, expose, schema, affects, uses };
