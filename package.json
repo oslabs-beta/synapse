@@ -1,13 +1,16 @@
 {
   "name": "@synapsejs/synapse",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Realtime API Library",
   "main": "build/lib/index.js",
   "types": "build/lib/index.d.ts",
+  "files": [
+    "build/lib"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": "NODE_ENV=production node ./build/server/server.js",
+    "start": "NODE_ENV=production node ./build/test/index.js",
     "dev": "NODE_ENV=development nodemon",
     "doc": "typedoc"
   },
