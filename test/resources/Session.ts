@@ -5,9 +5,11 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { Resource, State } from '../../lib';
-import { field, expose, schema } from '../../lib/decorators';
+import decorators from '../../lib/abstract/@';
 import { Id } from '../../lib/fields';
 import User from './User';
+
+const { field, expose, schema } = decorators;
 
 const sessions = {};
 

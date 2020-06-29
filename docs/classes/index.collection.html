@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>State | synapse</title>
+	<title>Collection | synapse</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,13 +54,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/main.html">main</a>
+					<a href="../modules/index.html">index</a>
 				</li>
 				<li>
-					<a href="main.state.html">State</a>
+					<a href="index.collection.html">Collection</a>
 				</li>
 			</ul>
-			<h1>Class State</h1>
+			<h1>Class Collection</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Represents both 1) a response to a request, and 2) the state at a given <em>path</em>. Properties prefixed with <code>$</code> represent <em>metadata</em> associated with the request/response cycle that produced the instance, while <em>payload</em> data encompasses all other properties attached to the instance by derived classes.</p>
+						<p>Represents of a collection of <a href="index.resource.html"><code>Resource</code></a> instances. As the <a href="index.collection.html"><code>Collection</code></a> class inherits from <a href="index.state.html"><code>State</code></a>, instances of <a href="index.collection.html"><code>Collection</code></a> also represent valid request responses.</p>
 					</div>
 				</div>
 			</section>
@@ -78,13 +78,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">State</span>
+						<a href="index.state.html" class="tsd-signature-type">State</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="abstract.validatable.html" class="tsd-signature-type">Validatable</a>
-							</li>
-							<li>
-								<a href="main.collection.html" class="tsd-signature-type">Collection</a>
+								<span class="target">Collection</span>
 							</li>
 						</ul>
 					</li>
@@ -97,35 +94,36 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="main.state.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="index.collection.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_dependencies" class="tsd-kind-icon">$dependencies</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_flags" class="tsd-kind-icon">$flags</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_message" class="tsd-kind-icon">$message</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_query" class="tsd-kind-icon">$query</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_status" class="tsd-kind-icon">$status</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="main.state.html#_type" class="tsd-kind-icon">$type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_dependencies" class="tsd-kind-icon">$dependencies</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_flags" class="tsd-kind-icon">$flags</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_message" class="tsd-kind-icon">$message</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_query" class="tsd-kind-icon">$query</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_status" class="tsd-kind-icon">$status</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#_type" class="tsd-kind-icon">$type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.collection.html#resources" class="tsd-kind-icon">resources</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="main.state.html#iserror" class="tsd-kind-icon">is<wbr>Error</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="main.state.html#render" class="tsd-kind-icon">render</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="main.state.html#tojson" class="tsd-kind-icon">toJSON</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#bad_request" class="tsd-kind-icon">BAD_<wbr>REQUEST</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#conflict" class="tsd-kind-icon">CONFLICT</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#created" class="tsd-kind-icon">CREATED</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#forbidden" class="tsd-kind-icon">FORBIDDEN</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#internal_server_error" class="tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#not_found" class="tsd-kind-icon">NOT_<wbr>FOUND</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#no_content" class="tsd-kind-icon">NO_<wbr>CONTENT</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#ok" class="tsd-kind-icon">OK</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="main.state.html#unauthorized" class="tsd-kind-icon">UNAUTHORIZED</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#iserror" class="tsd-kind-icon">is<wbr>Error</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="index.collection.html#render" class="tsd-kind-icon">render</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="index.collection.html#tojson" class="tsd-kind-icon">toJSON</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#bad_request" class="tsd-kind-icon">BAD_<wbr>REQUEST</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#conflict" class="tsd-kind-icon">CONFLICT</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#created" class="tsd-kind-icon">CREATED</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#forbidden" class="tsd-kind-icon">FORBIDDEN</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#internal_server_error" class="tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#not_found" class="tsd-kind-icon">NOT_<wbr>FOUND</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#no_content" class="tsd-kind-icon">NO_<wbr>CONTENT</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#ok" class="tsd-kind-icon">OK</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="index.collection.html#unauthorized" class="tsd-kind-icon">UNAUTHORIZED</a></li>
 							</ul>
 						</section>
 					</div>
@@ -133,54 +131,41 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>State<span class="tsd-signature-symbol">(</span>status<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Collection<span class="tsd-signature-symbol">(</span>resources<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="index.resource.html" class="tsd-signature-type">Resource</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.collection.html" class="tsd-signature-type">Collection</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="index.state.html">State</a>.<a href="index.state.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L20">lib/State.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/Collection.ts#L12">lib/Collection.ts:12</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>status: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>The HTTP status code to be assigned to the instance&#39;s <em>metadata</em>.</p>
-										</div>
-									</div>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>A string message to be assigned to the instance&#39;s <em>metadata</em>.</p>
-										</div>
-									</div>
+									<h5>resources: <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="index.resource.html" class="tsd-signature-type">Resource</a><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.collection.html" class="tsd-signature-type">Collection</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_dependencies" class="tsd-anchor"></a>
 					<h3>$dependencies</h3>
 					<div class="tsd-signature tsd-kind-icon">$dependencies<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_dependencies">$dependencies</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L20">lib/State.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L20">lib/State.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -189,13 +174,14 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_flags" class="tsd-anchor"></a>
 					<h3>$flags</h3>
 					<div class="tsd-signature tsd-kind-icon">$flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_flags">$flags</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L18">lib/State.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L18">lib/State.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -204,13 +190,14 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_message" class="tsd-anchor"></a>
 					<h3>$message</h3>
 					<div class="tsd-signature tsd-kind-icon">$message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_message">$message</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L14">lib/State.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L14">lib/State.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -219,13 +206,14 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_query" class="tsd-anchor"></a>
 					<h3>$query</h3>
 					<div class="tsd-signature tsd-kind-icon">$query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_query">$query</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L16">lib/State.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L16">lib/State.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -234,13 +222,14 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_status" class="tsd-anchor"></a>
 					<h3>$status</h3>
 					<div class="tsd-signature tsd-kind-icon">$status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_status">$status</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L12">lib/State.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L12">lib/State.ts:12</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -249,13 +238,14 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_type" class="tsd-anchor"></a>
 					<h3>$type</h3>
 					<div class="tsd-signature tsd-kind-icon">$type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#_type">$type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L10">lib/State.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L10">lib/State.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -264,20 +254,31 @@
 						</div>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="resources" class="tsd-anchor"></a>
+					<h3>resources</h3>
+					<div class="tsd-signature tsd-kind-icon">resources<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="index.resource.html" class="tsd-signature-type">Resource</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/Collection.ts#L12">lib/Collection.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="iserror" class="tsd-anchor"></a>
 					<h3>is<wbr>Error</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">is<wbr>Error<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#iserror">isError</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L33">lib/State.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L33">lib/State.ts:33</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -289,44 +290,41 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="render" class="tsd-anchor"></a>
 					<h3>render</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">render<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">render<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="index.state.html">State</a>.<a href="index.state.html#render">render</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L39">lib/State.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/Collection.ts#L29">lib/Collection.ts:29</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a public representation of the instance <em>payload</em>. By default, this is the instance&#39;s <a href="main.state.html#_message"><code>message</code></a>, though derived classes should override this behavior.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="tojson" class="tsd-anchor"></a>
 					<h3>toJSON</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">toJSON<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>payload<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>status<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#tojson">toJSON</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L44">lib/State.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L44">lib/State.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns a public representation of the instance <em>metadata</em>, with the instance&#39;s <a href="main.state.html#render"><code>rendered</code></a> <em>payload</em> assigned to the property <code>payload</code> on the resulting object. Called when an the instance is converted to JSON via <code>JSON.stringify</code>.</p>
+									<p>Returns a public representation of the instance <em>metadata</em>, with the instance&#39;s <a href="index.state.html#render"><code>rendered</code></a> <em>payload</em> assigned to the property <code>payload</code> on the resulting object. Called when an the instance is converted to JSON via <code>JSON.stringify</code>.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>payload<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>status<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h4>
@@ -350,17 +348,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="bad_request" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> BAD_<wbr>REQUEST</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">BAD_<wbr>REQUEST<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">BAD_<wbr>REQUEST<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#bad_request">BAD_REQUEST</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L63">lib/State.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L63">lib/State.ts:63</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -369,21 +368,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="conflict" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> CONFLICT</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">CONFLICT<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">CONFLICT<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#conflict">CONFLICT</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L75">lib/State.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L75">lib/State.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -392,21 +392,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="created" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> CREATED</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">CREATED<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">CREATED<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#created">CREATED</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L57">lib/State.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L57">lib/State.ts:57</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -415,21 +416,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="forbidden" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> FORBIDDEN</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">FORBIDDEN<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">FORBIDDEN<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#forbidden">FORBIDDEN</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L69">lib/State.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L69">lib/State.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -438,21 +440,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="internal_server_error" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> INTERNAL_<wbr>SERVER_<wbr>ERROR</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#internal_server_error">INTERNAL_SERVER_ERROR</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L78">lib/State.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L78">lib/State.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -461,21 +464,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="not_found" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> NOT_<wbr>FOUND</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">NOT_<wbr>FOUND<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">NOT_<wbr>FOUND<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#not_found">NOT_FOUND</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L72">lib/State.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L72">lib/State.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -484,38 +488,40 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="no_content" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> NO_<wbr>CONTENT</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">NO_<wbr>CONTENT<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">NO_<wbr>CONTENT<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#no_content">NO_CONTENT</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L60">lib/State.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L60">lib/State.ts:60</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="ok" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> OK</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">OK<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">OK<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#ok">OK</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L54">lib/State.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L54">lib/State.ts:54</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -524,21 +530,22 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="unauthorized" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> UNAUTHORIZED</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">UNAUTHORIZED<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="main.state.html" class="tsd-signature-type">State</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">UNAUTHORIZED<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.state.html" class="tsd-signature-type">State</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="index.state.html">State</a>.<a href="index.state.html#unauthorized">UNAUTHORIZED</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/State.ts#L66">lib/State.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/State.ts#L66">lib/State.ts:66</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -547,7 +554,7 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> message: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="main.state.html" class="tsd-signature-type">State</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -569,7 +576,7 @@
 						<a href="../modules/fields.html">fields</a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="../modules/main.html">main</a>
+						<a href="../modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/utility.html">utility</a>
@@ -578,99 +585,87 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/main.html#affects" class="tsd-kind-icon">affects</a>
-					</li>
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/main.html#expose" class="tsd-kind-icon">expose</a>
-					</li>
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/main.html#field" class="tsd-kind-icon">field</a>
-					</li>
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/main.html#schema" class="tsd-kind-icon">schema</a>
-					</li>
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/main.html#uses" class="tsd-kind-icon">uses</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="main.collection.html" class="tsd-kind-icon">Collection</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="main.field-1.html" class="tsd-kind-icon">Field</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="main.resource.html" class="tsd-kind-icon">Resource</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="main.schema-1.html" class="tsd-kind-icon">Schema</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-module">
-						<a href="main.state.html" class="tsd-kind-icon">State</a>
+						<a href="index.collection.html" class="tsd-kind-icon">Collection</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="main.state.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="index.collection.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_dependencies" class="tsd-kind-icon">$dependencies</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_flags" class="tsd-kind-icon">$flags</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_message" class="tsd-kind-icon">$message</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_query" class="tsd-kind-icon">$query</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_status" class="tsd-kind-icon">$status</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#_type" class="tsd-kind-icon">$type</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_dependencies" class="tsd-kind-icon">$dependencies</a>
+								<a href="index.collection.html#resources" class="tsd-kind-icon">resources</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_flags" class="tsd-kind-icon">$flags</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#iserror" class="tsd-kind-icon">is<wbr>Error</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_message" class="tsd-kind-icon">$message</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="index.collection.html#render" class="tsd-kind-icon">render</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_query" class="tsd-kind-icon">$query</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="index.collection.html#tojson" class="tsd-kind-icon">toJSON</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_status" class="tsd-kind-icon">$status</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#bad_request" class="tsd-kind-icon">BAD_<wbr>REQUEST</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="main.state.html#_type" class="tsd-kind-icon">$type</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#conflict" class="tsd-kind-icon">CONFLICT</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="main.state.html#iserror" class="tsd-kind-icon">is<wbr>Error</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#created" class="tsd-kind-icon">CREATED</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="main.state.html#render" class="tsd-kind-icon">render</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#forbidden" class="tsd-kind-icon">FORBIDDEN</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="main.state.html#tojson" class="tsd-kind-icon">toJSON</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#internal_server_error" class="tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#bad_request" class="tsd-kind-icon">BAD_<wbr>REQUEST</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#not_found" class="tsd-kind-icon">NOT_<wbr>FOUND</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#conflict" class="tsd-kind-icon">CONFLICT</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#no_content" class="tsd-kind-icon">NO_<wbr>CONTENT</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#created" class="tsd-kind-icon">CREATED</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#ok" class="tsd-kind-icon">OK</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#forbidden" class="tsd-kind-icon">FORBIDDEN</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#internal_server_error" class="tsd-kind-icon">INTERNAL_<wbr>SERVER_<wbr>ERROR</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#not_found" class="tsd-kind-icon">NOT_<wbr>FOUND</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#no_content" class="tsd-kind-icon">NO_<wbr>CONTENT</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#ok" class="tsd-kind-icon">OK</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="main.state.html#unauthorized" class="tsd-kind-icon">UNAUTHORIZED</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="index.collection.html#unauthorized" class="tsd-kind-icon">UNAUTHORIZED</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="index.field.html" class="tsd-kind-icon">Field</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="index.resource.html" class="tsd-kind-icon">Resource</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="index.schema.html" class="tsd-kind-icon">Schema</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="index.state.html" class="tsd-kind-icon">State</a>
+					</li>
 				</ul>
 			</nav>
 		</div>

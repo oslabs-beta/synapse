@@ -1,14 +1,14 @@
 /* eslint-disable import/extensions */
 
+import Controllable from './abstract/Controllable';
 import Router from './control/Router';
-import Controller from './control/Controller';
 import http from './protocol/http';
 import sse from './protocol/sse';
 import ws from './protocol/ws';
 import { requireAll, makeChain } from './utility';
 
-/** Initializes API request handlers from {@linkcode Resource} definitions in the given ```directory```.
- * @param directory A directory containing {@linkcode Resource} definitions.
+/** Initializes API request handlers from {@linkcode Controllable} type definitions in the given ```directory```.
+ * @param directory A directory containing {@linkcode Controllable} type definitions.
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
 export function synapse(directory: string, peers: Array<string> = [], pattern: Array<string> = []): object {
@@ -17,11 +17,9 @@ export function synapse(directory: string, peers: Array<string> = [], pattern: A
   requireAll(directory).forEach((module) => {
     if (module) {
       const Type = module.default || module;
-      Object.getOwnPropertyNames(Type).forEach((name) => {
-        if (Type[name] instanceof Controller && Type[name].method) {
-          router.declare(Type[name].method, Type[name].pattern, Type[name].try);
-        }
-      });
+      if (Type.prototype instanceof Controllable) {
+        router.declare('use', '/', Type.router);
+      }
     }
   });
 
@@ -41,8 +39,9 @@ export { default as Collection } from './Collection';
 export { default as Field } from './Field';
 export { default as Schema } from './Schema';
 
+export * as abstract from './abstract';
 export * as control from './control';
-export * as decorators from './decorators';
+export * as decorators from './abstract/@';
 export * as fields from './fields';
 export * as protocol from './protocol';
 export * as utility from './utility';

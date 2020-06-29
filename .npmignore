@@ -1,2 +1,6 @@
+build/test
 docs
+lib
+node_modules
+test
 test/etc/secrets.ts

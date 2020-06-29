@@ -70,7 +70,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Callable type representing an API endpoint denoted by an HTTP <a href="control.controller.html#method"><code>method</code></a> and a <em>path <a href="control.controller.html#pattern"><code>pattern</code></a></em> in the format<code>/path/:param</code>. When invoked with an <em>argument set</em>, creates an instance of <a href="control.operation.html"><code>Operation</code></a> which is executed by the <a href="control.manager.html"><code>Manager</code></a>. There are two ways to invoke a controller instance: 1) <em>untrustedly</em>, using <a href="control.controller.html#try"><code>Controller.prototype.try</code></a>, which first passes the <em>argument set</em> through an optional <a href="control.controller.html#authorizer"><code>authorizer</code></a> function, or 2) <em>trustedly</em>, using <code>()</code>, which bypasses the authorizer. In both cases, the <em>argument set</em> will first be validated by the <a href="control.controller.html#schema"><code>Controller.schema</code></a>. Optionally, <a href="control.controller.html#dependencies"><code>dependencies</code></a> and <a href="control.controller.html#dependents"><code>dependents</code></a> may also be specified as an array of <em>path patterns</em> which will be evaluated at invocation and transferred to the resulting <a href="control.operation.html"><code>operation</code></a>.</p>
+						<p>Callable type representing a method exposed to an API at a <em>path <a href="control.controller.html#pattern"><code>pattern</code></a></em> in the format<code>/path/:param</code>. When invoked with an <em>argument set</em>, creates an instance of <a href="control.operation.html"><code>Operation</code></a> which is executed by the <a href="control.manager.html"><code>Manager</code></a>. There are two ways to invoke a controller instance: 1) <em>untrustedly</em>, using <a href="control.controller.html#try"><code>Controller.prototype.try</code></a>, which first passes the <em>argument set</em> through an optional <a href="control.controller.html#authorizer"><code>authorizer</code></a> function, or 2) <em>trustedly</em>, using <code>()</code>, which bypasses the authorizer. In both cases, the <em>argument set</em> will first be validated by the <a href="control.controller.html#schema"><code>Controller.schema</code></a>. Optionally, <a href="control.controller.html#dependencies"><code>dependencies</code></a> and <a href="control.controller.html#dependents"><code>dependents</code></a> may also be specified as an array of <em>path patterns</em> which will be evaluated at invocation and transferred to the resulting <a href="control.operation.html"><code>operation</code></a>.</p>
 					</div>
 				</div>
 			</section>
@@ -103,11 +103,11 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.controller.html#__call__" class="tsd-kind-icon">__call__</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.controller.html#arguments" class="tsd-kind-icon">arguments</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#authorizer" class="tsd-kind-icon">authorizer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#cacheable" class="tsd-kind-icon">cacheable</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.controller.html#caller" class="tsd-kind-icon">caller</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#dependencies" class="tsd-kind-icon">dependencies</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#dependents" class="tsd-kind-icon">dependents</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.controller.html#length" class="tsd-kind-icon">length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#method" class="tsd-kind-icon">method</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#pattern" class="tsd-kind-icon">pattern</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.controller.html#prototype" class="tsd-kind-icon">prototype</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.controller.html#schema" class="tsd-kind-icon">schema</a></li>
@@ -139,7 +139,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="utility.callable.html">Callable</a>.<a href="utility.callable.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L25">lib/control/Controller.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L25">lib/control/Controller.ts:25</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -169,7 +169,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="utility.callable.html">Callable</a>.<a href="utility.callable.html#__call__">__call__</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/utility/Callable.ts#L6">lib/utility/Callable.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/utility/Callable.ts#L6">lib/utility/Callable.ts:6</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -195,12 +195,27 @@
 					<div class="tsd-signature tsd-kind-icon">authorizer<span class="tsd-signature-symbol">:</span> <a href="utility.callable.html#function" class="tsd-signature-type">Function</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L25">lib/control/Controller.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L23">lib/control/Controller.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A function <code>(args) =&gt; {...}</code>that will be used to authorize invocations made using <a href="control.controller.html#try"><code>Controller.prototype.try</code></a>. Should return an object if the <em>argument set</em> was valid, or an instance of <a href="main.state.html"><code>State</code></a> to abort the operation.</p>
+							<p>A function <code>(args) =&gt; {...}</code>that will be used to authorize invocations made using <a href="control.controller.html#try"><code>Controller.prototype.try</code></a>. Should return an object if the <em>argument set</em> was valid, or an instance of <a href="index.state.html"><code>State</code></a> to abort the operation.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="cacheable" class="tsd-anchor"></a>
+					<h3>cacheable</h3>
+					<div class="tsd-signature tsd-kind-icon">cacheable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L25">lib/control/Controller.ts:25</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Determines whether the instance represents a cacheable operation.</p>
 						</div>
 					</div>
 				</section>
@@ -221,7 +236,7 @@
 					<div class="tsd-signature tsd-kind-icon">dependencies<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L19">lib/control/Controller.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L17">lib/control/Controller.ts:17</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -236,7 +251,7 @@
 					<div class="tsd-signature tsd-kind-icon">dependents<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L21">lib/control/Controller.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L19">lib/control/Controller.ts:19</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -257,27 +272,12 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="method" class="tsd-anchor"></a>
-					<h3>method</h3>
-					<div class="tsd-signature tsd-kind-icon">method<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L15">lib/control/Controller.ts:15</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>An HTTP method.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="pattern" class="tsd-anchor"></a>
 					<h3>pattern</h3>
 					<div class="tsd-signature tsd-kind-icon">pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L17">lib/control/Controller.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L15">lib/control/Controller.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -300,15 +300,15 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="schema" class="tsd-anchor"></a>
 					<h3>schema</h3>
-					<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <a href="main.schema-1.html" class="tsd-signature-type">Schema</a><span class="tsd-signature-symbol"> = new Schema()</span></div>
+					<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <a href="index.schema.html" class="tsd-signature-type">Schema</a><span class="tsd-signature-symbol"> = new Schema()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L23">lib/control/Controller.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L21">lib/control/Controller.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A <a href="main.schema-1.html"><code>Schema</code></a> that will be used to validate all invocations.</p>
+							<p>A <a href="index.schema.html"><code>Schema</code></a> that will be used to validate all invocations.</p>
 						</div>
 					</div>
 				</section>
@@ -472,7 +472,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/bb8ef3c/lib/control/Controller.ts#L55">lib/control/Controller.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/23c72eb/lib/control/Controller.ts#L55">lib/control/Controller.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -516,7 +516,7 @@
 						<a href="../modules/fields.html">fields</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/main.html">main</a>
+						<a href="../modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/utility.html">utility</a>
@@ -542,6 +542,9 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="control.controller.html#authorizer" class="tsd-kind-icon">authorizer</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="control.controller.html#cacheable" class="tsd-kind-icon">cacheable</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="control.controller.html#caller" class="tsd-kind-icon">caller</a>
 							</li>
@@ -553,9 +556,6 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="control.controller.html#length" class="tsd-kind-icon">length</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="control.controller.html#method" class="tsd-kind-icon">method</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="control.controller.html#pattern" class="tsd-kind-icon">pattern</a>

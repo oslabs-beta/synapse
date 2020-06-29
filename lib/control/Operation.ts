@@ -48,9 +48,6 @@ export default class Operation extends Callable {
         result = State.INTERNAL_SERVER_ERROR('An error occurred.');
       }
 
-      console.log(path, 'op', this.dependencies);
-      console.log(path, 'state', result.$dependencies);
-
       result.$query = this.query;
       result.$dependencies.push(...this.dependencies);
 

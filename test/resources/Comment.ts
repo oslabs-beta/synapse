@@ -2,8 +2,10 @@
 /* eslint-disable lines-between-class-members */
 
 import { Resource, State } from '../../lib';
-import { field, expose, schema, affects, uses } from '../../lib/decorators';
+import decorators from '../../lib/abstract/@';
 import { Id, Text, Integer } from '../../lib/fields';
+
+const { field, expose, schema, affects, uses } = decorators;
 
 const pageSize = 10;
 const ledger = [];

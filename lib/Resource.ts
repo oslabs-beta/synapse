@@ -13,12 +13,9 @@ import { mergePaths } from './utility';
 
 const { PRV } = Field.Flags;
 
-/** Abstract class representing a RESTful resource exposed by the synapse API. As the {@linkcode Resource} class inherits from {@linkcode State}, instances of {@linkcode Resource} also represent valid request responses. */
+/** Abstract class representing a RESTful resource. As the {@linkcode Resource} class inherits from {@linkcode Controllable}, its derived classes can be exposed by a Synapse API. As it inherits from {@linkcode State}, its instances also represent valid request responses. */
 export default class Resource extends Controllable {
-  /** An instance of {@linkcode Schema} defining the properties necessary to construct an instance of the derived class. */
-  static schema: Schema;
-
-  /** Returns the _path_ that uniquely locates the instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
+  /** Returns the _path_ that uniquely locates an instance (i.e. the path to which a ```GET``` request would return the instance). By default, this is the {@linkcode Resource.root|root} path followed by the value on the instance corresponding to the first field on the derived class's schema that extends type {@linkcode Id} (e.g. '/user/123'); however, derived classes may override this behavior. */
   path(): string {
     const Class = <typeof Resource>this.constructor;
 
@@ -127,6 +124,3 @@ export default class Resource extends Controllable {
     return instance;
   }
 }
-
-export { field } from './abstract/Validatable';
-export { expose, schema, affects, uses } from './abstract/Controllable';
