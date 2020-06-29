@@ -1,0 +1,5 @@
+lerna monorepo
+travis ci
+mongo/postgres interfaces
+additional fields
+fix tests (no database)

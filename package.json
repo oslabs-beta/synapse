@@ -10,9 +10,10 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "doc": "typedoc",
     "start": "NODE_ENV=production node ./build/test/index.js",
     "dev": "NODE_ENV=development nodemon",
-    "doc": "typedoc"
+    "deploy": "git add . && npm version $1 && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",

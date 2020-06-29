@@ -63,75 +63,139 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<a href="#synapse" id="synapse" style="color: inherit; text-decoration: none;">
-					<h1>Synapse</h1>
+					<h1>synapse</h1>
 				</a>
-				<p>Realtime API Library
-				<a href="https://oslabs-beta.github.io/synapse/classes/field.html">https://oslabs-beta.github.io/synapse/classes/field.html</a></p>
+				<p>Real-Time API Library</p>
+				<ul>
+					<li>Documentation: <a href="http://synapsejs.org/docs">http://synapsejs.org/docs</a></li>
+				</ul>
 				<a href="#table-of-contents" id="table-of-contents" style="color: inherit; text-decoration: none;">
-					<h4>Table of Contents</h4>
+					<h2>Table of Contents</h2>
 				</a>
 				<ul>
-					<li><p><a href="#installing-and-running">Installing and Running</a></p>
+					<li><p><a href="#overview">Overview</a></p>
 					</li>
-					<li><p><a href="#setup-for-the-local-development-environment">Setup for the local development environment</a></p>
+					<li><p><a href="#getting-started">Getting Started</a></p>
 						<ul>
+							<li><p><a href="#defining-resources">Defining Resources</a></p>
+							</li>
 							<li><p><a href="#server-setup">Server Setup</a></p>
 							</li>
-							<li><p><a href="#resource-example">Resource example</a></p>
+						</ul>
+					</li>
+					<li><p><a href="#intermediate-topics">Intermediate Topics</a></p>
+						<ul>
+							<li><p><a href="#schema-manipulation">Schema Manipulation</a></p>
+							</li>
+							<li><p><a href="#authorization">Authorization</a></p>
+							</li>
+							<li><p><a href="#resource-dependencies">Resource Dependencies</a></p>
+							</li>
+							<li><p><a href="#clustering">Clustering</a></p>
+							</li>
+						</ul>
+					</li>
+					<li><p><a href="#advanced-topics">Advanced Topics</a></p>
+						<ul>
+							<li><p><a href="#data-model">Data Model</a></p>
+							</li>
+							<li><p><a href="#control-flow">Control Flow</a></p>
 							</li>
 						</ul>
 					</li>
 					<li><p><a href="#authors">Authors</a></p>
 					</li>
 				</ul>
-				<a href="#installing-and-running" id="installing-and-running" style="color: inherit; text-decoration: none;">
-					<h4>Installing and Running</h4>
+				<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+					<h2>Overview</h2>
 				</a>
-				<ul>
-					<li>Installing the package <a href="https://www.npmjs.com/package/@synapsejs/synapse">npmjs.com</a></li>
-				</ul>
+				<p>Building scalable and secure APIs is an immense challenge in-and-of-itself, and adding real-time functionality to an existing API only increases the complexity, often necessitating significant refactoring. Synapse attempts to solve this problem by providing a high-level, protocol-agnostic abstraction of a REST API. It allows resources to be defined once and served over multiple protocols, including HTTP, WebSockets, and SSE, while managing input validation and normalization as well as response caching under-the-hood. The library integrates seamlessly with Express, and can be used as much or as little as needed to add real-time functionality to an existing application or to build an entire API from scratch.</p>
+				<p>Synapse applications are composed of <em>Resources</em> -- classes that model resources as defined by the RESTful architectural style. In this sense, resources represent collections of data that are exposed by the API (ex. <code>User</code>, <code>Comment</code>, <code>Session</code>). Each resource defines a <em>Schema</em> composed of <em>Fields</em>, where fields are data types with specific requirements that can be validated (ex. <code>EmailAddress</code>, <code>Password</code>, <code>Number</code>, etc.) and schemas are collections of fields representing a set of parameters by name (ex. <code>{ email: EmailAddress, password: Password, age: Number }</code>). A resource’s schema, then, defines the data necessary to construct an instance of that type.</p>
+				<p>Classes that extend Resource can also define static methods and expose them to the API. In TypeScript, this is accomplished using various decorators to attach information to the method, like its HTTP endpoint. For example, a class <code>User</code> might expose an endpoint method called <code>register</code> to <code>POST /user</code>. Each endpoint method also defines a schema, which determines exactly what data will be passed from each HTTP request to the method, and also ensures that all arguments are validated before the method is invoked. Under the hood, these decorators convert the decorated method to an instance of <em>Controller</em>, which applications not written in TypeScript can use to achieve the same functionality. See the documentation for more details.</p>
+				<p>Under the hood, Synapse uses these resource definitions to serve data produced by endpoint methods to clients in a protocol-independent manner, simplifying the process of adding real-time support to an application. By maintaining an in-memory cache of all requested data, it can also manage subscriptions to any cacheable endpoint and automatically push updates to clients whenever the cached state changes.</p>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting started</h2>
+				</a>
+				<p>This guide will assume that you have already set up an Express project. To learn more about Express, <a href="#">click here</a>.</p>
+				<ol>
+					<li>Begin by installing the <a href="https://www.npmjs.com/package/@synapsejs/synapse">npm package</a> by running the following command from your project directory:</li>
+				</ol>
 				<pre><code class="language-javascript">npm i @synapsejs/synapse</code></pre>
-				<a href="#setup-for-the-local-development-environment" id="setup-for-the-local-development-environment" style="color: inherit; text-decoration: none;">
-					<h2>Setup for the local development environment</h2>
+				<a href="#defining-resources" id="defining-resources" style="color: inherit; text-decoration: none;">
+					<h4>Defining Resources</h4>
 				</a>
-				<a href="#server-setup" id="server-setup" style="color: inherit; text-decoration: none;">
-					<h4>Server Setup</h4>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> synapse = <span class="hljs-built_in">require</span>(<span class="hljs-string">"@synapsejs/synapse"</span>);
+				<p>Consider the following hypothetical User class modeling a user stored in a MongoDB <code>collection</code>. Instances of User have 4 properties: <code>_id</code>, <code>username</code>, <code>email</code> and <code>password</code>, while the User class provides 2 static methods for finding and creating User instances in the database.</p>
+				<pre><code class="language-javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> </span>{
+  _id;
+  username;
+  email;
+  password;
 
-<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">"express"</span>);
-<span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);
-<span class="hljs-keyword">const</span> enableWs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"express-ws"</span>);
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> find(_id) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.findById({ _id });
+    ...
+  }
 
-<span class="hljs-keyword">const</span> app = express();
-<span class="hljs-keyword">const</span> api = synapse(path.resolve(__dirname, <span class="hljs-string">"./resources"</span>));
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> register(username, email, password) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.create({ username, email, password });
+    ...
+  }
+}</code></pre>
+				<p>In order to allow this resource to be served by the synapse API, we will have to make a few changes to the class definition.</p>
+				<ol>
+					<li>Begin by importing the Resource base class and necessary Fields and decorators from the synapse library.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
 
-enableWs(app);
-app.ws(<span class="hljs-string">"/api"</span>, api.ws);
-app.use(<span class="hljs-string">"/api"</span>, api.sse, api.http);
-
-api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
-  res.status(res.locals.$status()).json(res.locals.render());
-});</code></pre>
-				<ul>
-					<li>Within the server file, require synapse and invoke it passing in the directory of your resources.</li>
-					<li>To add Websocket support to your endpoints - simply add .ws method of synapse instance to the route.</li>
-					<li>Similar logic follows HTTP and SSE handling, with a simple rule to follow: .sse method should always come before .http method on your route.</li>
-					<li>api.use middleware is handling all the responses.</li>
-				</ul>
-				<p>Let&#39;s draw a simple mental model:
-				Any incoming request is being process by its respective method, after going through synapse it&#39;ll be sent back to the client from the global api.use response handler.</p>
-				<a href="#resource-example" id="resource-example" style="color: inherit; text-decoration: none;">
-					<h4>Resource example</h4>
-				</a>
+<span class="hljs-keyword">const</span> { Id, Word, Email, Text } = fields;
+<span class="hljs-keyword">const</span> { field, schema, expose } = decorators;</code></pre>
+				<ol start="2">
+					<li>Ensure that the User class extends the Resource base class, and that it is the default export of the module.</li>
+				</ol>
 				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
-  @field(<span class="hljs-keyword">new</span> MongoId()) _id: string;
-  @field(<span class="hljs-keyword">new</span> Word(<span class="hljs-number">3</span>, <span class="hljs-number">16</span>)) username: string;
-  @field(<span class="hljs-keyword">new</span> Email(<span class="hljs-literal">true</span>)) email: string;
-  @field(<span class="hljs-keyword">new</span> Text(), PRV) password: string;
+  ...</code></pre>
+				<ol start="3">
+					<li>For each property of the class, use the <code>@field</code> decorator to add that property to the class&#39;s schema, passing in an instance of Field defining the property&#39;s data type.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id()) _id;
+  @field(<span class="hljs-keyword">new</span> Word(<span class="hljs-number">3</span>, <span class="hljs-number">16</span>)) username;
+  @field(<span class="hljs-keyword">new</span> Email(<span class="hljs-literal">true</span>)) email;
+  @field(<span class="hljs-keyword">new</span> Text(), PRV) password;
+  ...</code></pre>
+				<ol start="4">
+					<li><p>For each method that should be accessible via the API:</p>
+						<ul>
+							<li>First, use the <code>@schema</code> decorator to define the schema that will validate requests to that method, passing in either an instance of Schema or an object whose values are instance of Field, which will be used to construct a Schema. In the example below, schemas are created for each method by transforming the overall schema already defined for the User class in general. To learn more, see <a href="#schema-manipulation">Schema Manipulation</a>.</li>
+							<li>Then, use the <code>@expose</code> decorator to define the HTTP method and path at which the method will be available.</li>
+							<li>Finally, ensure that all of the method paramaters are wrapped in braces. The methods will always be invoked with a single argument -- an object containing the key-value pairs validated by the Schema.</li>
+						</ul>
+					</li>
+				</ol>
+				<pre><code class="language-javascript">  @expose(<span class="hljs-string">'GET /:_id'</span>)
+  @schema(User.schema.select(<span class="hljs-string">'_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> find({ _id }) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.findById({ _id });
+    ...
+  }
 
-  @expose(<span class="hljs-string">"GET /:_id"</span>)
-  @schema(User.schema.select(<span class="hljs-string">"_id"</span>))
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(User.schema.exclude(<span class="hljs-string">'_id'</span>, <span class="hljs-string">'password'</span>).extend({ <span class="hljs-attr">password</span>: <span class="hljs-keyword">new</span> Hash(<span class="hljs-number">6</span>) }))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> register({ username, email, password }) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.create({ username, email, password });
+    ...
+  }</code></pre>
+				<ol start="5">
+					<li><p>Lastly, complete the business logic of each method to return either an instance of the User class or an error.</p>
+						<ul>
+							<li>Use the static <code>create</code> factory method on the derived class when creating an instance from new data. This ensure that the HTTP response code will be correct.</li>
+							<li>Use the static <code>restore</code> factory method on the derived class when creating an instance from pre-exisiting data.</li>
+							<li>Use <a href="#">one of many</a> static factory methods on the State class to respond with an error.</li>
+						</ul>
+					</li>
+				</ol>
+				<pre><code class="language-javascript">  @expose(<span class="hljs-string">'GET /:_id'</span>)
+  @schema(User.schema.select(<span class="hljs-string">'_id'</span>))
   <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> find({ _id }) {
     <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.findById({ _id });
     <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">document</span>) {
@@ -140,65 +204,146 @@ api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) 
     <span class="hljs-keyword">return</span> User.restore(<span class="hljs-built_in">document</span>.toObject());
   }
 
-  @expose(<span class="hljs-string">"POST /"</span>)
-  @schema(User.schema.exclude(<span class="hljs-string">"_id"</span>, <span class="hljs-string">"password"</span>).extend({ <span class="hljs-attr">password</span>: <span class="hljs-keyword">new</span> Hash(<span class="hljs-number">6</span>) }))
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(User.schema.exclude(<span class="hljs-string">'_id'</span>, <span class="hljs-string">'password'</span>).extend({ <span class="hljs-attr">password</span>: <span class="hljs-keyword">new</span> Hash(<span class="hljs-number">6</span>) }))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> register({ username, email, password }) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.create({ username, email, password });
+    <span class="hljs-keyword">return</span> User.create(<span class="hljs-built_in">document</span>.toObject());
+  }</code></pre>
+				<ol start="6">
+					<li>The completed module should look something like this:</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id, Word, Email, Text } = fields;
+<span class="hljs-keyword">const</span> { field, schema, expose } = decorators;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id()) _id;
+  @field(<span class="hljs-keyword">new</span> Word(<span class="hljs-number">3</span>, <span class="hljs-number">16</span>)) username;
+  @field(<span class="hljs-keyword">new</span> Email(<span class="hljs-literal">true</span>)) email;
+  @field(<span class="hljs-keyword">new</span> Text(), PRV) password;
+
+  @expose(<span class="hljs-string">'GET /:_id'</span>)
+  @schema(User.schema.select(<span class="hljs-string">'_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> find({ _id }) {
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.findById({ _id });
+    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">document</span>) {
+      <span class="hljs-keyword">return</span> State.NOT_FOUND();
+    }
+    <span class="hljs-keyword">return</span> User.restore(<span class="hljs-built_in">document</span>.toObject());
+  }
+
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(User.schema.exclude(<span class="hljs-string">'_id'</span>, <span class="hljs-string">'password'</span>).extend({ <span class="hljs-attr">password</span>: <span class="hljs-keyword">new</span> Hash(<span class="hljs-number">6</span>) }))
   <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> register({ username, email, password }) {
     <span class="hljs-keyword">const</span> <span class="hljs-built_in">document</span> = <span class="hljs-keyword">await</span> collection.create({ username, email, password });
     <span class="hljs-keyword">return</span> User.create(<span class="hljs-built_in">document</span>.toObject());
   }
 }</code></pre>
-				<ul>
-					<li><p>This code snippet demonstrates a sample User class.</p>
-					</li>
-					<li><p>Note that all classes that are passed to Synapse should extend the <a href="https://oslabs-beta.github.io/synapse/classes/resource.html">Resource</a> class.</p>
-					</li>
-					<li><p>Next, we have 4 field decorators that define <a href="https://oslabs-beta.github.io/synapse/classes/schema.html">schemas</a> for each user input</p>
-						<ul>
-							<li><p>The first field decorator guarantees that all _id&#39;s follow the MongoId format.</p>
-							</li>
-							<li><p>Word and Text take 2 optional arguments that determine how short or long these inputs should be.</p>
-								<ul>
-									<li>In this case, usernames must be within 3~16 characters.</li>
-								</ul>
-							</li>
-							<li><p>Inputs that go through the Email field go through a RegExp that verifies that they are in the correct format.</p>
-							</li>
-							<li><p>It is also possible to edit these fields or even create your own to suit your needs.</p>
-							</li>
+				<a href="#server-setup" id="server-setup" style="color: inherit; text-decoration: none;">
+					<h4>Server Setup</h4>
+				</a>
+				<ol>
+					<li>Within the server file, require synapse and invoke it, passing in the directory containing your resource definitions.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
+<span class="hljs-keyword">const</span> synapse = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@synapsejs/synapse'</span>);
+
+<span class="hljs-keyword">const</span> api = synapse(path.resolve(__dirname, <span class="hljs-string">'./resources'</span>));</code></pre>
+				<ol start="2">
+					<li>This creates an instance of the synapse server. Add a global middleware function to the instance that will handle sending all responses to the client.<ul>
+							<li>The result of every API request is an instance of State and will be assigned to <code>res.locals</code>.</li>
+							<li>Properties of the State defining metadata associated with the request/response are prefixed with a <code>$</code>. For example, <code>$status</code> contains the HTTP status code.</li>
+							<li>Use the <code>render</code> method to convert the instance of State to a plain object containing a public representation of that instance.</li>
 						</ul>
 					</li>
-					<li><p>The expose decorator dynamically creates routes that are specified to the passed in endpoints.</p>
-						<ul>
-							<li>Here, we have two exposed endpoints that find a user by id and create a new user, respectively.</li>
-							<li>Each have their own schemas.<ul>
-									<li>The first uses select, which creates a new schema containing a subset of the instance&#39;s fields.<ul>
-											<li>It takes the names of the fields which should be transferred to the new schemas as arguments.</li>
-										</ul>
-									</li>
-									<li>The second uses exclude and extend, which:<ul>
-											<li>Creates a new schema containing a subset of the instance&#39;s fields excluding those passed-in as arguments. (<a href="https://oslabs-beta.github.io/synapse/classes/schema.html#exclude">exclude</a>)</li>
-											<li>Creates a new schema containing all of the current instance&#39;s fields along with the additional fields you can pass in. (<a href="https://oslabs-beta.github.io/synapse/classes/schema.html#extend">extend</a>)</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-					<li><p>The business logic of these methods is entirely up to you, but must return either an instance of the class you are in, or an instance of <a href="https://oslabs-beta.github.io/synapse/classes/reply.html">State</a>.</p>
-						<ul>
-							<li>These classes have access to the restore and create methods, along with many others.<ul>
-									<li>These two methods attempt to create a new instance of the the class from the plain object in compliance with the Class&#39;s schema.</li>
-								</ul>
-							</li>
-							<li>State contains methods that correspond to response errors</li>
-							<li>They can be passed custom messages to return to the client.<ul>
-									<li><a href="https://oslabs-beta.github.io/synapse/classes/reply.html#not_found">State.NOT_FOUND()</a>, for example, corresponds to a 404 error and will only return this status code.</li>
-									<li>If it were <a href="https://oslabs-beta.github.io/synapse/classes/reply.html#not_found">State.NOT_FOUND(&quot;This user does not exist&quot;)</a>, this message will be passed along as well.</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
+				</ol>
+				<pre><code class="language-javascript">api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> state = res.locals;
+  res.status(state.$status).json(state.render());
+});</code></pre>
+				<ol start="3">
+					<li>Route incoming HTTP API requests to the <code>http</code> handler on the synapse instance.</li>
+				</ol>
+				<pre><code class="language-javascript">app.use(<span class="hljs-string">'/api'</span>, api.http);</code></pre>
+				<ol start="4">
+					<li>Your application is now prepared to handle HTTP requests for the resources you defined.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
+<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);
+<span class="hljs-keyword">const</span> synapse = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@synapsejs/synapse'</span>);
+
+<span class="hljs-keyword">const</span> app = express();
+<span class="hljs-keyword">const</span> api = synapse(path.resolve(__dirname, <span class="hljs-string">'./resources'</span>));
+
+app.use(<span class="hljs-string">'/api'</span>, api.http);
+
+api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> state = res.locals;
+  res.status(state.$status).json(state.render());
+});</code></pre>
+				<ol start="5">
+					<li>To enable subscriptions to state updates via SSE, simply add the <code>sse</code> handler <em>before</em> the <code>http</code> handler.</li>
+				</ol>
+				<pre><code class="language-javascript">app.use(<span class="hljs-string">'/api'</span>, api.sse, api.http);</code></pre>
+				<ol start="6">
+					<li>To enable WebSocket connections, route incoming websocket requests to the <code>ws</code> endpoint. This can be done using the npm package <code>express-ws</code>.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> enableWs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express-ws'</span>);
+enableWs(app);
+app.ws(<span class="hljs-string">'/api'</span>, api.ws);</code></pre>
+				<ol start="7">
+					<li>Your completed server file should look something like this:</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
+<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);
+<span class="hljs-keyword">const</span> synapse = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@synapsejs/synapse'</span>);
+<span class="hljs-keyword">const</span> enableWs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express-ws'</span>);
+
+<span class="hljs-keyword">const</span> app = express();
+<span class="hljs-keyword">const</span> api = synapse(path.resolve(__dirname, <span class="hljs-string">'./resources'</span>));
+
+enableWs(app);
+app.ws(<span class="hljs-string">'/api'</span>, api.ws);
+app.use(<span class="hljs-string">'/api'</span>, api.sse, api.http);
+
+api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> state = res.locals;
+  res.status(state.$status).json(state.render());
+});
+
+app.listen(<span class="hljs-number">3000</span>, () =&gt; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`listening on port 3000...`</span>));</code></pre>
+				<a href="#intermediate-topics" id="intermediate-topics" style="color: inherit; text-decoration: none;">
+					<h2>Intermediate Topics</h2>
+				</a>
+				<a href="#schema-manipulation" id="schema-manipulation" style="color: inherit; text-decoration: none;">
+					<h4>Schema Manipulation</h4>
+				</a>
+				<p>Coming soon.</p>
+				<a href="#authorization" id="authorization" style="color: inherit; text-decoration: none;">
+					<h4>Authorization</h4>
+				</a>
+				<p>Coming soon.</p>
+				<a href="#resource-dependencies" id="resource-dependencies" style="color: inherit; text-decoration: none;">
+					<h4>Resource Dependencies</h4>
+				</a>
+				<p>Coming soon.</p>
+				<a href="#clustering" id="clustering" style="color: inherit; text-decoration: none;">
+					<h4>Clustering</h4>
+				</a>
+				<p>Coming soon.</p>
+				<a href="#advanced-topics" id="advanced-topics" style="color: inherit; text-decoration: none;">
+					<h2>Advanced Topics</h2>
+				</a>
+				<a href="#data-model" id="data-model" style="color: inherit; text-decoration: none;">
+					<h4>Data Model</h4>
+				</a>
+				<p>Coming soon.</p>
+				<a href="#control-flow" id="control-flow" style="color: inherit; text-decoration: none;">
+					<h4>Control Flow</h4>
+				</a>
+				<p>Coming soon.</p>
 				<a href="#authors" id="authors" style="color: inherit; text-decoration: none;">
 					<h2>Authors</h2>
 				</a>
