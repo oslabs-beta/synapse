@@ -9,9 +9,15 @@ import { requireAll, makeChain } from './utility';
 
 /** Initializes API request handlers from {@linkcode Controllable} type definitions in the given ```directory```.
  * @param directory A directory containing {@linkcode Controllable} type definitions.
+ * @param accept An array or Promise resolving to an array containing the IP addresses of all peer servers.
+ * @param join An array or Promise resolving to an array containing the WebSocket connection URIs all peer servers.
  * @returns An object containing properties ```ws```, ```http```, and ```sse```, whose values are request handlers for the respective protocol.
  */
-export function synapse(directory: string, peers: Array<string> = [], pattern: Array<string> = []): object {
+export function synapse(
+  directory: string,
+  accept: Array<string> | Promise<Array<string>> = [],
+  join: Array<string> | Promise<Array<string>> = []
+): object {
   const router = new Router();
 
   requireAll(directory).forEach((module) => {
@@ -28,7 +34,7 @@ export function synapse(directory: string, peers: Array<string> = [], pattern: A
   return {
     http: http(router, callback),
     sse: sse(router, callback),
-    ws: ws(router, callback, peers, pattern),
+    ws: ws(router, callback, accept, join),
     use: callback.add,
   };
 }

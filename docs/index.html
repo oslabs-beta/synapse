@@ -67,6 +67,7 @@
 				</a>
 				<p>Real-Time API Library</p>
 				<ul>
+					<li>GitHub: <a href="https://github.com/oslabs-beta/synapse">https://github.com/oslabs-beta/synapse</a></li>
 					<li>Documentation: <a href="http://synapsejs.org/docs">http://synapsejs.org/docs</a></li>
 				</ul>
 				<a href="#table-of-contents" id="table-of-contents" style="color: inherit; text-decoration: none;">
@@ -81,13 +82,17 @@
 							</li>
 							<li><p><a href="#server-setup">Server Setup</a></p>
 							</li>
+							<li><p><a href="#streaming-connections">Streaming Connections</a></p>
+							</li>
 						</ul>
 					</li>
 					<li><p><a href="#intermediate-topics">Intermediate Topics</a></p>
 						<ul>
-							<li><p><a href="#schema-manipulation">Schema Manipulation</a></p>
+							<li><p><a href="#schema-transformation">Schema Transformation</a></p>
 							</li>
-							<li><p><a href="#authorization">Authorization</a></p>
+							<li><p><a href="#custom-field-types">Custom Field Types</a></p>
+							</li>
+							<li><p><a href="#authorization-and-security">Authorization and Security</a></p>
 							</li>
 							<li><p><a href="#resource-dependencies">Resource Dependencies</a></p>
 							</li>
@@ -110,7 +115,7 @@
 					<h2>Overview</h2>
 				</a>
 				<p>Building scalable and secure APIs is an immense challenge in-and-of-itself, and adding real-time functionality to an existing API only increases the complexity, often necessitating significant refactoring. Synapse attempts to solve this problem by providing a high-level, protocol-agnostic abstraction of a REST API. It allows resources to be defined once and served over multiple protocols, including HTTP, WebSockets, and SSE, while managing input validation and normalization as well as response caching under-the-hood. The library integrates seamlessly with Express, and can be used as much or as little as needed to add real-time functionality to an existing application or to build an entire API from scratch.</p>
-				<p>Synapse applications are composed of <em>Resources</em> -- classes that model resources as defined by the RESTful architectural style. In this sense, resources represent collections of data that are exposed by the API (ex. <code>User</code>, <code>Comment</code>, <code>Session</code>). Each resource defines a <em>Schema</em> composed of <em>Fields</em>, where fields are data types with specific requirements that can be validated (ex. <code>EmailAddress</code>, <code>Password</code>, <code>Number</code>, etc.) and schemas are collections of fields representing a set of parameters by name (ex. <code>{ email: EmailAddress, password: Password, age: Number }</code>). A resource’s schema, then, defines the data necessary to construct an instance of that type.</p>
+				<p>Synapse applications are composed of <em>Resources</em> ⁠— classes that model resources as defined by the RESTful architectural style. In this sense, resources represent collections of data that are exposed by the API (e.g. <code>User</code>, <code>Message</code>, <code>Session</code>). Each resource defines a <em>Schema</em> composed of <em>Fields</em>, where fields are data types with specific requirements that can be validated (e.g. <code>EmailAddress</code>, <code>Password</code>, <code>Number</code>) and schemas are collections of fields representing a set of parameters by name (e.g. <code>{ email: EmailAddress, password: Password, age: Number }</code>). A resource’s schema, then, defines the data necessary to construct an instance of that type.</p>
 				<p>Classes that extend Resource can also define static methods and expose them to the API. In TypeScript, this is accomplished using various decorators to attach information to the method, like its HTTP endpoint. For example, a class <code>User</code> might expose an endpoint method called <code>register</code> to <code>POST /user</code>. Each endpoint method also defines a schema, which determines exactly what data will be passed from each HTTP request to the method, and also ensures that all arguments are validated before the method is invoked. Under the hood, these decorators convert the decorated method to an instance of <em>Controller</em>, which applications not written in TypeScript can use to achieve the same functionality. See the documentation for more details.</p>
 				<p>Under the hood, Synapse uses these resource definitions to serve data produced by endpoint methods to clients in a protocol-independent manner, simplifying the process of adding real-time support to an application. By maintaining an in-memory cache of all requested data, it can also manage subscriptions to any cacheable endpoint and automatically push updates to clients whenever the cached state changes.</p>
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
@@ -118,7 +123,7 @@
 				</a>
 				<p>This guide will assume that you have already set up an Express project. To learn more about Express, <a href="#">click here</a>.</p>
 				<ol>
-					<li>Begin by installing the <a href="https://www.npmjs.com/package/@synapsejs/synapse">npm package</a> by running the following command from your project directory:</li>
+					<li>To begin, install the <a href="https://www.npmjs.com/package/@synapsejs/synapse">npm package</a> by running the following command from your project directory:</li>
 				</ol>
 				<pre><code class="language-javascript">npm i @synapsejs/synapse</code></pre>
 				<a href="#defining-resources" id="defining-resources" style="color: inherit; text-decoration: none;">
@@ -158,17 +163,23 @@
 					<li>For each property of the class, use the <code>@field</code> decorator to add that property to the class&#39;s schema, passing in an instance of Field defining the property&#39;s data type.</li>
 				</ol>
 				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
-  @field(<span class="hljs-keyword">new</span> Id()) _id;
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">24</span>, <span class="hljs-number">24</span>)) _id;
   @field(<span class="hljs-keyword">new</span> Word(<span class="hljs-number">3</span>, <span class="hljs-number">16</span>)) username;
   @field(<span class="hljs-keyword">new</span> Email(<span class="hljs-literal">true</span>)) email;
-  @field(<span class="hljs-keyword">new</span> Text(), PRV) password;
+  @field(<span class="hljs-keyword">new</span> Text()) password;
   ...</code></pre>
+				<p>Field classes define broad categories of data types, while their instances represent validators for specific cases of that data type. The properties necessary to define a specific case are passed in to the constructor. For example, in the above code snippet:</p>
+				<ul>
+					<li>The Id instance accepts only Ids at exactly 24 characters long.</li>
+					<li>The Word instance accepts only alphanumeric characters between 3 and 16 characters long with no spaces.</li>
+					<li>The Email instance is optional.</li>
+				</ul>
 				<ol start="4">
 					<li><p>For each method that should be accessible via the API:</p>
 						<ul>
-							<li>First, use the <code>@schema</code> decorator to define the schema that will validate requests to that method, passing in either an instance of Schema or an object whose values are instance of Field, which will be used to construct a Schema. In the example below, schemas are created for each method by transforming the overall schema already defined for the User class in general. To learn more, see <a href="#schema-manipulation">Schema Manipulation</a>.</li>
-							<li>Then, use the <code>@expose</code> decorator to define the HTTP method and path at which the method will be available.</li>
-							<li>Finally, ensure that all of the method paramaters are wrapped in braces. The methods will always be invoked with a single argument -- an object containing the key-value pairs validated by the Schema.</li>
+							<li>First, use the <code>@schema</code> decorator to define the schema that will validate requests to that method, passing in either an instance of Schema or an object whose values are instances of Field, which will be used to construct a Schema. In the example below, schemas are created for each method by transforming the overall schema already defined for the User class in general. To learn more, see <a href="#schema-transformation">Schema Transformation</a>.</li>
+							<li>Then, use the <code>@expose</code> decorator to define the HTTP verb and the path at which the method will be available.</li>
+							<li>Finally, ensure that all of the method paramaters are wrapped in braces. The methods will always be invoked with a single argument — an object containing the key-value pairs validated by the Schema.</li>
 						</ul>
 					</li>
 				</ol>
@@ -188,7 +199,7 @@
 				<ol start="5">
 					<li><p>Lastly, complete the business logic of each method to return either an instance of the User class or an error.</p>
 						<ul>
-							<li>Use the static <code>create</code> factory method on the derived class when creating an instance from new data. This ensure that the HTTP response code will be correct.</li>
+							<li>Use the static <code>create</code> factory method on the derived class when creating an instance from new data. This ensure that the HTTP response status is correctly set to <code>201 CREATED</code>.</li>
 							<li>Use the static <code>restore</code> factory method on the derived class when creating an instance from pre-exisiting data.</li>
 							<li>Use <a href="#">one of many</a> static factory methods on the State class to respond with an error.</li>
 						</ul>
@@ -219,10 +230,10 @@
 <span class="hljs-keyword">const</span> { field, schema, expose } = decorators;
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
-  @field(<span class="hljs-keyword">new</span> Id()) _id;
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">24</span>, <span class="hljs-number">24</span>)) _id;
   @field(<span class="hljs-keyword">new</span> Word(<span class="hljs-number">3</span>, <span class="hljs-number">16</span>)) username;
   @field(<span class="hljs-keyword">new</span> Email(<span class="hljs-literal">true</span>)) email;
-  @field(<span class="hljs-keyword">new</span> Text(), PRV) password;
+  @field(<span class="hljs-keyword">new</span> Text()) password;
 
   @expose(<span class="hljs-string">'GET /:_id'</span>)
   @schema(User.schema.select(<span class="hljs-string">'_id'</span>))
@@ -288,7 +299,7 @@ api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) 
 				</ol>
 				<pre><code class="language-javascript">app.use(<span class="hljs-string">'/api'</span>, api.sse, api.http);</code></pre>
 				<ol start="6">
-					<li>To enable WebSocket connections, route incoming websocket requests to the <code>ws</code> endpoint. This can be done using the npm package <code>express-ws</code>.</li>
+					<li>To enable WebSocket connections, route incoming websocket requests to the <code>ws</code> handler. This can be done using the <code>express-ws</code> npm package.</li>
 				</ol>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> enableWs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express-ws'</span>);
 enableWs(app);
@@ -314,25 +325,373 @@ api.use(<span class="hljs-function">(<span class="hljs-params">req, res</span>) 
 });
 
 app.listen(<span class="hljs-number">3000</span>, () =&gt; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`listening on port 3000...`</span>));</code></pre>
+				<a href="#streaming-connections" id="streaming-connections" style="color: inherit; text-decoration: none;">
+					<h4>Streaming Connections</h4>
+				</a>
+				<p>As already mentioned, synapse provides two interfaces for streaming protocols in addition to the standard HTTP interface. The primary purpose of these real-time interfaces is to allow <em>subscriptions</em> to resources, that is the ability to obtain state updates continuously whenever a given resource changes; however, the websocket interface in particular can also be used to process standard requests at a reduced latency.</p>
+				<a href="#server-sent-events-sse" id="server-sent-events-sse" style="color: inherit; text-decoration: none;">
+					<h5>Server-Sent Events (SSE)</h5>
+				</a>
+				<p>The SSE interface is used only for subscriptions and works on a one-per-connection basis. The SSE interface will not accept requests for write operations, as they can&#39;t be subscribed to.</p>
+				<ul>
+					<li>To create a subscription, simply add the <code>Content-Type: text/event-stream</code> header to an otherwise normal HTTP <code>GET</code> request for a given Resource, and you will receive its initial state, as well as its new state whenever a change occurs. </li>
+					<li>To cancel a subscription, simply close the associated connection.</li>
+					<li>To subscribe to multiple resources, either create multiple SSE connections, or use WebSockets.</li>
+				</ul>
+				<a href="#websockets-ws" id="websockets-ws" style="color: inherit; text-decoration: none;">
+					<h5>WebSockets (WS)</h5>
+				</a>
+				<p>The WS interface can process any request that the standard HTTP interface can, in addition to subscription requests.</p>
+				<ul>
+					<li>To connect from your client application, create a WebSocket connection to the path exposed by the express server. For example:</li>
+				</ul>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> api = <span class="hljs-keyword">new</span> WebSocket(<span class="hljs-string">'ws://[hostname]/api'</span>);
+...</code></pre>
+				<ul>
+					<li>The WS interface accepts requests in the form of a JSON object whose keys are endpoints strings <code>METHOD /path</code> and whose values are other objects containing the arguments to be included with the request. For example:</li>
+				</ul>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"POST /user"</span>: {
+    <span class="hljs-attr">"username"</span>: <span class="hljs-string">"john"</span>,
+    <span class="hljs-attr">"password"</span>: <span class="hljs-string">"secret"</span>
+  }
+}</code></pre>
+				<ul>
+					<li>The response to each request will also be a JSON object, and the key on that object will match the key on the request object.</li>
+					<li>The WebSocket interface accepts two custom methods <code>SUBSCRIBE</code> and <code>UNSUBSCRIBE</code>. The subscribe method is intitially identical to a <code>GET</code> request. A request to <code>SUBSCRIBE /message</code> would first return the result of the request:</li>
+				</ul>
+				<pre><code class="language-json">{
+  &quot;SUBSCRIBE /message/123&quot;: {
+    &quot;status&quot;: 200,
+    &quot;query&quot;: &quot;/message/123?&quot;,
+    &quot;payload&quot;: {
+      &quot;text&quot;: &quot;hello world!&quot;
+    },
+    ...
+  }
+}</code></pre>
+				<ul>
+					<li>Notice that the reponse to the initial request contains a metadata property called <code>query</code>. This is the normalized request path and argument set that uniquely represents, and will be used to identify, the subscription. </li>
+					<li>In our example, whenever the state of <code>/message/123</code> would change, the client would receive a message object with a key equal to the query string and whose associated value was the state of the resource at that path, with no metadata attached (e.g. status code):</li>
+				</ul>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"/message/123?"</span>: {
+    <span class="hljs-attr">"text"</span>: <span class="hljs-string">"hello again!"</span>
+  }
+}</code></pre>
+				<ul>
+					<li>The query string is also used to cancel a subscription, using the <code>UNSUBSCRIBE</code> method:</li>
+				</ul>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"UNSUBSCRIBE /message/123?"</span>: {}
+}</code></pre>
 				<a href="#intermediate-topics" id="intermediate-topics" style="color: inherit; text-decoration: none;">
 					<h2>Intermediate Topics</h2>
 				</a>
-				<a href="#schema-manipulation" id="schema-manipulation" style="color: inherit; text-decoration: none;">
-					<h4>Schema Manipulation</h4>
+				<a href="#schema-transformation" id="schema-transformation" style="color: inherit; text-decoration: none;">
+					<h4>Schema Transformation</h4>
 				</a>
-				<p>Coming soon.</p>
-				<a href="#authorization" id="authorization" style="color: inherit; text-decoration: none;">
-					<h4>Authorization</h4>
+				<p>In synapse, <em>schema transformation</em> refers to the process of using existing schemas to define new ones, and it can help to keep our code more concise. We&#39;ve already seen two examples of schema transformation in our hypothetical <code>User</code> class:</p>
+				<pre><code class="language-javascript">User.schema.select(<span class="hljs-string">'_id'</span>)</code></pre>
+				<p>and:</p>
+				<pre><code class="language-javascript">User.schema.exclude(<span class="hljs-string">'_id'</span>, <span class="hljs-string">'password'</span>).extend({ <span class="hljs-attr">password</span>: <span class="hljs-keyword">new</span> Hash(<span class="hljs-number">6</span>) })</code></pre>
+				<ul>
+					<li>In each case, we begin by accessing the static <code>schema</code> property on the User class, which is an instance of Schema. Remember that the User schema was created by applying the <code>@field</code> decorator to the class&#39;s properties.</li>
+					<li>In the first example, we use the <code>select</code> method of the Schema class to create and return a new schema containing only the fields from the User schema whose names are passed in as arguments -- in this case, just the <code>_id</code> field.</li>
+					<li>In the second example, we first use the <code>exclude</code> method to create a new schema containing all of the fields from the User schema <em>except</em> the fields whose names are passed in as arguments -- in this case, the <code>_id</code> and <code>password</code> fields. Finally, we transform the resulting schema using the <code>extend</code> method on the Schema class to create a new schema containing all of the fields of the called instance, plus those passed in on the argument object.</li>
+				</ul>
+				<p>There are two other ways to transform schemas:</p>
+				<ol>
+					<li>The <code>default</code> method on the Schema class creates a copy of the called instance, but applies default values to the fields as specified by the passed in argument object.</li>
+					<li>The static <code>union</code> method on the Resource class creates a new schema by combining the fields of multiple Resource schema&#39;s.</li>
+				</ol>
+				<p>See the documentation for more details.</p>
+				<a href="#custom-field-types" id="custom-field-types" style="color: inherit; text-decoration: none;">
+					<h4>Custom Field Types</h4>
 				</a>
-				<p>Coming soon.</p>
+				<p>One of the most powerful features of synapse is the ability to define custom Field types by extending existing ones. In our hypothetical User class, we used an instance of the <code>Id</code> Field type with a min and max length of 24 characters to define a property on the User class that would accept id strings generated by MongoDB. Indeed, MongoDB ids are 24 characters long, but they also have another well-defined property that we can enforce: they can contain only the the letters a-f and digits 0-9.</p>
+				<ol>
+					<li>Start by importing the default fields from the synapse library and destructuring the <code>Id</code> class from the object. Then, define a new class called <code>MongoId</code> which extends <code>Id</code>.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { fields } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id } = fields;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MongoId</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Id</span> </span>{
+
+}</code></pre>
+				<ol start="2">
+					<li>In the constructor, after invoking <code>super</code>, use the <code>assert</code> method from the <code>Text</code> prototype to add a new regular expression rule to the instance. The <code>assert</code> method accepts 3 arguments: an instance of RegExp (or a string which can be used to construct one), a boolean representing the expected result of testing a valid input against the the regular expression, and a human-readable explanation of the rule which will be used in error messages.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { fields } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id } = fields;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MongoId</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Id</span> </span>{
+  <span class="hljs-keyword">constructor</span>(flags = null) {
+    <span class="hljs-keyword">super</span>();
+
+    <span class="hljs-keyword">this</span>.assert(
+      <span class="hljs-regexp">/^[0-9a-f]{24}$/i</span>,
+      <span class="hljs-literal">true</span>,
+      <span class="hljs-string">'must be a single String of 12 bytes or a string of 24 hex characters'</span>
+    );
+  }
+}</code></pre>
+				<ol start="3">
+					<li>We can now change the <code>_id</code> field on the User schema to use this more-explicit type:</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> MongoId <span class="hljs-keyword">from</span> <span class="hljs-string">'../fields/MongoId'</span>;
+...
+@field(<span class="hljs-keyword">new</span> MongoId()) _id;</code></pre>
+				<ul>
+					<li>Because our method schemas were defined by transforming the overall User schema, we don&#39;t need to change their definitions.</li>
+				</ul>
+				<p>Whenever possible, Field rules should be defined in this way, using regular expressions, because these rules can be easily exposed to a client for use in client-side validation. However, not all rules can be represented as a regular expression. In such cases, it will be neccessary to override the <code>parse</code> method from the <code>Field</code> prototype in order to define more complex validation behavior. See the documentation for more details.</p>
+				<a href="#authorization-and-security" id="authorization-and-security" style="color: inherit; text-decoration: none;">
+					<h4>Authorization and Security</h4>
+				</a>
+				<a href="#private-fields" id="private-fields" style="color: inherit; text-decoration: none;">
+					<h5>Private Fields</h5>
+				</a>
+				<p>You may have noticed a security flaw our User example -- when instances of User are returned from the API, all of their properties are revealed to the client, including the hashed password. There are two ways to change the public representation of a resource. In most cases, we can use a <em>flag</em> to prevent certain fields from being exposed to the client.</p>
+				<ol>
+					<li>In the User module, import the <code>Field</code> class from the synapse Libary and destructure the <code>PRV</code> flag from the <code>Field.Flags</code> enum object.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, Field, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id, Word, Email, Text } = fields;
+<span class="hljs-keyword">const</span> { field, schema, expose } = decorators;
+<span class="hljs-keyword">const</span> { PRV } = Field.Flags;</code></pre>
+				<ol start="2">
+					<li><p>Add the <code>PRV</code> flag to the password field. This can be done in two ways:</p>
+						<ul>
+							<li>As the fourth argument to the <code>Text</code> constructor</li>
+						</ul>
+						<pre><code class="language-javascript">@field(<span class="hljs-keyword">new</span> Text(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">undefined</span>, PRV)) password;</code></pre>
+						<ul>
+							<li>Or, as the second argument to the <code>@field</code> decorator method</li>
+						</ul>
+						<pre><code class="language-javascript">@field(<span class="hljs-keyword">new</span> Text(), PRV) password;</code></pre>
+					</li>
+				</ol>
+				<p>In some cases, if more complex behavior is required, it will be necessary to override the <code>render</code> method from the Resource prototype. See the documentation for more details.</p>
+				<a href="#middleware" id="middleware" style="color: inherit; text-decoration: none;">
+					<h5>Middleware</h5>
+				</a>
+				<p>In most cases, we will also want to add some type of authorization layer to our APIs. This can be accomplished using middlware functions. Consider the following hypothetical Session class. For the purpose of this example, sessions will contain just two properties: a client id and a user id, and will be stored in memory. It will also expose two endpoints: <code>POST /session</code> creates a session from a username, password, and client id, while <code>GET /session/me</code> returns information about the currently authenticated user, given a client id.</p>
+				<p><em>NOTE: While middleware functions in Express are used to improve code reusability and modularization, that is not their purpose in synapse. Synapse relies on an object-oriented approach to code reuse, as shown in the below example, where the Session class reuses functionality of the User class by invoking one of its methods.</em></p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, State, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+<span class="hljs-keyword">import</span> User <span class="hljs-keyword">from</span> <span class="hljs-string">'./User'</span>;
+
+<span class="hljs-keyword">const</span> { Id } = fields;
+<span class="hljs-keyword">const</span> { field, expose, schema } = decorators;
+
+<span class="hljs-keyword">const</span> sessions = {};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Session</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">36</span>)) client_id: string;
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">36</span>)) user_id: string;
+
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(Session.union(User).select(<span class="hljs-string">'username'</span>, <span class="hljs-string">'password'</span>, <span class="hljs-string">'client_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> open({ username, password, client_id }) {
+    <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> User.authenticate({ username, password });
+
+    <span class="hljs-keyword">if</span> (result <span class="hljs-keyword">instanceof</span> User) {
+      sessions[client_id] = result;
+    }
+
+    <span class="hljs-keyword">return</span> result;
+  }
+
+  @expose(<span class="hljs-string">'GET /me'</span>)
+  @schema(Session.schema.select(<span class="hljs-string">'client_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> read({ client_id }) {
+    <span class="hljs-keyword">return</span> sessions[client_id];
+  }
+}</code></pre>
+				<p>But where will the <code>client_id</code> come from? In this example, we will assign the <code>client_id</code> using cookies, but the endpoint method doesn&#39;t have to <em>know</em> this. Since synapse provides a protocol-agnostic abstraction of a REST API, there is no concept of query paramaters, request bodies, or cookies within the Resource domain -- all request arguments are combined into a single object and passed to the endpoint&#39;s schema for validation. Thus, the above schemas simply look for a <code>client_id</code> property <em>anywhere</em> on the incoming request, and then check that it meets the requirements specified by the associated field.</p>
+				<ol>
+					<li>You might use an express middleware function like the following to assign a unique id to all new clients, before they have been authenticated:</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { v4 <span class="hljs-keyword">as</span> uuidv4 } <span class="hljs-keyword">from</span> <span class="hljs-string">'uuid'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> identifier = <span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
+  res.cookie(<span class="hljs-string">'client_id'</span>, req.cookies.client_id || uuidv4());
+  next();
+};</code></pre>
+				<ol start="2">
+					<li>Now, in our Session module, lets define a synapse middleware function which will authorize incoming requests by a) ensuring that the <code>client_id</code> property is present on the request, and b) that the <code>client_id</code> is associated with a valid session.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> authorizer = <span class="hljs-function">(<span class="hljs-params">args</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> { client_id } = args;
+
+  <span class="hljs-keyword">const</span> client = sessions[client_id];
+
+  <span class="hljs-keyword">if</span> (!client) {
+    <span class="hljs-keyword">return</span> State.UNAUTHORIZED();
+  }
+
+  <span class="hljs-keyword">return</span> [args];
+};</code></pre>
+				<ul>
+					<li>Note that synapse middleware functions are different from express middleware functions. Synapse middleware functions accept a single argument -- an amalgamation of all request arguments including the request body, query params, path params, and cookies. Synapse middlware functions should return an array containing the argument object for the next middleware function in the chain, <em>or</em> an instance of <code>State</code> to abort the operation. </li>
+				</ul>
+				<ol start="3">
+					<li>Finally, lets secure the <code>GET /session/me</code> endpoint using the <code>authorizer</code> synapse middleware function, by passing the function as the second argument to the <code>@endpoint</code> decorator. (The <code>@endpoint</code> decorator can also accept a variable number of middleware functions to be chained together as a rest parameter).</li>
+				</ol>
+				<pre><code class="language-javascript">@expose(<span class="hljs-string">'GET /me'</span>, authorizer)
+@schema(Session.schema.select(<span class="hljs-string">'client_id'</span>))
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> read({ client_id }) {
+  <span class="hljs-keyword">return</span> sessions[client_id];
+}</code></pre>
+				<p>The completed Session module should look something like this:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, State, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+<span class="hljs-keyword">import</span> User <span class="hljs-keyword">from</span> <span class="hljs-string">'./User'</span>;
+
+<span class="hljs-keyword">const</span> { Id } = fields;
+<span class="hljs-keyword">const</span> { field, expose, schema } = decorators;
+
+<span class="hljs-keyword">const</span> sessions = {};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> identifier = <span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
+  res.cookie(<span class="hljs-string">'client_id'</span>, req.cookies.client_id || uuidv4());
+  next();
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> authorizer = <span class="hljs-function">(<span class="hljs-params">args</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> { client_id } = args;
+
+  <span class="hljs-keyword">const</span> client = sessions[client_id];
+
+  <span class="hljs-keyword">if</span> (!client) {
+    <span class="hljs-keyword">return</span> State.UNAUTHORIZED();
+  }
+
+  <span class="hljs-keyword">return</span> [args];
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Session</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">36</span>)) client_id: string;
+  @field(<span class="hljs-keyword">new</span> Id(<span class="hljs-number">36</span>)) user_id: string;
+
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(Session.union(User).select(<span class="hljs-string">'username'</span>, <span class="hljs-string">'password'</span>, <span class="hljs-string">'client_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> open({ username, password, client_id }) {
+    <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> User.authenticate({ username, password });
+
+    <span class="hljs-keyword">if</span> (result <span class="hljs-keyword">instanceof</span> User) {
+      sessions[client_id] = result;
+    }
+
+    <span class="hljs-keyword">return</span> result;
+  }
+
+  @expose(<span class="hljs-string">'GET /me'</span>, authorizer)
+  @schema(Session.schema.select(<span class="hljs-string">'client_id'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> read({ client_id }) {
+    <span class="hljs-keyword">return</span> sessions[client_id];
+  }
+}</code></pre>
 				<a href="#resource-dependencies" id="resource-dependencies" style="color: inherit; text-decoration: none;">
 					<h4>Resource Dependencies</h4>
 				</a>
-				<p>Coming soon.</p>
+				<p>Whenever a read (i.e. <code>GET</code>) request is made to a <em>path</em> within a synapse API, the resulting State will have certain <em>dependencies</em> -- that is, other paths to which a write request will cause said State to be invalidated. All non-error States have at least one dependency, which is the same path from which the State was read. This is demonstrated by the following example: </p>
+				<ol>
+					<li>Client A <code>GET</code>s the value of <code>/message</code> and receives a collection of Message resources [ <code>/message/0</code>, <code>/message/1</code>, <code>/message/2</code> ].</li>
+					<li>Client B <code>POST</code>s to <code>/message</code>, creating new message.</li>
+					<li>The number of messages in the collection has changed, so client A&#39;s copy of the the state is no longer valid.</li>
+				</ol>
+				<p>In the case of a collection, the paths of each Resource contained within that collection are also dependencies of its state. That is:</p>
+				<ol start="4">
+					<li>If Client B were to <code>PATCH /message/0</code>, that request would also invalidate the state of <code>/message</code> held by client A.</li>
+				</ol>
+				<p>This default behavior is inherent to RESTful systems and cannot be changed within synapse; however, it can be extended. Lets consider a complete example of a <code>Message</code> resource. In this example, the messages will be stored in memory and we will intend for them to be subscribed to in a real-time application.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, State, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id, Text, Integer } = fields;
+<span class="hljs-keyword">const</span> { field, expose, schema, affects, uses } = decorators;
+
+<span class="hljs-keyword">const</span> pageSize = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">const</span> ledger = [];
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id()) id: string;
+  @field(<span class="hljs-keyword">new</span> Text()) text: string;
+
+  @expose(<span class="hljs-string">'GET /'</span>)
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span>() {
+    <span class="hljs-keyword">const</span> start = ledger.length - pageSize * index;
+    <span class="hljs-keyword">return</span> Message.collection([...ledger].reverse());
+  }
+
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(Message.schema.select(<span class="hljs-string">'text'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> post({ text }) {
+    <span class="hljs-keyword">const</span> comment = <span class="hljs-keyword">await</span> Message.create({ <span class="hljs-attr">id</span>: <span class="hljs-string">`<span class="hljs-subst">${ledger.length}</span>`</span>, text });
+    ledger.push(comment.export());
+    <span class="hljs-keyword">return</span> comment;
+  }
+}</code></pre>
+				<p>This bare-bones example <em>could</em> be used to create a chat application. A subscription request to <code>/message</code> would return all of the messages in memory, and whenever a new message was posted, the client would receive the entire new state of the collection. Obviously, this wouldn&#39;t be very efficient. Let&#39;s improve the design by adding an endpoint which returns only the last message in memory:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Resource, State, fields, decorators } <span class="hljs-keyword">from</span> <span class="hljs-string">'@synapsejs/synapse'</span>;
+
+<span class="hljs-keyword">const</span> { Id, Text, Integer } = fields;
+<span class="hljs-keyword">const</span> { field, expose, schema, affects, uses } = decorators;
+
+<span class="hljs-keyword">const</span> pageSize = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">const</span> ledger = [];
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Resource</span> </span>{
+  @field(<span class="hljs-keyword">new</span> Id()) id: string;
+  @field(<span class="hljs-keyword">new</span> Text()) text: string;
+
+  @expose(<span class="hljs-string">'GET /last'</span>)
+  <span class="hljs-keyword">static</span> last() {
+    <span class="hljs-keyword">if</span> (!ledger[ledger.length - <span class="hljs-number">1</span>]) {
+      <span class="hljs-keyword">return</span> State.NOT_FOUND();
+    }
+    <span class="hljs-keyword">return</span> Message.restore(ledger[ledger.length - <span class="hljs-number">1</span>]);
+  }
+
+  @expose(<span class="hljs-string">'GET /'</span>)
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span>() {
+    <span class="hljs-keyword">const</span> start = ledger.length - pageSize * index;
+    <span class="hljs-keyword">return</span> Message.collection([...ledger].reverse());
+  }
+
+  @expose(<span class="hljs-string">'POST /'</span>)
+  @schema(Message.schema.select(<span class="hljs-string">'text'</span>))
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> post({ text }) {
+    <span class="hljs-keyword">const</span> comment = <span class="hljs-keyword">await</span> Message.create({ <span class="hljs-attr">id</span>: <span class="hljs-string">`<span class="hljs-subst">${ledger.length}</span>`</span>, text });
+    ledger.push(comment.export());
+    <span class="hljs-keyword">return</span> comment;
+  }
+}</code></pre>
+				<p>Now, our clients can initially request the entire message collection, but then subscribe to only the last message in the collection. However, as currently written, they will not receive live updates to that state, because synapse can&#39;t automatically deduce the dependency between the state returned from <code>/message/last</code> and the overall <code>/message</code> path. We will have to declare this dependency using either the <code>@uses</code> decorator on the read endpoint:</p>
+				<pre><code class="language-javascript">@expose(<span class="hljs-string">'GET /last'</span>)
+@uses(<span class="hljs-string">'/'</span>)
+<span class="hljs-keyword">static</span> last() {
+  ...
+}</code></pre>
+				<p><em>or</em> the <code>@affects</code>decorator on the write endpoint:</p>
+				<pre><code class="language-javascript">@expose(<span class="hljs-string">'POST /'</span>)
+@schema(Message.schema.select(<span class="hljs-string">'text'</span>))
+@affects(<span class="hljs-string">'/last'</span>)
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> post({ text }) {
+  ...
+}</code></pre>
+				<p>These are functionally equivalent in this case, but note that the paths passed to <code>@uses</code> and <code>@affects</code> can reference arguments validated by the schema (e.g. <code>@uses(&#39;/:id)</code>), which may affect your decision to use one or the other in a given scenario.</p>
 				<a href="#clustering" id="clustering" style="color: inherit; text-decoration: none;">
 					<h4>Clustering</h4>
 				</a>
-				<p>Coming soon.</p>
+				<p>Synapse supports clustering natively. To synchronize state between multiple instances of a synapse API, you will need to add two arguments to the invocation of <code>synapse</code> in your express server file;</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> resources = path.resolve(__dirname, <span class="hljs-string">'./resources'</span>);
+<span class="hljs-keyword">const</span> accept = [<span class="hljs-comment">/* an array containing the IP addresses of all peer servers */</span>];
+<span class="hljs-keyword">const</span> join = [<span class="hljs-comment">/*an array containing the WebSocket connection URIs of all peer servers*/</span>];
+<span class="hljs-keyword">const</span> api = synapse(resources, accept, join);</code></pre>
+				<p>Now, the instance of the synapse API will attempt to connect to all peers using the WebSocket URIs in <code>join</code> and will accept peer connections from any IP address in <code>accept</code>. Note that it is also acceptable to invoke synapse with Promises that resolve to these arrays if the peer servers have to be discovered dynamically. </p>
 				<a href="#advanced-topics" id="advanced-topics" style="color: inherit; text-decoration: none;">
 					<h2>Advanced Topics</h2>
 				</a>
