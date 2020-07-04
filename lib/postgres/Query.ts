@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 /* eslint-disable prefer-destructuring */
 
@@ -17,8 +18,9 @@ export default class Query {
       return [frags, []];
     }
 
-    let result = frags.shift();
-    frags.forEach((frag, i) => {
+    const _frags = [...frags];
+    let result = _frags.shift();
+    _frags.forEach((frag, i) => {
       result += `$${i + 1}${frag}`;
     });
     return [result, values];

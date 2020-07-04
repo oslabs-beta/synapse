@@ -91,7 +91,8 @@ export default class Controllable extends Validatable {
       applySchema(this, schema, controller);
     }
     if (endpoint) {
-      applyExpose(this, endpoint, ...(Array.isArray(authorizer) ? authorizer : [authorizer]));
+      const chain = !authorizer || Array.isArray(authorizer) ? authorizer : [authorizer];
+      applyExpose(this, endpoint, ...(chain || []), controller);
     }
     return controller;
   }

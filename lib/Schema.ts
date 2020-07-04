@@ -58,7 +58,9 @@ export default class Schema {
 
     const result = {};
     keys.forEach((key) => {
-      result[key] = this.fields[key];
+      if (this.fields[key]) {
+        result[key] = this.fields[key];
+      }
     });
     return new Schema(result);
   }
