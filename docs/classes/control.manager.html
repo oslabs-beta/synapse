@@ -103,7 +103,6 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="control.manager.html#execute" class="tsd-kind-icon">execute</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="control.manager.html#invalidate" class="tsd-kind-icon">invalidate</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="control.manager.html#listen" class="tsd-kind-icon">listen</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="control.manager.html#reset" class="tsd-kind-icon">reset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="control.manager.html#subscribe" class="tsd-kind-icon">subscribe</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="control.manager.html#unlisten" class="tsd-kind-icon">unlisten</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="control.manager.html#unset" class="tsd-kind-icon">unset</a></li>
@@ -121,7 +120,7 @@
 					<div class="tsd-signature tsd-kind-icon">dependents<span class="tsd-signature-symbol">:</span> <a href="utility.relation.html" class="tsd-signature-type">Relation</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Relation()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L20">lib/control/Manager.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L20">lib/control/Manager.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -136,7 +135,7 @@
 					<div class="tsd-signature tsd-kind-icon">listeners<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="utility.callable.html#function" class="tsd-signature-type">Function</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Set()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L26">lib/control/Manager.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L26">lib/control/Manager.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -151,7 +150,7 @@
 					<div class="tsd-signature tsd-kind-icon">operations<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="control.operation.html" class="tsd-signature-type">Operation</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L17">lib/control/Manager.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L17">lib/control/Manager.ts:17</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -163,10 +162,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
 					<a name="states" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> states</h3>
-					<div class="tsd-signature tsd-kind-icon">states<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="index.state.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">states<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="index.state.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="index.state.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L14">lib/control/Manager.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L14">lib/control/Manager.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -181,7 +180,7 @@
 					<div class="tsd-signature tsd-kind-icon">subscriptions<span class="tsd-signature-symbol">:</span> <a href="utility.relation.html" class="tsd-signature-type">Relation</a><span class="tsd-signature-symbol">&lt;</span><a href="utility.callable.html#function" class="tsd-signature-type">Function</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Relation()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L23">lib/control/Manager.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L23">lib/control/Manager.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -203,7 +202,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L30">lib/control/Manager.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L30">lib/control/Manager.ts:30</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -231,7 +230,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L94">lib/control/Manager.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L104">lib/control/Manager.ts:104</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -256,13 +255,13 @@
 					<a name="invalidate" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> invalidate</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">invalidate<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, flags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">invalidate<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span>, flags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L82">lib/control/Manager.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L81">lib/control/Manager.ts:81</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -273,7 +272,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<h5>path: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>A <em>path</em> string.</p>
 									</div>
@@ -296,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L114">lib/control/Manager.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L124">lib/control/Manager.ts:124</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -317,37 +316,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-					<a name="reset" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> reset</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">reset<span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L58">lib/control/Manager.ts:58</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Given a <em>query</em>, checks for an associated, cached <a href="control.manager.html#operations"><code>operation</code></a> and, if one exists, recalculates its cached state.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>query: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>A <em>query</em> string.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="subscribe" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> subscribe</h3>
@@ -358,7 +326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L126">lib/control/Manager.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L136">lib/control/Manager.ts:136</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -389,7 +357,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L119">lib/control/Manager.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L129">lib/control/Manager.ts:129</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -417,7 +385,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L67">lib/control/Manager.ts:67</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L66">lib/control/Manager.ts:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,7 +416,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/d9f85f6/lib/control/Manager.ts#L135">lib/control/Manager.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Manager.ts#L145">lib/control/Manager.ts:145</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -530,9 +498,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="control.manager.html#listen" class="tsd-kind-icon">listen</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-								<a href="control.manager.html#reset" class="tsd-kind-icon">reset</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="control.manager.html#subscribe" class="tsd-kind-icon">subscribe</a>
