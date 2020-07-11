@@ -36,6 +36,15 @@ const applyExpose = (Class: any, endpoint: string, ...chain: Array<Function>) =>
   return controller;
 };
 
+const applyPath = (Class: any, path: string, target: Function) => {
+  const [type, pattern] = path.split(' ');
+
+  return toController(target, {
+    pattern: mergePaths(Class.root(), pattern),
+    cacheable: type.toLowerCase() === 'read',
+  });
+};
+
 const applySchema = (Class: any, from: Schema | object, target: Function) => {
   return toController(target, {
     schema: from instanceof Schema ? from : new Schema(from),
@@ -61,6 +70,7 @@ export interface ControllerOptions {
   affects: Array<string>;
   schema: Schema | object;
   endpoint: string;
+  path: string;
   authorizer: Array<Function>;
 }
 
@@ -78,7 +88,7 @@ export default class Controllable extends Validatable {
    * @param method A function defining endpoint business logic.
    */
   static expose(options: ControllerOptions, method): Controller {
-    const { uses, affects, schema, endpoint, authorizer } = options;
+    const { uses, affects, schema, endpoint, path, authorizer } = options;
 
     const controller = new Controller(method);
     if (uses) {
@@ -90,7 +100,9 @@ export default class Controllable extends Validatable {
     if (schema) {
       applySchema(this, schema, controller);
     }
-    if (endpoint) {
+    if (path) {
+      applyPath(this, path, controller);
+    } else if (endpoint) {
       const chain = !authorizer || Array.isArray(authorizer) ? authorizer : [authorizer];
       applyExpose(this, endpoint, ...(chain || []), controller);
     }

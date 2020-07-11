@@ -85,9 +85,7 @@ export default class Schema {
     const fields = {};
     Object.keys(this.fields).forEach((name) => {
       const field = this.fields[name].clone();
-      if (values[name]) {
-        field.default = values[name];
-      }
+      field.default = values[name];
       fields[name] = field;
     });
     return new Schema(fields);

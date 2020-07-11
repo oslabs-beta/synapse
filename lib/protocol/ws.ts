@@ -34,7 +34,7 @@ export default (
         const { ignore } = <any>state.$flags;
         if (!ignore) {
           console.log(`${path} changed -- notifying peers.`);
-          socket.send(JSON.stringify({ [`UPDATE ${path}`]: {} }));
+          socket.send(JSON.stringify({ 'UPDATE /': path }));
         }
       } else {
         // otherwise, return control to the express application using 'callback'
@@ -73,7 +73,8 @@ export default (
 
         if (method === 'update') {
           console.log(msg);
-          return Manager.invalidate(path, { ignore: true });
+          const paths = data[endpoint];
+          return Manager.invalidate(paths, { ignore: true });
         }
 
         if (method === 'unsubscribe') {

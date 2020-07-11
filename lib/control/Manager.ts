@@ -11,7 +11,7 @@ import Operation from './Operation';
 /** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode State} via _queries_ and notifies relevant subscribers whenever cached {@linkcode State} change. */
 export default class Manager {
   /** Maps _queries_ to the {@linkcode State|states} produced by invoking their associated {@linkcode Manager.operations|operations}. */
-  private static states: Map<string, State> = new Map();
+  private static states: Map<string, State | Promise<State>> = new Map();
 
   /** Maps _queries_ to cacheable {@linkcode Operation|operations} that will be invoked to recalculate their {@linkcode Manager.states|state}. */
   private static operations: Map<string, Operation> = new Map();
@@ -30,9 +30,17 @@ export default class Manager {
   private static async cache(operation: Operation): Promise<State> {
     const { query } = operation;
 
+    const probe = this.states.get(query);
+    if (probe instanceof Promise) {
+      return probe;
+    }
+
+    console.log(query);
+
     this.operations.set(query, operation);
 
-    const state = await operation();
+    this.states.set(query, operation());
+    const state = await this.states.get(query);
     this.states.set(query, state);
 
     if (state.isError()) {
@@ -50,15 +58,6 @@ export default class Manager {
     });
 
     return state;
-  }
-
-  /** Given a _query_, checks for an associated, cached {@linkcode Manager.operations|operation} and, if one exists, recalculates its cached state.
-   * @param query A _query_ string.
-   */
-  private static reset(query: string): void {
-    if (this.operations.has(query)) {
-      const temp = this.cache(this.operations.get(query));
-    }
   }
 
   /** Removes a _query_ from the cache along with all of its associations.
@@ -79,15 +78,26 @@ export default class Manager {
   /** Invalidates a _path_, alerting {@linkcode Manager.listeners|listeners} and causing all associated _queries_ to be recalculated.
    * @param path A _path_ string.
    */
-  static invalidate(path: string, flags: object = {}): void {
+  static invalidate(path: string | Array<string>, flags: object = {}): void {
+    const queries = new Set();
+    new Set(path).forEach((p) => this.dependents.from(p).forEach((q) => queries.add(q)));
+
+    queries.forEach((query: string) => {
+      if (this.operations.has(query)) {
+        // fix: and there are subscribers
+        if (this.subscriptions.to(query).length) {
+          this.cache(this.operations.get(query));
+        } else {
+          this.unset(query);
+        }
+      }
+    });
+
     this.listeners.forEach((client) => {
       const state = State.OK();
       Object.assign(state.$flags, flags);
       client(path, state);
     });
-
-    const queries = this.dependents.from(path);
-    queries.forEach(async (_query) => this.reset(_query));
   }
 
   /** Safely invokes an {@linkcode Operation|operation}, caching the resulting {@linkcode State|state} if applicable or otherwise invalidating dependent paths. */
@@ -103,7 +113,7 @@ export default class Manager {
 
     const state = await operation();
 
-    new Set(operation.dependents).forEach((path) => this.invalidate(path, flags));
+    this.invalidate(operation.dependents, flags);
 
     return state;
   }

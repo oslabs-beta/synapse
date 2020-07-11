@@ -24,12 +24,6 @@ export default class Text extends Field {
   }
 
   async parse(value: any) {
-    if (!value) {
-      return super.parse(value);
-    }
-    if (typeof value === 'object' && value.toString) {
-      value = value.toString();
-    }
     if (typeof value === 'string') {
       for (let i = 0; i < this.rules.length; ++i) {
         const { regex, expect, message } = this.rules[i];
@@ -39,6 +33,12 @@ export default class Text extends Field {
         }
       }
       return value;
+    }
+    if (!value) {
+      return super.parse(value);
+    }
+    if (typeof value === 'object' && value.toString) {
+      value = value.toString();
     }
     return undefined;
   }
