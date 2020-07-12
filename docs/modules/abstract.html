@@ -87,6 +87,8 @@
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#affects" class="tsd-kind-icon">affects</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#expose" class="tsd-kind-icon">expose</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#field" class="tsd-kind-icon">field</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#instance" class="tsd-kind-icon">instance</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#internal" class="tsd-kind-icon">internal</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#schema" class="tsd-kind-icon">schema</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="abstract.html#uses" class="tsd-kind-icon">uses</a></li>
 							</ul>
@@ -106,7 +108,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/abstract/Controllable.ts#L148">lib/abstract/Controllable.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L209">lib/abstract/Controllable.ts:209</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -139,12 +141,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/abstract/Controllable.ts#L118">lib/abstract/Controllable.ts:118</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L149">lib/abstract/Controllable.ts:149</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Decorator function that creates a partially defined instance of <a href="../classes/control.controller.html"><code>Controller</code></a>. Defines {@linkcode Controller.method}, <a href="../classes/control.controller.html#pattern"><code>Controller.pattern</code></a>, and <a href="../classes/control.controller.html#authorizer"><code>Controller.authorizer</code></a>.</p>
+									<p>Decorator function that creates a partially defined instance of <a href="../classes/control.controller.html"><code>Controller</code></a>. Defines <a href="../classes/control.controller.html#isread"><code>Controller.isRead</code></a>, <a href="../classes/control.controller.html#iscacheable"><code>Controller.isCacheable</code></a>, <a href="../classes/control.controller.html#pattern"><code>Controller.pattern</code></a>, and <a href="../classes/control.controller.html#authorizer"><code>Controller.authorizer</code></a>.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -153,7 +155,7 @@
 									<h5>endpoint: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>An string defining an endpoint HTTP method and <em>path pattern</em> in the format <code>METHOD /path/:param</code>.</p>
+											<p>An string defining an endpoint HTTP method and <em>path pattern</em> in the format <code>METHOD /path/:param [NOCACHE]</code>.</p>
 										</div>
 									</div>
 								</li>
@@ -180,7 +182,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/abstract/Validatable.ts#L32">lib/abstract/Validatable.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Validatable.ts#L32">lib/abstract/Validatable.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -212,6 +214,67 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="instance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> instance</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">instance<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L179">lib/abstract/Controllable.ts:179</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decorator function that creates a partially defined instance of <a href="../classes/control.controller.html"><code>Controller</code></a>. Defines <a href="../classes/control.controller.html#instance"><code>Controller.instance</code></a>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>source: <a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>A function which returns an instance of the derived class.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="internal" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> internal</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">internal<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L133">lib/abstract/Controllable.ts:133</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decorator function that creates a partially defined instance of <a href="../classes/control.controller.html"><code>Controller</code></a>. Defines <a href="../classes/control.controller.html#isread"><code>Controller.isRead</code></a>, <a href="../classes/control.controller.html#iscacheable"><code>Controller.isCacheable</code></a>, and <a href="../classes/control.controller.html#pattern"><code>Controller.pattern</code></a>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/utility.callable.html#function" class="tsd-signature-type">Function</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="schema" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> schema</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -221,7 +284,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/abstract/Controllable.ts#L133">lib/abstract/Controllable.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L164">lib/abstract/Controllable.ts:164</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -254,7 +317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/abstract/Controllable.ts#L163">lib/abstract/Controllable.ts:163</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/abstract/Controllable.ts#L194">lib/abstract/Controllable.ts:194</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -321,6 +384,12 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="abstract.html#field" class="tsd-kind-icon">field</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="abstract.html#instance" class="tsd-kind-icon">instance</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="abstract.html#internal" class="tsd-kind-icon">internal</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="abstract.html#schema" class="tsd-kind-icon">schema</a>

@@ -105,18 +105,18 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#caller" class="tsd-kind-icon">caller</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.operation.html#dependencies" class="tsd-kind-icon">dependencies</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.operation.html#dependents" class="tsd-kind-icon">dependents</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.operation.html#iscacheable" class="tsd-kind-icon">is<wbr>Cacheable</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#length" class="tsd-kind-icon">length</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#prototype" class="tsd-kind-icon">prototype</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="control.operation.html#query" class="tsd-kind-icon">query</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#apply" class="tsd-kind-icon">apply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#bind" class="tsd-kind-icon">bind</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#call" class="tsd-kind-icon">call</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="control.operation.html#iscacheable" class="tsd-kind-icon">is<wbr>Cacheable</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="control.operation.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
 							</ul>
 						</section>
@@ -129,14 +129,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Operation<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, func<span class="tsd-signature-symbol">: </span><a href="utility.callable.html#function" class="tsd-signature-type">Function</a>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, isRead<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, dependents<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, dependencies<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="control.operation.html" class="tsd-signature-type">Operation</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Operation<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, func<span class="tsd-signature-symbol">: </span><a href="utility.callable.html#function" class="tsd-signature-type">Function</a>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, isRead<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, isCacheable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, dependents<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, dependencies<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="control.operation.html" class="tsd-signature-type">Operation</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="utility.callable.html">Callable</a>.<a href="utility.callable.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Operation.ts#L17">lib/control/Operation.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/control/Operation.ts#L20">lib/control/Operation.ts:20</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -171,7 +171,15 @@
 									<h5>isRead: <span class="tsd-signature-type">boolean</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>Determines whether is the operation is a <em>read</em> or <em>write</em>. If the operation is a <em>read</em>, it will also be considered <a href="control.operation.html#iscacheable"><code>cacheable</code></a>. If it&#39;s a <em>write</em>, the <code>path</code> will considered a <a href="control.operation.html#dependents"><code>dependent</code></a>.</p>
+											<p>Determines whether is the operation is a <em>read</em> or <em>write</em>. If the operation is a <em>read</em>, the <code>path</code> will be considered a {@linkcode Operation.dependency|dependency}. If it&#39;s a <em>write</em>, the <code>path</code> will be considered a <a href="control.operation.html#dependents"><code>dependent</code></a>.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>isCacheable: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>See <a href="control.operation.html#iscacheable"><code>Operation.isCacheable</code></a>. Note that this parameter can only be used to make a <em>read</em> operation non-cacheable, not to make a <em>write</em> operation cacheable.</p>
 										</div>
 									</div>
 								</li>
@@ -206,7 +214,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="utility.callable.html">Callable</a>.<a href="utility.callable.html#__call__">__call__</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/utility/Callable.ts#L6">lib/utility/Callable.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/utility/Callable.ts#L6">lib/utility/Callable.ts:6</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -243,7 +251,7 @@
 					<div class="tsd-signature tsd-kind-icon">dependencies<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Operation.ts#L17">lib/control/Operation.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/control/Operation.ts#L20">lib/control/Operation.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -258,12 +266,27 @@
 					<div class="tsd-signature tsd-kind-icon">dependents<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Operation.ts#L14">lib/control/Operation.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/control/Operation.ts#L17">lib/control/Operation.ts:17</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>The <em>paths</em> which should be invalidated whenever the operation is invoked.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="iscacheable" class="tsd-anchor"></a>
+					<h3>is<wbr>Cacheable</h3>
+					<div class="tsd-signature tsd-kind-icon">is<wbr>Cacheable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/control/Operation.ts#L14">lib/control/Operation.ts:14</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Determines whether the operation may be cached.</p>
 						</div>
 					</div>
 				</section>
@@ -295,7 +318,7 @@
 					<div class="tsd-signature tsd-kind-icon">query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Operation.ts#L11">lib/control/Operation.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/control/Operation.ts#L11">lib/control/Operation.ts:11</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -305,7 +328,7 @@
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="apply" class="tsd-anchor"></a>
@@ -431,28 +454,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="iscacheable" class="tsd-anchor"></a>
-					<h3>is<wbr>Cacheable</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Cacheable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/a312a40/lib/control/Operation.ts#L63">lib/control/Operation.ts:63</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns true if the operation is cacheable (and therefore a <em>read</em> operation), otherwise false.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="tostring" class="tsd-anchor"></a>
 					<h3>to<wbr>String</h3>
@@ -532,6 +533,9 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="control.operation.html#dependents" class="tsd-kind-icon">dependents</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="control.operation.html#iscacheable" class="tsd-kind-icon">is<wbr>Cacheable</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="control.operation.html#length" class="tsd-kind-icon">length</a>
 							</li>
@@ -549,9 +553,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="control.operation.html#call" class="tsd-kind-icon">call</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="control.operation.html#iscacheable" class="tsd-kind-icon">is<wbr>Cacheable</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="control.operation.html#tostring" class="tsd-kind-icon">to<wbr>String</a>
