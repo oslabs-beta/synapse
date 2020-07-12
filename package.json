@@ -1,6 +1,6 @@
 {
   "name": "@synapsejs/synapse",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Realtime API Library",
   "main": "build/lib/index.js",
   "types": "build/lib/index.d.ts",
