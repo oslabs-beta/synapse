@@ -35,8 +35,6 @@ export default class Manager {
       return probe;
     }
 
-    console.log(query);
-
     this.operations.set(query, operation);
 
     this.states.set(query, operation());
@@ -104,7 +102,7 @@ export default class Manager {
   static async execute(operation: Operation, flags: object = {}): Promise<State> {
     const { query } = operation;
 
-    if (operation.isCacheable()) {
+    if (operation.isCacheable) {
       if (this.states.has(query)) {
         return this.states.get(query);
       }

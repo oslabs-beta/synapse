@@ -48,21 +48,26 @@ export const requireAll = (path: string) => {
 export const mergePaths = (...paths) => {
   let result = '';
   // eslint-disable-next-line consistent-return
-  paths.forEach((path) => {
+  for (let i = 0; i < paths.length; ++i) {
+    let path = paths[i];
     if (!path) {
       return undefined;
     }
+
     if (path[0] !== '/') {
       // eslint-disable-next-line no-param-reassign
       path = `/${path}`;
     }
+
     const end = path.length - 1;
     if (path[end] === '/') {
       // eslint-disable-next-line no-param-reassign
       path = path.substr(0, end);
     }
+
     result += path;
-  });
+  }
+
   return result || '/';
 };
 
@@ -71,7 +76,7 @@ export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root
     return {};
   }
 
-  let [method, path] = endpoint.split(' ');
+  let [method, path, _flags] = endpoint.split(' ');
 
   method = method.toLowerCase();
   path = mergePaths(root, path);
@@ -81,7 +86,9 @@ export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root
     return {};
   }
 
-  return { method, path };
+  const flags = _flags ? _flags.split('|').map((flag) => flag.toLowerCase()) : [];
+
+  return { method, path, flags };
 };
 
 export const routeToPath = (route: string, args: object, query: boolean = false) => {

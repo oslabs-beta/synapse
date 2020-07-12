@@ -96,6 +96,9 @@ export default class Schema {
    * @returns A new object containing only the values that have been parsed by corresponding fields in the _fieldset_, or undefined if a corresponding value for any field was not present.
    */
   async validate(data: object): Promise<object> {
+    if (!data || typeof data !== 'object') {
+      return undefined;
+    }
     // for each field in the schema, parse the corresponding input value from 'data'
     const keys = Object.keys(this.fields);
     const parsed = await Promise.all(keys.map((key) => this.fields[key].parse(data[key])));

@@ -21,29 +21,43 @@ export default class Controller extends Callable {
   schema: Schema = new Schema();
   /** A function ```(args) => {...}```that will be used to authorize invocations made using {@linkcode Controller.try|Controller.prototype.try}. Should return an object if the _argument set_ was valid, or an instance of {@linkcode State} to abort the operation.  */
   authorizer: Function;
+  /** An optional function returning an object to which the controller function will be bound before invocation. */
+  instance: Function;
+  /** Determines whether the instance represents a _read_ or _write_ operation. */
+  isRead: boolean;
   /** Determines whether the instance represents a cacheable operation. */
-  cacheable: boolean;
+  isCacheable: boolean;
 
   /**
    * @param target The function to be transferred to all generated operations.
    */
   constructor(target: Function) {
-    super(async (args: object, flags: object = {}) => {
+    super(async (args: object = {}, flags: object = {}) => {
       const validated = await this.schema.validate(args);
 
       if (!validated) {
         return State.BAD_REQUEST(this.schema.lastError);
       }
 
+      let _this = this;
+      if (this.instance) {
+        _this = await this.instance(validated);
+        if (!_this || typeof _this !== 'object') {
+          return State.NOT_FOUND();
+        }
+      }
+
+      const bound = target.bind(_this);
+
       if (!this.pattern) {
-        return target(validated);
+        return bound(validated);
       }
 
       const path = routeToPath(this.pattern, validated);
       const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
       const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
 
-      const op = new Operation(path, target, validated, this.cacheable, dependents, dependencies);
+      const op = new Operation(path, bound, validated, this.isRead, this.isCacheable, dependents, dependencies);
 
       return Manager.execute(op, flags);
     });
