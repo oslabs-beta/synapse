@@ -104,7 +104,6 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.state.html#_dependencies" class="tsd-kind-icon">$dependencies</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.state.html#_flags" class="tsd-kind-icon">$flags</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.state.html#_message" class="tsd-kind-icon">$message</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.state.html#_query" class="tsd-kind-icon">$query</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="index.state.html#_status" class="tsd-kind-icon">$status</a></li>
@@ -116,6 +115,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="index.state.html#iserror" class="tsd-kind-icon">is<wbr>Error</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="index.state.html#render" class="tsd-kind-icon">render</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="index.state.html#serialize" class="tsd-kind-icon">serialize</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="index.state.html#tojson" class="tsd-kind-icon">toJSON</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="index.state.html#bad_request" class="tsd-kind-icon">BAD_<wbr>REQUEST</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="index.state.html#conflict" class="tsd-kind-icon">CONFLICT</a></li>
@@ -143,7 +143,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L20">lib/State.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L18">lib/State.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -180,7 +180,7 @@
 					<div class="tsd-signature tsd-kind-icon">$dependencies<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L20">lib/State.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L18">lib/State.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -190,27 +190,12 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="_flags" class="tsd-anchor"></a>
-					<h3>$flags</h3>
-					<div class="tsd-signature tsd-kind-icon">$flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L18">lib/State.ts:18</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>An object containing any identifiers needed to track the request.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_message" class="tsd-anchor"></a>
 					<h3>$message</h3>
 					<div class="tsd-signature tsd-kind-icon">$message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L14">lib/State.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L14">lib/State.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -225,7 +210,7 @@
 					<div class="tsd-signature tsd-kind-icon">$query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L16">lib/State.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L16">lib/State.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -240,7 +225,7 @@
 					<div class="tsd-signature tsd-kind-icon">$status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L12">lib/State.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L12">lib/State.ts:12</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -255,7 +240,7 @@
 					<div class="tsd-signature tsd-kind-icon">$type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L10">lib/State.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L10">lib/State.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -277,7 +262,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L33">lib/State.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L31">lib/State.ts:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -299,7 +284,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L39">lib/State.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L37">lib/State.ts:37</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -308,6 +293,28 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="serialize" class="tsd-anchor"></a>
+					<h3>serialize</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">serialize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L42">lib/State.ts:42</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a serialized version of the public representation of the instance for network transport.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -321,7 +328,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L44">lib/State.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L47">lib/State.ts:47</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -360,7 +367,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L63">lib/State.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L66">lib/State.ts:66</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -383,7 +390,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L75">lib/State.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L78">lib/State.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -406,7 +413,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L57">lib/State.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L60">lib/State.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -429,7 +436,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L69">lib/State.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L72">lib/State.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -452,7 +459,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L78">lib/State.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L81">lib/State.ts:81</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -475,7 +482,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L72">lib/State.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L75">lib/State.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -498,7 +505,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L60">lib/State.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L63">lib/State.ts:63</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="index.state.html" class="tsd-signature-type">State</a></h4>
@@ -515,7 +522,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L54">lib/State.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L57">lib/State.ts:57</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -538,7 +545,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/53f9775/lib/State.ts#L66">lib/State.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/madisonbrown/synapse/blob/6b5625f/lib/State.ts#L69">lib/State.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -602,9 +609,6 @@
 								<a href="index.state.html#_dependencies" class="tsd-kind-icon">$dependencies</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="index.state.html#_flags" class="tsd-kind-icon">$flags</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="index.state.html#_message" class="tsd-kind-icon">$message</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
@@ -621,6 +625,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="index.state.html#render" class="tsd-kind-icon">render</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="index.state.html#serialize" class="tsd-kind-icon">serialize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="index.state.html#tojson" class="tsd-kind-icon">toJSON</a>

@@ -121,7 +121,7 @@ export default class Controllable extends Validatable {
     if (affects) {
       applyAffects(this, affects, controller);
     }
-    
+
     return controller;
   }
 }
