@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable valid-typeof */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
@@ -71,7 +72,7 @@ export const mergePaths = (...paths) => {
   return result || '/';
 };
 
-export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = '') => {
+export const parseEndpoint = (endpoint: string, custom: Array<string> = [], root: string = '/') => {
   if (!endpoint || typeof endpoint !== 'string') {
     return {};
   }

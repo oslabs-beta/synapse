@@ -30,27 +30,32 @@ export default class Manager {
   private static async cache(operation: Operation): Promise<State> {
     const { query } = operation;
 
+    // if the query is already being recalculated, its state will be a Promise
     const probe = this.states.get(query);
     if (probe instanceof Promise) {
-      return probe;
+      return probe; // the Promise will resolve to the result of the recalculation, so we can just return it.
     }
 
     this.operations.set(query, operation);
 
-    this.states.set(query, operation());
-    const state = await this.states.get(query);
-    this.states.set(query, state);
+    // in order to prevent dependency cycles:
+    this.states.set(query, operation()); // first set the query's state to a promise
+    const state = await this.states.get(query); // then wait for the promise to resolve
+    this.states.set(query, state); // finally, set the state to the result of the promise
 
+    // if the result is an error, don't cache it
     if (state.isError()) {
       this.unset(query);
       return state;
     }
 
+    // otherwise, reset the query's dependencies
     this.dependents.unlink(null, query);
     state.$dependencies.forEach((path: string) => {
       this.dependents.link(path, query);
     });
 
+    // and notify subscribers with the new state
     this.subscriptions.to(query).forEach((client) => {
       client(query, state);
     });
@@ -73,45 +78,52 @@ export default class Manager {
     });
   }
 
-  /** Invalidates a _path_, alerting {@linkcode Manager.listeners|listeners} and causing all associated _queries_ to be recalculated.
-   * @param path A _path_ string.
+  /** Invalidates a _path_, possibly alerting {@linkcode Manager.listeners|listeners} and causing all associated _queries_ to be recalculated.
+   * @param path A _path_ string or array of _path_ strings.
+   * @param override If ```true```, signifies that listeners should not be notified of the invalidated paths.
    */
-  static invalidate(path: string | Array<string>, flags: object = {}): void {
+  static invalidate(paths: string | Array<string>, override: boolean = false): void {
+    // get all of the unique queries associated with the collection of paths
     const queries = new Set();
-    new Set(path).forEach((p) => this.dependents.from(p).forEach((q) => queries.add(q)));
+    new Set(paths).forEach((path) => {
+      this.dependents.from(path).forEach((query) => {
+        queries.add(query);
+      });
+    });
 
     queries.forEach((query: string) => {
       if (this.operations.has(query)) {
-        // fix: and there are subscribers
         if (this.subscriptions.to(query).length) {
-          this.cache(this.operations.get(query));
+          this.cache(this.operations.get(query)); // the query has subscribers, recalculate its state
         } else {
-          this.unset(query);
+          this.unset(query); // otherwise just remove it from the cache
         }
       }
     });
 
-    this.listeners.forEach((client) => {
-      const state = State.OK();
-      Object.assign(state.$flags, flags);
-      client(path, state);
-    });
+    // notify the listeners of the invalidated paths
+    if (!override) {
+      this.listeners.forEach((client) => {
+        client(paths, State.OK());
+      });
+    }
   }
 
   /** Safely invokes an {@linkcode Operation|operation}, caching the resulting {@linkcode State|state} if applicable or otherwise invalidating dependent paths. */
-  static async execute(operation: Operation, flags: object = {}): Promise<State> {
+  static async execute(operation: Operation): Promise<State> {
     const { query } = operation;
 
     if (operation.isCacheable) {
       if (this.states.has(query)) {
         return this.states.get(query);
       }
+
       return this.cache(operation);
     }
 
     const state = await operation();
 
-    this.invalidate(operation.dependents, flags);
+    this.invalidate(operation.dependents);
 
     return state;
   }

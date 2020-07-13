@@ -14,8 +14,6 @@ export default class State {
   $message: string = '';
   /** An HTTP query string representing the requested _path_ and validated arguments. */
   $query: string = null;
-  /** An object containing any identifiers needed to track the request. */
-  $flags: object = {};
   /** An array of _paths_ upon which the response data depends. */
   $dependencies: Array<string> = [];
 
@@ -38,6 +36,11 @@ export default class State {
   /** Returns a public representation of the instance _payload_. By default, this is the instance's {@linkcode State.$message|message}, though derived classes should override this behavior. */
   render(): any {
     return this.$message;
+  }
+
+  /** Returns a serialized version of the public representation of the instance for network transport. */
+  serialize() {
+    return JSON.stringify(this.render());
   }
 
   /** Returns a public representation of the instance _metadata_, with the instance's {@linkcode State.render|rendered} _payload_ assigned to the property ```payload``` on the resulting object. Called when an the instance is converted to JSON via ```JSON.stringify```. */

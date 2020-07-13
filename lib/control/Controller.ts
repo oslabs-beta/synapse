@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
@@ -32,23 +33,20 @@ export default class Controller extends Callable {
    * @param target The function to be transferred to all generated operations.
    */
   constructor(target: Function) {
-    super(async (args: object = {}, flags: object = {}) => {
-      const validated = await this.schema.validate(args);
-
-      if (!validated) {
-        return State.BAD_REQUEST(this.schema.lastError);
-      }
-
-      let _this = this;
-      if (this.instance) {
-        _this = await this.instance(validated);
-        if (!_this || typeof _this !== 'object') {
+    super(async (_this: object, args: object = {}) => {
+      if (this.instance && !_this) {
+        _this = await this.instance(args);
+        if (!(_this instanceof State) || _this.isError()) {
           return State.NOT_FOUND();
         }
       }
 
-      const bound = target.bind(_this);
+      const validated = await this.schema.validate(args);
+      if (!validated) {
+        return State.BAD_REQUEST(this.schema.lastError);
+      }
 
+      const bound = target.bind(_this);
       if (!this.pattern) {
         return bound(validated);
       }
@@ -57,22 +55,30 @@ export default class Controller extends Callable {
       const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
       const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
 
-      const op = new Operation(path, bound, validated, this.isRead, this.isCacheable, dependents, dependencies);
+      const op = new Operation(
+        path,
+        bound,
+        validated,
+        this.isRead,
+        this.isCacheable,
+        dependents,
+        dependencies
+      );
 
-      return Manager.execute(op, flags);
+      return Manager.execute(op);
     });
   }
 
   /** When invoked, {@linkcode Controller.authorizer|authorizes} the _argument set_ ```args```, then invokes the instance _trustedly_.
    * @param args An _argument set_.
    */
-  try = async (args: object, flags: object = {}) => {
+  try = async (args: object) => {
     const authorized = this.authorizer ? await this.authorizer(args) : args;
 
     if (authorized instanceof State) {
       return authorized;
     }
 
-    return this(authorized, flags);
+    return this(authorized);
   };
 }

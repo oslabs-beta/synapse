@@ -17,40 +17,52 @@ export default (
   join: Array<string> | Promise<Array<string>> = []
 ): Function => {
   // the WebSocket interface accepts two custom methods
-  const customMethods = ['subscribe', 'unsubscribe', 'update'];
+  const customMethods = ['subscribe', 'unsubscribe'];
 
-  Promise.resolve(accept).then((ips) => {
-    accept = ips;
-  });
-  accept = [];
-
-  const initialize = (socket: any, req: any) => {
-    // when a new connection is received, determine if the client is a peer server
-    const isPeer = req.isPeer || (<Array<string>>accept).indexOf(req.connection.remoteAddress) !== -1;
-
-    // create a function to handle updates to that client
-    const client = (path: string, state: State, render: boolean = true) => {
-      if (isPeer) {
-        const { ignore } = <any>state.$flags;
-        if (!ignore) {
-          console.log(`${path} changed -- notifying peers.`);
-          socket.send(JSON.stringify({ 'UPDATE /': path }));
-        }
-      } else {
-        // otherwise, return control to the express application using 'callback'
-        const _req = {};
-        const _res = {
-          locals: state,
-          status: () => _res,
-          json: () => socket.send(JSON.stringify({ [path]: render ? state.render() : state })),
-        };
-        callback(_req, _res);
-      }
+  const newPeer = (socket: any) => {
+    const listener = (paths: string | Array<string>) => {
+      console.log(`${paths} changed -- notifying peers.`);
+      socket.send(JSON.stringify({ UPDATE: paths }));
     };
 
-    if (isPeer) {
-      Manager.listen(client);
-    }
+    Manager.listen(listener);
+
+    socket.on('message', (msg: string) => {
+      console.log(msg);
+
+      // make sure the message can be parsed to an object
+      const data = tryParseJSON(msg);
+      if (typeof data !== 'object') {
+        return;
+      }
+
+      // attempt to execute each request on the object
+      Object.entries(data).forEach(([method, args]) => {
+        method = method.toLowerCase();
+
+        if (method === 'update' && (typeof args === 'string' || Array.isArray(args))) {
+          return Manager.invalidate(args, true);
+        }
+
+        return null;
+      });
+    });
+
+    socket.on('close', () => {
+      Manager.unlisten(listener);
+    });
+  };
+
+  const newClient = (socket: any, req: any) => {
+    // create a function to handle updates to that client
+    const client = (path: string, state: State, render: boolean = true) => {
+      const _req = {};
+      const _res = {
+        locals: state,
+        stream: (data: State) => socket.send(JSON.stringify({ [path]: render ? data.render() : data })),
+      };
+      callback(_req, _res);
+    };
 
     socket.on('message', async (msg: string) => {
       // make sure the message can be parsed to an object
@@ -65,17 +77,11 @@ export default (
         // make sure each method is valid
         const { method, path } = parseEndpoint(endpoint, customMethods);
 
-        if (!method || (method === 'update' && !isPeer)) {
+        if (!method) {
           return client(endpoint, State.BAD_REQUEST('Invalid Method'));
         }
 
         const args = { ...req.cookies, ...data[endpoint] };
-
-        if (method === 'update') {
-          console.log(msg);
-          const paths = data[endpoint];
-          return Manager.invalidate(paths, { ignore: true });
-        }
 
         if (method === 'unsubscribe') {
           Manager.unsubscribe(client, path);
@@ -83,30 +89,37 @@ export default (
         }
 
         if (method === 'subscribe') {
-          const state = await router.request('get', path, args, { method });
+          const state = await router.request('get', path, args);
           Manager.subscribe(client, state.$query);
           return client(endpoint, state, false);
         }
 
-        return client(endpoint, await router.request(method, path, args, { method }), false);
+        return client(endpoint, await router.request(method, path, args), false);
       });
     });
 
     // when a client disconnects, cancel all their subscriptions
     socket.on('close', () => {
-      if (isPeer) {
-        Manager.unlisten(client);
-      } else {
-        Manager.unsubscribe(client);
-      }
+      Manager.unsubscribe(client);
     });
   };
 
+  Promise.resolve(accept).then((ips) => {
+    accept = ips;
+  });
+
   Promise.resolve(join).then((peers) => {
     peers.forEach((uri) => {
-      initialize(new WebSocket(uri), { isPeer: true });
+      newPeer(new WebSocket(uri));
     });
   });
 
-  return initialize;
+  return (socket: any, req: any) => {
+    // when a new connection is received, determine if the client is a peer server
+    if (Array.isArray(accept) && accept.indexOf(req.connection.remoteAddress) !== -1) {
+      return newPeer(socket);
+    }
+
+    return newClient(socket, req);
+  };
 };

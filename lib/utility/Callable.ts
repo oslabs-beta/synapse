@@ -6,8 +6,8 @@ export default class Callable extends Function {
   __call__: Function;
 
   constructor(fn: Function = null) {
-    super('return arguments.callee.__call__.apply(arguments.callee, arguments)');
+    super('return arguments.callee.__call__.apply(arguments.callee, [this, ...arguments])');
 
-    this.__call__ = fn || (() => {});
+    this.__call__ = fn || (() => { });
   }
 }
