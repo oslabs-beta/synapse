@@ -23,7 +23,7 @@ const applyPath = (Class: any, pattern: string, target: Function) => {
   return toController(target, {
     pattern: path,
     isRead: method === 'read',
-    isCacheable: !flags.includes('nocache')
+    isCacheable: !flags.includes('nocache'),
   });
 };
 

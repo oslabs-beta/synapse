@@ -34,11 +34,15 @@ export default class Controller extends Callable {
    */
   constructor(target: Function) {
     super(async (_this: object, args: object = {}) => {
-      if (this.instance && !_this) {
+      if (this.instance && !(_this instanceof State)) {
         _this = await this.instance(args);
         if (!(_this instanceof State) || _this.isError()) {
           return State.NOT_FOUND();
         }
+      }
+
+      if (_this) {
+        args = { ..._this, ...args };
       }
 
       const validated = await this.schema.validate(args);
