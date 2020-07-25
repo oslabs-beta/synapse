@@ -1,4 +1,2 @@
 travis ci
-additional fields
 fix tests (no database)
-deffered schema evaluation

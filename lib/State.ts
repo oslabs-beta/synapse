@@ -43,6 +43,12 @@ export default class State {
     return JSON.stringify(this.render());
   }
 
+  /** Adds the given states to the instance's {@linkcode State.$dependencies|dependencies}, such that when those states are invalidated, so will be the instance. */
+  uses(...states: Array<State>) {
+    states.forEach((state) => this.$dependencies.push(...state.$dependencies));
+    return this;
+  }
+
   /** Returns a public representation of the instance _metadata_, with the instance's {@linkcode State.render|rendered} _payload_ assigned to the property ```payload``` on the resulting object. Called when an the instance is converted to JSON via ```JSON.stringify```. */
   toJSON() {
     return {
@@ -59,6 +65,9 @@ export default class State {
   }
   static CREATED(message: any = null) {
     return new State(201, message);
+  }
+  static ACCEPTED(message: any = null) {
+    return new State(202, message);
   }
   static NO_CONTENT() {
     return new State(204);

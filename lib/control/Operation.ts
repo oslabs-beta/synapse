@@ -20,7 +20,6 @@ export default class Operation extends Callable {
   dependencies: Array<string>;
 
   /**
-   *
    * @param path The _path_ which the operation evaluates. Used to determine the resulting _query_.
    * @param func The function that will be invoked when the instance is invoked.
    * @param args The arguments with which the ```func``` will be invoked and which will be used to construct the instance's {@linkcode Operation.query|query} string.

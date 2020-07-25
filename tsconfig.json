@@ -10,9 +10,15 @@
   "typedocOptions": {
     "name": "synapse",
     "inputFiles": "lib",
-    "out": "docs",
+    "out": "../docs/public/docs",
+    "json": "../docs/data.json",
     "mode": "modules",
-    "exclude": ["index.ts", "**/index.ts", "lib/postgres/*.ts"],
+    "theme": "../docs/template",
+    "exclude": [
+      "index.ts",
+      "**/index.ts",
+      "lib/postgres/*.ts"
+    ],
     "excludeNotExported": true
   }
 }

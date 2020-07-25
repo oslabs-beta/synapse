@@ -12,14 +12,15 @@ import { routeToPath } from '../utility';
 
 /** Callable type representing a method exposed to an API at a _path {@linkcode Controller.pattern|pattern}_ in the format```/path/:param```. When invoked with an _argument set_, creates an instance of {@linkcode Operation} which is executed by the {@linkcode Manager}. There are two ways to invoke a controller instance: 1) _untrustedly_, using {@linkcode Controller.try|Controller.prototype.try}, which first passes the _argument set_ through an optional {@linkcode Controller.authorizer|authorizer} function, or 2) _trustedly_, using ```()```, which bypasses the authorizer. In both cases, the _argument set_ will first be validated by the {@linkcode Controller.schema}. Optionally, {@linkcode Controller.dependencies|dependencies} and {@linkcode Controller.dependents|dependents} may also be specified as an array of _path patterns_ which will be evaluated at invocation and transferred to the resulting {@linkcode Operation|operation}. */
 export default class Controller extends Callable {
+
   /** A _path pattern_ */
   pattern: string;
   /** An array of _path patterns_. */
   dependencies: Array<string> = [];
   /** An array of _path patterns_. */
   dependents: Array<string> = [];
-  /** A {@linkcode Schema} that will be used to validate all invocations. */
-  schema: Schema = new Schema();
+  /** A {@linkcode Schema}, or a function that evaluates to one, which will be used to validate all invocations. */
+  _schema: Schema | Function = new Schema();
   /** A function ```(args) => {...}```that will be used to authorize invocations made using {@linkcode Controller.try|Controller.prototype.try}. Should return an object if the _argument set_ was valid, or an instance of {@linkcode State} to abort the operation.  */
   authorizer: Function;
   /** An optional function returning an object to which the controller function will be bound before invocation. */
@@ -28,6 +29,13 @@ export default class Controller extends Callable {
   isRead: boolean;
   /** Determines whether the instance represents a cacheable operation. */
   isCacheable: boolean;
+
+  get schema(): Schema {
+    if (typeof this._schema === 'function') {
+      this._schema = this._schema();
+    }
+    return <Schema>this._schema;
+  }
 
   /**
    * @param target The function to be transferred to all generated operations.
@@ -41,7 +49,7 @@ export default class Controller extends Callable {
         }
       }
 
-      if (_this) {
+      if (_this instanceof State) {
         args = { ..._this, ...args };
       }
 
@@ -69,7 +77,7 @@ export default class Controller extends Callable {
         dependencies
       );
 
-      return Manager.execute(op);
+      return Manager.access().execute(op);
     });
   }
 

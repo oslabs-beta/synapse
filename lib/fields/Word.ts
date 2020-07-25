@@ -16,11 +16,11 @@ export default class Word extends Text {
     this.assert(/[^\w]/, false, 'must contain only alphanumeric characters');
   }
 
-  async parse(value: any) {
-    const valid = await super.parse(value);
-    if (!valid) {
-      return undefined;
+  async parse(value: any): Promise<any> {
+    const check = await super.parse(value);
+    if (!check) {
+      return check;
     }
-    return valid.toLowerCase();
+    return check.toLowerCase();
   }
 }

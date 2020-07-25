@@ -54,7 +54,7 @@ const applyExpose = (Class: any, pattern: string, ...chain: Array<Function>) => 
 
 const applySchema = (Class: any, from: Schema | object, target: Function) => {
   return toController(target, {
-    schema: from instanceof Schema ? from : new Schema(from),
+    _schema: from instanceof Schema || typeof from === 'function' ? from : new Schema(from),
   });
 };
 
@@ -99,7 +99,7 @@ export default class Controllable extends Validatable {
    * @param options An object defining the endpoint method and pattern, authorizers, schema, and dependencies.
    * @param method A function defining endpoint business logic.
    */
-  static expose(options: ControllerOptions, method): Controller {
+  protected static expose(options: ControllerOptions, method): Controller {
     const { path, endpoint, authorizer, schema, instance, uses, affects } = options;
 
     const controller = new Controller(method);

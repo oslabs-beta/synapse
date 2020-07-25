@@ -13,7 +13,7 @@ export default class Hash extends Text {
     this.saltRounds = saltRounds;
   }
 
-  async parse(value: any) {
+  async parse(value: any): Promise<any> {
     if (await super.parse(value)) {
       return bcrypt.hash(value, this.saltRounds);
     }

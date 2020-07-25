@@ -43,7 +43,7 @@ export default (router: Router, callback: Function): Function => {
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const state = await router.request('get', req.path, args);
 
-    Manager.subscribe(client, state.$query);
+    Manager.access().subscribe(client, state.$query);
 
     return client(endpoint, state, false);
   };

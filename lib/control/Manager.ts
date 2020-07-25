@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
@@ -10,25 +11,45 @@ import Operation from './Operation';
 
 /** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode State} via _queries_ and notifies relevant subscribers whenever cached {@linkcode State} change. */
 export default class Manager {
+  /** The instance of Manager (or derived class) currently accessible via the Manager singleton, using {@linkcode Mangager.access}. */
+  private static instance: Manager;
+
+  /** The maximum number of queries that can be cached before an {@linkcode Manager.evict|eviction} occurs. */
+  protected maxSize: number = 25000;
+
+  /** Stores all cached _queries_ from least to most recently calculated. */
+  private queries: Set<string> = new Set();
+
   /** Maps _queries_ to the {@linkcode State|states} produced by invoking their associated {@linkcode Manager.operations|operations}. */
-  private static states: Map<string, State | Promise<State>> = new Map();
+  private states: Map<string, State | Promise<State>> = new Map();
 
   /** Maps _queries_ to cacheable {@linkcode Operation|operations} that will be invoked to recalculate their {@linkcode Manager.states|state}. */
-  private static operations: Map<string, Operation> = new Map();
+  private operations: Map<string, Operation> = new Map();
 
   /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.cache|recalculated}. */
-  private static dependents: Relation<string, string> = new Relation();
+  private dependents: Relation<string, string> = new Relation();
 
   /** Maps _subscribers_ (represented by callback functions) to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.cache|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
-  private static subscriptions: Relation<Function, string> = new Relation();
+  private subscriptions: Relation<Function, string> = new Relation();
 
   /** A set containing functions ```(path, internal) => {...}``` which will be invoked when any _path_ is invalidated, with the invalidated _path_ string and a boolean denoting whether the invalidating initiated by a caller other than the {@linkcode Manager}. */
-  private static listeners: Set<Function> = new Set();
+  private listeners: Set<Function> = new Set();
+
+  constructor(maxSize: number = null) {
+    if (maxSize) {
+      this.maxSize = maxSize;
+    }
+  }
 
   /** Executes the given {@linkcode Operation|operation} and stores it as well as the resulting {@linkcode State|state} in association with the operation's {@linkcode Operation.query|query}.
    */
-  private static async cache(operation: Operation): Promise<State> {
+  private async cache(operation: Operation): Promise<State> {
     const { query } = operation;
+
+    // add the query (or move it) to the back of the eviction queue, then evict any excess queries
+    this.queries.delete(query);
+    this.queries.add(query);
+    this.evict();
 
     // if the query is already being recalculated, its state will be a Promise
     const probe = this.states.get(query);
@@ -63,10 +84,24 @@ export default class Manager {
     return state;
   }
 
+  /** Removes the oldest cached query with no associated subscribers.
+   * @param query A _query_ string.
+   */
+  private evict(): void {
+    if (this.queries.size > this.maxSize) {
+      for (const query of this.queries) {
+        if (this.subscriptions.to(query).length === 0) {
+          this.unset(query);
+          return;
+        }
+      }
+    }
+  }
+
   /** Removes a _query_ from the cache along with all of its associations.
    * @param query A _query_ string.
    */
-  private static unset(query: string): void {
+  private unset(query: string): void {
     this.states.delete(query);
     this.operations.delete(query);
 
@@ -82,7 +117,7 @@ export default class Manager {
    * @param path A _path_ string or array of _path_ strings.
    * @param override If ```true```, signifies that listeners should not be notified of the invalidated paths.
    */
-  static invalidate(paths: string | Array<string>, override: boolean = false): void {
+  invalidate(paths: string | Array<string>, override: boolean = false): void {
     // get all of the unique queries associated with the collection of paths
     const queries = new Set();
     new Set(paths).forEach((path) => {
@@ -110,7 +145,7 @@ export default class Manager {
   }
 
   /** Safely invokes an {@linkcode Operation|operation}, caching the resulting {@linkcode State|state} if applicable or otherwise invalidating dependent paths. */
-  static async execute(operation: Operation): Promise<State> {
+  async execute(operation: Operation): Promise<State> {
     const { query } = operation;
 
     if (operation.isCacheable) {
@@ -131,19 +166,19 @@ export default class Manager {
   /** Registers a function ```callback``` to be invoked whenever a path is invalidated.
    * @param callback A function ```(path, internal) => {}```.
    */
-  static listen(callback: Function): void {
+  listen(callback: Function): void {
     this.listeners.add(callback);
   }
 
   /** Unregisters a listener function ```callback```. */
-  static unlisten(callback: Function): void {
+  unlisten(callback: Function): void {
     this.listeners.delete(callback);
   }
 
   /** Registers a ```subscriber``` to be invoked whenever the state of ```query``` changes.
    * @param callback A function ```(path, state) => {}```.
    */
-  static subscribe(client: Function, query: string = null): boolean {
+  subscribe(client: Function, query: string = null): boolean {
     if (!this.states.has(query)) {
       return false;
     }
@@ -152,7 +187,18 @@ export default class Manager {
   }
 
   /** Unregisters a ```subscriber``` from the given ```query```, or from all subscribed queries if no ```query``` is provided. */
-  static unsubscribe(client: Function, query: string = null): void {
+  unsubscribe(client: Function, query: string = null): void {
     this.subscriptions.unlink(client, query);
+  }
+
+  static access(): Manager {
+    if (!this.instance) {
+      this.initialize(new Manager());
+    }
+    return this.instance;
+  }
+
+  static initialize(instance: Manager): void {
+    this.instance = instance;
   }
 }

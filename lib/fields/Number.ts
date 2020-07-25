@@ -20,7 +20,7 @@ export default class Number extends Field {
     this.max = max;
   }
 
-  async parse(value: any) {
+  async parse(value: any): Promise<any> {
     const number = typeof value === 'number' ? value : <any>super.parse(value) - 0;
 
     if (typeof value !== 'number' || this.min < number || number > this.max) {

@@ -1,8 +1,8 @@
 /** Data structure storing many-to-many relationships between two value types -- essentially a bidirectional map.  */
 export default class Relation<F, T> {
-  fromMap: Map<F, Set<T>> = new Map();
+  private fromMap: Map<F, Set<T>> = new Map();
 
-  toMap: Map<T, Set<F>> = new Map();
+  private toMap: Map<T, Set<F>> = new Map();
 
   /** Creates an association _from_ the first argument _to_ the second. */
   link(from: F, to: T) {

@@ -19,13 +19,15 @@ export default (
   // the WebSocket interface accepts two custom methods
   const customMethods = ['subscribe', 'unsubscribe'];
 
+  const manager = Manager.access();
+
   const newPeer = (socket: any) => {
     const listener = (paths: string | Array<string>) => {
       console.log(`${paths} changed -- notifying peers.`);
       socket.send(JSON.stringify({ UPDATE: paths }));
     };
 
-    Manager.listen(listener);
+    manager.listen(listener);
 
     socket.on('message', (msg: string) => {
       console.log(msg);
@@ -41,7 +43,7 @@ export default (
         method = method.toLowerCase();
 
         if (method === 'update' && (typeof args === 'string' || Array.isArray(args))) {
-          return Manager.invalidate(args, true);
+          return manager.invalidate(args, true);
         }
 
         return null;
@@ -49,7 +51,7 @@ export default (
     });
 
     socket.on('close', () => {
-      Manager.unlisten(listener);
+      manager.unlisten(listener);
     });
   };
 
@@ -84,13 +86,13 @@ export default (
         const args = { ...req.cookies, ...data[endpoint] };
 
         if (method === 'unsubscribe') {
-          Manager.unsubscribe(client, path);
+          manager.unsubscribe(client, path);
           return client(endpoint, State.OK(), false);
         }
 
         if (method === 'subscribe') {
           const state = await router.request('get', path, args);
-          Manager.subscribe(client, state.$query);
+          manager.subscribe(client, state.$query);
           return client(endpoint, state, false);
         }
 
@@ -100,7 +102,7 @@ export default (
 
     // when a client disconnects, cancel all their subscriptions
     socket.on('close', () => {
-      Manager.unsubscribe(client);
+      manager.unsubscribe(client);
     });
   };
 

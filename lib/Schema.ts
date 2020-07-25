@@ -8,33 +8,39 @@ import { isCollectionOf } from './utility';
 
 /** An instance of {@linkcode Schema} defines a set of parameters by name and _fieldtype_ (see {@linkcode Field}). */
 export default class Schema {
+  /** An object whose values are all instances of {@linkcode Field} (herein _fieldset_). */
   fields: object;
 
+  /** The error message produced by the last call to {@linkcode Schema.validate|Schema.prototype.validate}, if it was unsuccessful. */
   lastError: object;
 
   /**
-   * @param fields An object whose values are all instances of {@linkcode Field} -- herein _fieldset_.
+   * @param fields See {@linkcode Schema.fields|Schema.prototype.fields}.
    */
   constructor(fields: object = {}) {
-    // if the input is a schema, extract its fields
-    if (fields instanceof Schema) {
-      fields = fields.fields;
-    }
-
     // assert that the input is a collection of fields
     isCollectionOf(Field, fields, true);
 
     this.fields = fields;
   }
 
+  /** Returns a copy of the {@linkcode Schema} instance. */
+  clone(): Schema {
+    const fields = {};
+    Object.keys(this.fields).forEach((name) => {
+      fields[name] = this.fields[name].clone();
+    });
+    return new Schema(fields);
+  }
+
   /** Creates a new schema containing all of the instance's fields, plus additional ```fields```.
    * @param fields A _fieldset_.
    * @returns A new instance of {@linkcode Schema}.
    */
-  extend(fields: object): Schema {
+  extend(fields: object | Schema): Schema {
     // if the input is a schema, extract its fields
     if (fields instanceof Schema) {
-      fields = fields.fields;
+      fields = fields.clone().fields;
     }
 
     // assert that the input is a collection of fields
@@ -48,10 +54,6 @@ export default class Schema {
    * @return A new instance of {@linkcode Schema}.
    */
   select(fields: object | string = null, ...keys: Array<string>): Schema {
-    if (typeof fields === 'object') {
-      return this.select(...Object.keys(fields)).default(fields);
-    }
-
     if (typeof fields === 'string') {
       keys.unshift(fields);
     }
@@ -59,7 +61,7 @@ export default class Schema {
     const result = {};
     keys.forEach((key) => {
       if (this.fields[key]) {
-        result[key] = this.fields[key];
+        result[key] = this.fields[key].clone();
       }
     });
     return new Schema(result);
@@ -70,11 +72,11 @@ export default class Schema {
    * @return A new instance of {@linkcode Schema}.
    */
   exclude(...keys: Array<string>): Schema {
-    const result = { ...this.fields };
+    const result = this.clone();
     keys.forEach((key) => {
-      delete result[key];
+      delete result.fields[key];
     });
-    return new Schema(result);
+    return result;
   }
 
   /** Given an object ```values``` whose keys correspond to fields on the instance's _fieldset_ and whose values represent default values of those fields, applies those default values to the corresponding fields on a clone of the instance.
@@ -82,13 +84,23 @@ export default class Schema {
    * @return A new instance of {@linkcode Schema}.
    */
   default(values: object): Schema {
-    const fields = {};
-    Object.keys(this.fields).forEach((name) => {
-      const field = this.fields[name].clone();
-      field.default = values[name];
-      fields[name] = field;
+    const result = this.clone();
+    Object.keys(result.fields).forEach((name) => {
+      result.fields[name].default = values[name];
     });
-    return new Schema(fields);
+    return result;
+  }
+
+  /** Given an object ```values``` whose keys correspond to fields on the instance's _fieldset_ and whose values represent {@linkcode Field.flags|flag} values, applies those flag values to the corresponding fields on a clone of the instance.
+   * @param values An object with keys corresponding to field names and values representing flag values.
+   * @return A new instance of {@linkcode Schema}.
+   */
+  flags(values: object): Schema {
+    const result = this.clone();
+    Object.keys(result.fields).forEach((name) => {
+      result.fields[name].flags = values[name] || 0;
+    });
+    return result;
   }
 
   /** _**(async)**_ Determines if the key-value pairs in ```data``` match, or can be converted to, the format of the instance's _fieldset_.
