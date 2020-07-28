@@ -52,9 +52,9 @@ const applyExpose = (Class: any, pattern: string, ...chain: Array<Function>) => 
   return controller;
 };
 
-const applySchema = (Class: any, from: Schema | object, target: Function) => {
+const applySchema = (Class: any, from: Schema | Function | object, target: Function) => {
   return toController(target, {
-    _schema: from instanceof Schema || typeof from === 'function' ? from : new Schema(from),
+    validator: from instanceof Schema || typeof from === 'function' ? from : new Schema(from),
   });
 };
 

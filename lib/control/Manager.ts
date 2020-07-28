@@ -1,13 +1,50 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable camelcase */
+/* eslint-disable import/first */
 /* eslint-disable import/no-cycle */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable max-classes-per-file */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable import/extensions */
 
 import State from '../State';
 import Relation from '../utility/Relation';
 import Operation from './Operation';
+
+/** Abstract interface representing a subset of the {@linkcode Manager} class caching functionality that can be maintained in a simple key-value store. */
+export class Cache {
+  /**
+   * Stores a {@linkcode State} instance such that it can later be retrieved by its _{@linkcode State.$query|query} string_ via a call to {@linkcode Cache.getState|Cache.prototype.getState}, and such that its _query string_ can be retrieved via a call to {@linkcode Cache.getQueries|Cache.prototype.getQueries} with any of the state's _{@linkcode State.$dependencies|dependent} paths_.
+   * @param state
+   */
+  setState(state: State): boolean {
+    return false;
+  }
+
+  /**
+   * Removes the {@linkcode State} instance associated with a given _```query``` string_ from the cache.
+   * @param query A _query string_.
+   */
+  unset(query: string): boolean {
+    return false;
+  }
+
+  /**
+   * Retrieves the state associated with a given _```query``` string_ from the cache, or ```undefined``` if no such state exists.
+   * @param query A _query string_.
+   */
+  getState(query: string): State {
+    return null;
+  }
+
+  /**
+   * Returns the _query strings_ of all cached {@linkcode State|states} that are dependent on the state at the given ```path```.
+   * @param path A _path string_.
+   */
+  getQueries(path: string): Array<string> {
+    return [];
+  }
+}
+
+import LocalCache from '../cache/LocalCache';
 
 /** Singleton which manages state of all known _paths_. It provides two functionalities: 1) Executes {@linkcode Operation|Operations} to either cache the resulting {@linkcode State} in conjuction with its {@linkcode State.$query|_query_} or invalidate its dependent _paths_, and 2) Accepts subscriptions to cached {@linkcode State} via _queries_ and notifies relevant subscribers whenever cached {@linkcode State} change. */
 export default class Manager {
@@ -17,17 +54,14 @@ export default class Manager {
   /** The maximum number of queries that can be cached before an {@linkcode Manager.evict|eviction} occurs. */
   protected maxSize: number = 25000;
 
-  /** Stores all cached _queries_ from least to most recently calculated. */
-  private queries: Set<string> = new Set();
+  /** An object that implements the {@linkcode Cache} interface, which will be used to store cached {@linkcode State} and dependency graphs. By defualt, this is an instance of {@linkcode LocalCache}, but when operating in a clustered environment, this should overriden with a global cache. */
+  private globals: Cache = new LocalCache();
 
-  /** Maps _queries_ to the {@linkcode State|states} produced by invoking their associated {@linkcode Manager.operations|operations}. */
-  private states: Map<string, State | Promise<State>> = new Map();
+  /** Stores _queries_ which are actively being calculated, along with a promise resolving to their eventual state. */
+  private active: Map<string, Promise<State>> = new Map();
 
   /** Maps _queries_ to cacheable {@linkcode Operation|operations} that will be invoked to recalculate their {@linkcode Manager.states|state}. */
   private operations: Map<string, Operation> = new Map();
-
-  /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.cache|recalculated}. */
-  private dependents: Relation<string, string> = new Relation();
 
   /** Maps _subscribers_ (represented by callback functions) to _queries_ and vice versa. Whenever a _query_ is {@linkcode Manager.cache|recalculated}, its associated _subscribers_ will be invoked with the resulting state. */
   private subscriptions: Relation<Function, string> = new Relation();
@@ -46,40 +80,34 @@ export default class Manager {
   private async cache(operation: Operation): Promise<State> {
     const { query } = operation;
 
-    // add the query (or move it) to the back of the eviction queue, then evict any excess queries
-    this.queries.delete(query);
-    this.queries.add(query);
-    this.evict();
-
-    // if the query is already being recalculated, its state will be a Promise
-    const probe = this.states.get(query);
-    if (probe instanceof Promise) {
-      return probe; // the Promise will resolve to the result of the recalculation, so we can just return it.
+    // if the query is already being calculated, return the promise resolving to it's eventual state
+    if (this.active.has(query)) {
+      return this.active.get(query);
     }
 
-    this.operations.set(query, operation);
+    // otherwise, remove the operation from the operation map if it already exists, in order to maintain the map keys in order of LRU
+    this.operations.delete(query);
 
-    // in order to prevent dependency cycles:
-    this.states.set(query, operation()); // first set the query's state to a promise
-    const state = await this.states.get(query); // then wait for the promise to resolve
-    this.states.set(query, state); // finally, set the state to the result of the promise
+    // execute the operation, first storing a promsie in the active map to prevent dependency cycles
+    this.active.set(query, operation());
+    const state = await this.active.get(query);
+    this.active.delete(query);
 
-    // if the result is an error, don't cache it
+    // if the result is an error, don't cache it and cancel all subscriptions
     if (state.isError()) {
       this.unset(query);
       return state;
     }
 
-    // otherwise, reset the query's dependencies
-    this.dependents.unlink(null, query);
-    state.$dependencies.forEach((path: string) => {
-      this.dependents.link(path, query);
-    });
+    // otherwise, cache the operation and resulting state, and run an eviction check
+    this.operations.set(query, operation);
+    this.globals.setState(state);
+    this.evict();
 
     // and notify subscribers with the new state
-    this.subscriptions.to(query).forEach((client) => {
+    for (const client of this.subscriptions.to(query)) {
       client(query, state);
-    });
+    }
 
     return state;
   }
@@ -87,48 +115,47 @@ export default class Manager {
   /** Removes the oldest cached query with no associated subscribers.
    * @param query A _query_ string.
    */
-  private evict(): void {
-    if (this.queries.size > this.maxSize) {
-      for (const query of this.queries) {
-        if (this.subscriptions.to(query).length === 0) {
+  private evict(): boolean {
+    if (this.operations.size > this.maxSize) {
+      for (const query of this.operations.keys()) {
+        if (!this.subscriptions.to(query).next().value) {
           this.unset(query);
-          return;
+          return true;
         }
       }
     }
+    return false;
   }
 
   /** Removes a _query_ from the cache along with all of its associations.
    * @param query A _query_ string.
    */
-  private unset(query: string): void {
-    this.states.delete(query);
+  private unset(query: string) {
     this.operations.delete(query);
+    this.globals.unset(query);
 
-    this.dependents.unlink(null, query);
-
-    this.subscriptions.to(query).forEach((client) => {
+    for (const client of this.subscriptions.to(query)) {
       this.unsubscribe(client, query);
       client(query, null);
-    });
+    }
   }
 
   /** Invalidates a _path_, possibly alerting {@linkcode Manager.listeners|listeners} and causing all associated _queries_ to be recalculated.
    * @param path A _path_ string or array of _path_ strings.
    * @param override If ```true```, signifies that listeners should not be notified of the invalidated paths.
    */
-  invalidate(paths: string | Array<string>, override: boolean = false): void {
+  invalidate(paths: string | Array<string>, override: boolean = false) {
     // get all of the unique queries associated with the collection of paths
     const queries = new Set();
     new Set(paths).forEach((path) => {
-      this.dependents.from(path).forEach((query) => {
+      for (const query of this.globals.getQueries(path)) {
         queries.add(query);
-      });
+      }
     });
 
     queries.forEach((query: string) => {
       if (this.operations.has(query)) {
-        if (this.subscriptions.to(query).length) {
+        if (this.subscriptions.to(query).next().value) {
           this.cache(this.operations.get(query)); // the query has subscribers, recalculate its state
         } else {
           this.unset(query); // otherwise just remove it from the cache
@@ -149,8 +176,8 @@ export default class Manager {
     const { query } = operation;
 
     if (operation.isCacheable) {
-      if (this.states.has(query)) {
-        return this.states.get(query);
+      if (this.operations.has(query)) {
+        return this.globals.getState(query);
       }
 
       return this.cache(operation);
@@ -179,7 +206,7 @@ export default class Manager {
    * @param callback A function ```(path, state) => {}```.
    */
   subscribe(client: Function, query: string = null): boolean {
-    if (!this.states.has(query)) {
+    if (!this.operations.has(query)) {
       return false;
     }
     this.subscriptions.link(client, query);
@@ -191,6 +218,7 @@ export default class Manager {
     this.subscriptions.unlink(client, query);
   }
 
+  /** Returns the Manager singleton instance. If the singleton instance has not been manually defined using {@linkcode Manager.initialize}, a default instance of {@linkcode Manager} will be created. */
   static access(): Manager {
     if (!this.instance) {
       this.initialize(new Manager());
@@ -198,6 +226,10 @@ export default class Manager {
     return this.instance;
   }
 
+  /**
+   * Sets the Manager singleton instance that will be {@linkcode Manager.access|accessible} throughout the application instance.
+   * @param instance
+   */
   static initialize(instance: Manager): void {
     this.instance = instance;
   }

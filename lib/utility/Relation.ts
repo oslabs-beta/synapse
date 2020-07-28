@@ -44,12 +44,18 @@ export default class Relation<F, T> {
   }
 
   /** Returns all associations _from_ the given value _to_ any other value.  */
-  from(val: F): Array<T> {
-    return Array.from(this.fromMap.get(val) || []);
+  from(val: F = null): IterableIterator<T> {
+    if (val === null) {
+      return this.toMap.keys();
+    }
+    return this.fromMap.has(val) ? this.fromMap.get(val).values() : [].values();
   }
 
   /** Returns all associations _to_ the given value _from_ any other value.  */
-  to(val: T): Array<F> {
-    return Array.from(this.toMap.get(val) || []);
+  to(val: T = null): IterableIterator<F> {
+    if (val === null) {
+      return this.fromMap.keys();
+    }
+    return this.toMap.has(val) ? this.toMap.get(val).values() : [].values();
   }
 }
