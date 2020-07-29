@@ -6,7 +6,10 @@
 
 /** Represents both 1) a response to a request, and 2) the state at a given _path_. Properties prefixed with ```$``` represent _metadata_ associated with the request/response cycle that produced the instance, while _payload_ data encompasses all other properties attached to the instance by derived classes. */
 export default class State {
-  /** The derived class name of the instance. */
+  /**
+   * The derived class name of the instance.
+   * @category Metadata
+   */
   $type: string = null;
   /** An HTTP status code describing the response. */
   $status: number;
@@ -60,33 +63,73 @@ export default class State {
     };
   }
 
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static OK(message: any = null) {
     return new State(200, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static CREATED(message: any = null) {
     return new State(201, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static ACCEPTED(message: any = null) {
     return new State(202, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static NO_CONTENT() {
     return new State(204);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static BAD_REQUEST(message: any = null) {
     return new State(400, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static UNAUTHORIZED(message: any = null) {
     return new State(401, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static FORBIDDEN(message: any = null) {
     return new State(403, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static NOT_FOUND(message: any = null) {
     return new State(404, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static CONFLICT(message: any = null) {
     return new State(409, message);
   }
+  /**
+   * Creates a standard HTTP response.
+   * @category Factory
+   */
   static INTERNAL_SERVER_ERROR(message: any = null) {
     return new State(500, message);
   }

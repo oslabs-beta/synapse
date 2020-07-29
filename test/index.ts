@@ -7,7 +7,7 @@ const enableWs = require('express-ws');
 const cors = require('cors');
 
 const { synapse } = require('../lib/index');
-const { identifier } = require('./resources/Session');
+const { identify } = require('./resources/Session');
 
 const PORT = process.argv[2] || 3000;
 const PEERS = process.argv.slice(3).map((port) => `ws://[::1]:${port}/api`);
@@ -19,7 +19,7 @@ enableWs(app);
 app.use(express.json(), express.urlencoded({ extended: true }), cookieParser(), cors());
 
 // ensure that all clients have a client_id cookie
-app.use('/', identifier);
+app.use('/', identify);
 
 // initialize an instance of the synapse API with the directory containing the Resource definitions
 const api = synapse(path.resolve(__dirname, './resources')); // ["::1"], PEERS
@@ -29,7 +29,7 @@ api.use((req, res) => {
   if (res.stream) {
     return res.stream(state);
   }
-  return res.status(state.$status).json(state.render());
+  return res.status(state.$status).send(state.serialize());
 });
 // route requests to api routers by protocol
 app.ws('/api', api.ws);

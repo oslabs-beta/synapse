@@ -12,36 +12,26 @@ const toController = (target: Function, props: object = {}) => {
   return Object.assign(target instanceof Controller ? target : new Controller(target), props);
 };
 
-const applyPath = (Class: any, pattern: string, target: Function) => {
+const applyEndpoint = (Class: any, pattern: string, target: Function) => {
   const custom = ['read', 'write'];
   const { method, path, flags } = parseEndpoint(pattern, custom, Class.root());
-
-  if (!custom.includes(method) || !path) {
-    throw new Error(`Invalid pattern '${pattern}'.`);
-  }
-
-  return toController(target, {
-    pattern: path,
-    isRead: method === 'read',
-    isCacheable: !flags.includes('nocache'),
-  });
-};
-
-const applyExpose = (Class: any, pattern: string, ...chain: Array<Function>) => {
-  const { method, path, flags } = parseEndpoint(pattern, [], Class.root());
 
   if (!method || !path) {
     throw new Error(`Invalid pattern '${pattern}'.`);
   }
 
-  const controller = toController(chain.pop(), {
+  if (custom.includes(method)) {
+    return toController(target, {
+      pattern: path,
+      isRead: method === 'read',
+      isCacheable: !flags.includes('nocache'),
+    });
+  }
+
+  const controller = toController(target, {
     pattern: path,
     isRead: method === 'get',
     isCacheable: !flags.includes('nocache'),
-    authorizer: async (args: object) => {
-      const result = await invokeChain(chain, args);
-      return Array.isArray(result) ? result[0] : result;
-    },
   });
 
   if (!Class.router) {
@@ -50,6 +40,17 @@ const applyExpose = (Class: any, pattern: string, ...chain: Array<Function>) => 
   Class.router.declare(method, controller.pattern, controller.try);
 
   return controller;
+};
+
+const applyAuthorizer = (Class: any, ...chain: Array<Function>) => {
+  const target = chain.pop();
+
+  return toController(target, {
+    authorizer: async (args: object) => {
+      const result = await invokeChain(chain, args);
+      return Array.isArray(result) ? result[0] : result;
+    },
+  });
 };
 
 const applySchema = (Class: any, from: Schema | Function | object, target: Function) => {
@@ -77,7 +78,6 @@ const applyAffects = (Class: any, paths: Array<string>, target: Function) => {
 };
 
 export interface ControllerOptions {
-  path: string;
   endpoint: string;
   authorizer: Array<Function>;
   schema: Schema | object;
@@ -99,15 +99,15 @@ export default class Controllable extends Validatable {
    * @param options An object defining the endpoint method and pattern, authorizers, schema, and dependencies.
    * @param method A function defining endpoint business logic.
    */
-  protected static expose(options: ControllerOptions, method): Controller {
-    const { path, endpoint, authorizer, schema, instance, uses, affects } = options;
+  protected static controller(options: ControllerOptions, method): Controller {
+    const { endpoint, authorizer, schema, instance, uses, affects } = options;
 
     const controller = new Controller(method);
-    if (path) {
-      applyPath(this, path, controller);
-    } else if (endpoint) {
-      const chain = !authorizer || Array.isArray(authorizer) ? authorizer : [authorizer];
-      applyExpose(this, endpoint, ...(chain || []), controller);
+    if (endpoint) {
+      applyEndpoint(this, endpoint, controller);
+    }
+    if (authorizer) {
+      applyAuthorizer(this, ...(Array.isArray(authorizer) ? authorizer : [authorizer]));
     }
     if (schema) {
       applySchema(this, schema, controller);
@@ -126,34 +126,35 @@ export default class Controllable extends Validatable {
   }
 }
 
-/** Decorator function that creates a partially defined instance of {@linkcode Controller}. Defines {@linkcode Controller.isRead}, {@linkcode Controller.isCacheable}, and {@linkcode Controller.pattern}.
- * @category Decorator
- * @param location An string defining a _path pattern_ in the format ```READ|WRITE /path/:param [NOCACHE]```.
- */
-export const internal = (path: string): Function => {
-  return (Class, methodName, descriptor) => {
-    if (!(Class.prototype instanceof Controllable)) {
-      throw new Error("The '@internal' decorator can only be used within 'Controllable' types.");
-    }
-
-    const method = descriptor.value; // class method to be decorated
-    descriptor.value = applyPath(Class, path, method);
-  };
-};
-
-/** Decorator function that creates a partially defined instance of {@linkcode Controller}. Defines {@linkcode Controller.isRead}, {@linkcode Controller.isCacheable}, {@linkcode Controller.pattern}, and {@linkcode Controller.authorizer}.
+/** Decorator function that creates a partially defined instance of {@linkcode Controller}. Defines {@linkcode Controller.isRead}, {@linkcode Controller.isCacheable}, {@linkcode Controller.pattern}.
  * @category Decorator
  * @param endpoint An string defining an endpoint HTTP method and _path pattern_ in the format ```METHOD /path/:param [NOCACHE]```.
  * @param authorizers An array of functions ```(args) => {...}``` that will authorize input arguments of requests to the resulting controller. Should return either an array containg arguments to be passed to the next authorizer, or any other value to abort the operation.
  */
-export const expose = (endpoint: string, ...authorizers: Array<Function>): Function => {
+export const endpoint = (value: string): Function => {
   return (Class, methodName, descriptor) => {
     if (!(Class.prototype instanceof Controllable)) {
-      throw new Error("The '@expose' decorator can only be used within 'Controllable' types.");
+      throw new Error("The '@endpoint' decorator can only be used within 'Controllable' types.");
     }
 
     const method = descriptor.value; // class method to be decorated
-    descriptor.value = applyExpose(Class, endpoint, ...authorizers, method);
+    descriptor.value = applyEndpoint(Class, value, method);
+  };
+};
+
+/** Decorator function that creates a partially defined instance of {@linkcode Controller}. Defines {@linkcode Controller.authorizer}.
+ * @category Decorator
+ * @param endpoint An string defining an endpoint HTTP method and _path pattern_ in the format ```METHOD /path/:param [NOCACHE]```.
+ * @param authorizers An array of functions ```(args) => {...}``` that will authorize input arguments of requests to the resulting controller. Should return either an array containg arguments to be passed to the next authorizer, or any other value to abort the operation.
+ */
+export const authorizer = (...authorizers: Array<Function>): Function => {
+  return (Class, methodName, descriptor) => {
+    if (!(Class.prototype instanceof Controllable)) {
+      throw new Error("The '@authorizer' decorator can only be used within 'Controllable' types.");
+    }
+
+    const method = descriptor.value; // class method to be decorated
+    descriptor.value = applyAuthorizer(Class, ...authorizers, method);
   };
 };
 

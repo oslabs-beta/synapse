@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/extensions */
 
@@ -13,7 +14,7 @@ export default class LocalCache extends Cache {
   /** Maps _paths_ to _queries_. Whenever a _path_ is {@linkcode Manager.invalidate|invalidated}, its associated _queries_ will be {@linkcode Manager.cache|recalculated}. */
   private dependents: Relation<string, string> = new Relation();
 
-  setState(state: State): boolean {
+  async setState(state: State) {
     const query = state.$query;
 
     this.states.set(query, state);
@@ -26,18 +27,24 @@ export default class LocalCache extends Cache {
     return true;
   }
 
-  unset(query: string): boolean {
+  async unset(query: string) {
     this.states.delete(query);
     this.dependents.unlink(null, query);
 
     return true;
   }
 
-  getState(query: string): State {
+  async getState(query: string) {
     return this.states.get(query);
   }
 
-  getQueries(path: string): Array<string> {
-    return Array.from(this.dependents.from(path));
+  async getQueries(paths: string | Array<string>) {
+    const queries = new Set<string>();
+    new Set(paths).forEach((path) => {
+      for (const query of this.dependents.from(path)) {
+        queries.add(query);
+      }
+    });
+    return Array.from(queries);
   }
 }

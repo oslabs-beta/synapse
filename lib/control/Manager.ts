@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable import/first */
 /* eslint-disable import/no-cycle */
 /* eslint-disable class-methods-use-this */
@@ -15,7 +16,7 @@ export class Cache {
    * Stores a {@linkcode State} instance such that it can later be retrieved by its _{@linkcode State.$query|query} string_ via a call to {@linkcode Cache.getState|Cache.prototype.getState}, and such that its _query string_ can be retrieved via a call to {@linkcode Cache.getQueries|Cache.prototype.getQueries} with any of the state's _{@linkcode State.$dependencies|dependent} paths_.
    * @param state
    */
-  setState(state: State): boolean {
+  async setState(state: State): Promise<boolean> {
     return false;
   }
 
@@ -23,7 +24,7 @@ export class Cache {
    * Removes the {@linkcode State} instance associated with a given _```query``` string_ from the cache.
    * @param query A _query string_.
    */
-  unset(query: string): boolean {
+  async unset(query: string): Promise<boolean> {
     return false;
   }
 
@@ -31,15 +32,15 @@ export class Cache {
    * Retrieves the state associated with a given _```query``` string_ from the cache, or ```undefined``` if no such state exists.
    * @param query A _query string_.
    */
-  getState(query: string): State {
+  async getState(query: string): Promise<State> {
     return null;
   }
 
   /**
-   * Returns the _query strings_ of all cached {@linkcode State|states} that are dependent on the state at the given ```path```.
-   * @param path A _path string_.
+   * Returns the _query strings_ of all cached {@linkcode State|states} that are dependent on the state at the given ```paths```.
+   * @param paths A _path_ string or array of _path_ strings.
    */
-  getQueries(path: string): Array<string> {
+  async getQueries(paths: string | Array<string>): Promise<Array<string>> {
     return [];
   }
 }
@@ -95,14 +96,14 @@ export default class Manager {
 
     // if the result is an error, don't cache it and cancel all subscriptions
     if (state.isError()) {
-      this.unset(query);
+      await this.unset(query);
       return state;
     }
 
     // otherwise, cache the operation and resulting state, and run an eviction check
     this.operations.set(query, operation);
-    this.globals.setState(state);
-    this.evict();
+    await this.globals.setState(state);
+    await this.evict();
 
     // and notify subscribers with the new state
     for (const client of this.subscriptions.to(query)) {
@@ -115,11 +116,11 @@ export default class Manager {
   /** Removes the oldest cached query with no associated subscribers.
    * @param query A _query_ string.
    */
-  private evict(): boolean {
+  private async evict(): Promise<boolean> {
     if (this.operations.size > this.maxSize) {
       for (const query of this.operations.keys()) {
         if (!this.subscriptions.to(query).next().value) {
-          this.unset(query);
+          await this.unset(query);
           return true;
         }
       }
@@ -130,9 +131,9 @@ export default class Manager {
   /** Removes a _query_ from the cache along with all of its associations.
    * @param query A _query_ string.
    */
-  private unset(query: string) {
+  private async unset(query: string) {
     this.operations.delete(query);
-    this.globals.unset(query);
+    this.globals.unset(query); // fix
 
     for (const client of this.subscriptions.to(query)) {
       this.unsubscribe(client, query);
@@ -144,24 +145,21 @@ export default class Manager {
    * @param path A _path_ string or array of _path_ strings.
    * @param override If ```true```, signifies that listeners should not be notified of the invalidated paths.
    */
-  invalidate(paths: string | Array<string>, override: boolean = false) {
+  async invalidate(paths: string | Array<string>, override: boolean = false) {
     // get all of the unique queries associated with the collection of paths
-    const queries = new Set();
-    new Set(paths).forEach((path) => {
-      for (const query of this.globals.getQueries(path)) {
-        queries.add(query);
-      }
-    });
+    const queries = await this.globals.getQueries(paths);
 
-    queries.forEach((query: string) => {
-      if (this.operations.has(query)) {
-        if (this.subscriptions.to(query).next().value) {
-          this.cache(this.operations.get(query)); // the query has subscribers, recalculate its state
-        } else {
-          this.unset(query); // otherwise just remove it from the cache
+    await Promise.all(
+      queries.map(async (query: string) => {
+        if (!this.operations.has(query)) {
+          return null;
         }
-      }
-    });
+        if (!this.subscriptions.to(query).next().value) {
+          return this.unset(query); // if the query has no subscribers, remove it from the cache
+        }
+        return this.cache(this.operations.get(query)); // otherwise, recalculate its state
+      })
+    );
 
     // notify the listeners of the invalidated paths
     if (!override) {
@@ -185,7 +183,7 @@ export default class Manager {
 
     const state = await operation();
 
-    this.invalidate(operation.dependents);
+    await this.invalidate(operation.dependents);
 
     return state;
   }

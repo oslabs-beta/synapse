@@ -19,7 +19,7 @@ export default class Controller extends Callable {
   /** An array of _path patterns_. */
   dependents: Array<string> = [];
   /** A {@linkcode Schema}, or a function that evaluates to one, which will be used to validate all invocations of the instance. This allows schemas to be evaluated when needed, prevent circular dependencies at import time. */
-  validator: Schema | Function;
+  validator: Schema | Function = new Schema();
   /** A function ```(args) => {...}```that will be used to authorize invocations made using {@linkcode Controller.try|Controller.prototype.try}. Should return an object if the _argument set_ was valid, or an instance of {@linkcode State} to abort the operation.  */
   authorizer: Function;
   /** An optional function returning an object to which the controller function will be bound before invocation. */
@@ -33,6 +33,9 @@ export default class Controller extends Callable {
   get schema(): Schema {
     if (typeof this.validator === 'function') {
       this.validator = this.validator();
+      if (!(this.validator instanceof Schema)) {
+        this.validator = new Schema(this.validator);
+      }
     }
     return <Schema>this.validator;
   }
