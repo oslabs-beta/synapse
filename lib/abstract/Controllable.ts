@@ -107,7 +107,7 @@ export default class Controllable extends Validatable {
       applyEndpoint(this, endpoint, controller);
     }
     if (authorizer) {
-      applyAuthorizer(this, ...(Array.isArray(authorizer) ? authorizer : [authorizer]));
+      applyAuthorizer(this, ...(Array.isArray(authorizer) ? authorizer : [authorizer]), controller);
     }
     if (schema) {
       applySchema(this, schema, controller);
