@@ -9,17 +9,17 @@ import decorators from '../../lib/abstract/@';
 import { Id } from '../../lib/fields';
 import User from './User';
 
-const { field, expose, schema } = decorators;
+const { field, endpoint, authorizer, schema } = decorators;
 
 const sessions = {};
 
 /** Express middleware function which sets a cookie ```client_id``` on the client if it doesn't already exist. */
-export const identifier = (req, res, next) => {
+export const identify = (req, res, next) => {
   res.cookie('client_id', req.cookies.client_id || uuidv4());
   next();
 };
 /** Synpase middleware function which checks for a ```client_id``` property on the input arguments object whose value is associated with a valid session instance. */
-export const authorizer = (args) => {
+export const authorize = (args) => {
   const { client_id } = args;
 
   const client = sessions[client_id];
@@ -35,7 +35,7 @@ export default class Session extends Resource {
   @field(new Id(36)) client_id: string;
   @field(new Id(36)) user_id: string;
 
-  @expose('POST /')
+  @endpoint('POST /')
   @schema(Session.union(User).select('username', 'password', 'client_id'))
   static async open({ username, password, client_id }) {
     const result = await User.authenticate({ username, password });
@@ -47,7 +47,8 @@ export default class Session extends Resource {
     return result;
   }
 
-  @expose('GET /', authorizer)
+  @endpoint('GET /')
+  @authorizer(authorize)
   @schema(Session.schema.select('client_id'))
   static async read({ client_id }) {
     return sessions[client_id];

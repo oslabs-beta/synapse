@@ -35,6 +35,21 @@ export default class Router {
     this.router[method](route, handler);
   }
 
+  /** Finds the function or Router associated with a given HTTP method and _route_. Returns undefined if none exist.
+   * @param method An HTTP method
+   * @param route A _route_ in the ```express``` syntax (e.g ```/user/:id```)
+   * @param callback A callback function
+   */
+  async retrieve(method: string, path: string): Promise<any> {
+    return new Promise((resolve) => {
+      return this.router(
+        { method: method.toUpperCase(), url: path },
+        { send: (callback, params) => resolve(callback) },
+        () => resolve(undefined)
+      );
+    });
+  }
+
   /** _**(async)**_ Attempts to execute a request using the constructed router.
    * @param method An HTTP method.
    * @param path A _path_ string.
@@ -64,7 +79,7 @@ export default class Router {
     return new Promise((resolve) => {
       return this.router(
         { method: 'OPTIONS', url: path },
-        { set: () => {}, send: (options) => resolve(options.split(',')) },
+        { set: () => { }, send: (options) => resolve(options.split(',')) },
         () => resolve(State.NOT_FOUND())
       );
     });

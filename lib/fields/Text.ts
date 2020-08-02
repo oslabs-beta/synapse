@@ -23,11 +23,8 @@ export default class Text extends Field {
     this.rules.push({ regex, expect, message });
   }
 
-  async parse(value: any) {
-    if (!value) {
-      return super.parse(value);
-    }
-    if (typeof value === 'object' && value.toString) {
+  async parse(value: any): Promise<any> {
+    if (value && typeof value === 'object' && value.toString) {
       value = value.toString();
     }
     if (typeof value === 'string') {
@@ -39,6 +36,9 @@ export default class Text extends Field {
         }
       }
       return value;
+    }
+    if (!value) {
+      return super.parse(value);
     }
     return undefined;
   }

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable lines-between-class-members */
@@ -17,48 +18,82 @@ export default class Controller extends Callable {
   dependencies: Array<string> = [];
   /** An array of _path patterns_. */
   dependents: Array<string> = [];
-  /** A {@linkcode Schema} that will be used to validate all invocations. */
-  schema: Schema = new Schema();
+  /** A {@linkcode Schema}, or a function that evaluates to one, which will be used to validate all invocations of the instance. This allows schemas to be evaluated when needed, prevent circular dependencies at import time. */
+  validator: Schema | Function = new Schema();
   /** A function ```(args) => {...}```that will be used to authorize invocations made using {@linkcode Controller.try|Controller.prototype.try}. Should return an object if the _argument set_ was valid, or an instance of {@linkcode State} to abort the operation.  */
   authorizer: Function;
+  /** An optional function returning an object to which the controller function will be bound before invocation. */
+  instance: Function;
+  /** Determines whether the instance represents a _read_ or _write_ operation. */
+  isRead: boolean;
   /** Determines whether the instance represents a cacheable operation. */
-  cacheable: boolean;
+  isCacheable: boolean;
+
+  /** The {@linkcode Schema}, which will be used to validate all invocations of the instance. Evaluates the {@linkcode Controller.validator|Controller.prototype.validator} if necessary, replacing it with the resulting schema. */
+  get schema(): Schema {
+    if (typeof this.validator === 'function') {
+      this.validator = this.validator();
+      if (!(this.validator instanceof Schema)) {
+        this.validator = new Schema(this.validator);
+      }
+    }
+    return <Schema>this.validator;
+  }
 
   /**
    * @param target The function to be transferred to all generated operations.
    */
   constructor(target: Function) {
-    super(async (args: object, flags: object = {}) => {
-      const validated = await this.schema.validate(args);
+    super(async (_this: object, args: object = {}) => {
+      if (this.instance && !(_this instanceof State)) {
+        _this = await this.instance(args);
+        if (!(_this instanceof State) || _this.isError()) {
+          return State.NOT_FOUND();
+        }
+      }
 
+      if (_this instanceof State) {
+        args = { ..._this, ...args };
+      }
+
+      const validated = await this.schema.validate(args);
       if (!validated) {
         return State.BAD_REQUEST(this.schema.lastError);
       }
 
+      const bound = target.bind(_this);
       if (!this.pattern) {
-        return target(validated);
+        return bound(validated);
       }
 
       const path = routeToPath(this.pattern, validated);
       const dependents = this.dependents.map((pattern) => routeToPath(pattern, validated));
       const dependencies = this.dependencies.map((pattern) => routeToPath(pattern, validated));
 
-      const op = new Operation(path, target, validated, this.cacheable, dependents, dependencies);
+      const op = new Operation(
+        path,
+        bound,
+        validated,
+        this.isRead,
+        this.isCacheable,
+        dependents,
+        dependencies
+      );
 
-      return Manager.execute(op, flags);
+      return Manager.access().execute(op);
     });
   }
 
   /** When invoked, {@linkcode Controller.authorizer|authorizes} the _argument set_ ```args```, then invokes the instance _trustedly_.
    * @param args An _argument set_.
    */
-  try = async (args: object, flags: object = {}) => {
+  try = async (args: object) => {
     const authorized = this.authorizer ? await this.authorizer(args) : args;
 
     if (authorized instanceof State) {
       return authorized;
     }
 
-    return this(authorized, flags);
+    return this(authorized);
   };
 }

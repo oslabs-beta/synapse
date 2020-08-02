@@ -3,11 +3,12 @@
 
 import Router from '../control/Router';
 import Manager from '../control/Manager';
+import State from '../State';
 import { parseEndpoint } from '../utility';
 
 /** Creates an ```express``` middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
  */
-export default (router: Router, callback: Function): Function => {
+const sse = (router: Router, callback: Function): Function => {
   return async (req: any, res: any, next: Function) => {
     if (req.get('Accept') !== 'text/event-stream') {
       return next();
@@ -28,12 +29,11 @@ export default (router: Router, callback: Function): Function => {
     res.set(headers).status(200);
 
     // create a function to handle updates to the client
-    const client = (path: string, state: any) => {
+    const client = (path: string, state: any, render: boolean = true) => {
       const _req = {};
       const _res = {
         locals: state,
-        status: () => _res,
-        json: () => res.write(`data: ${JSON.stringify({ [path]: state })}\n\n`),
+        stream: (data: State) => res.write(`data: ${JSON.stringify(render ? data.render() : data)}\n\n`),
       };
       callback(_req, _res);
     };
@@ -43,7 +43,10 @@ export default (router: Router, callback: Function): Function => {
     const args = { ...req.cookies, ...req.query, ...req.body, ...req.params };
     const state = await router.request('get', req.path, args);
 
-    Manager.subscribe(client, state.$query);
-    return client(endpoint, state);
+    Manager.access().subscribe(client, state.$query);
+
+    return client(endpoint, state, false);
   };
 };
+
+export default sse;

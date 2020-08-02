@@ -4,7 +4,7 @@
 import Number from './Number';
 
 export default class Integer extends Number {
-  async parse(value: any) {
+  async parse(value: any): Promise<any> {
     return parseInt(value, 10);
   }
 }

@@ -8,7 +8,7 @@ import State from '../State';
 /**
  * Creates an ```express``` middleware function to handle HTTP requests
  */
-export default (router: Router, callback: Function): Function => {
+const http = (router: Router, callback: Function): Function => {
   return async (req: any, res: any) => {
     const { method } = parseEndpoint(req.method);
 
@@ -27,3 +27,5 @@ export default (router: Router, callback: Function): Function => {
     return callback(req, Object.assign(res, { locals: result }));
   };
 };
+
+export default http;

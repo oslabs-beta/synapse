@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script type='module' src='https://unpkg.com/@synapsejs/synapse@1.0.6/build/lib.browser/Client.js'></script>
+  <script>
+    let api = null;
+
+    const render = (messages) => {
+      for (const msg of messages) {
+        document.getElementById('messages').innerHTML += `
+          <div><b>${msg.id}:</b> ${msg.text}</div>
+        `;
+      }
+    };
+
+    Client.connect('ws://localhost:3000/api').then(async (client) => {
+      api = client;
+
+      api.get('/comment/page/1').then((res) => render(res.payload));
+      api.subscribe('/comment/last', {}, (message) => render([message]));
+    });
+
+    window.post = () => {
+      api.post('/comment', { text: document.getElementById('text').value });
+    };
+  </script>
+</head>
+
+<body>
+  <div id='messages'></div>
+  <input id='text' />
+  <button onclick="post();">post</button>
+</body>
+
+</html>
