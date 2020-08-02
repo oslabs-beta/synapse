@@ -5,7 +5,8 @@
   "main": "build/lib/index.js",
   "types": "build/lib/index.d.ts",
   "files": [
-    "build/lib"
+    "build/lib",
+    "build/lib.browser"
   ],
   "scripts": {
     "build": "tsc && tsc -p tsconfig.browser.json",

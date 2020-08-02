@@ -2,69 +2,28 @@
 <html>
 
 <head>
-  <script type='module' src='index.js'></script>
+  <script type='module' src='https://unpkg.com/@synapsejs/synapse@1.0.6/build/lib.browser/Client.js'></script>
   <script>
-    // let api = null;
+    let api = null;
 
-    // const post = () => {
-    //   api.post('/comment', { text: document.getElementById('text').value });
-    // }
-    // const render = (messages) => {
-    //   for (const msg of messages) {
-    //     document.getElementById('messages').innerHTML += `
-    //       <div><b>${msg.id}:</b> ${msg.text}</div>
-    //     `;
-    //   }
-    // };
+    const render = (messages) => {
+      for (const msg of messages) {
+        document.getElementById('messages').innerHTML += `
+          <div><b>${msg.id}:</b> ${msg.text}</div>
+        `;
+      }
+    };
 
-    // Client.connect('ws://localhost:3000/api')
-    //   .then(async (_api) => {
-    //     api = _api;
+    Client.connect('ws://localhost:3000/api').then(async (client) => {
+      api = client;
 
-    //     api.get('/comment/page/1')
-    //       .then((res) => render(res.payload));
+      api.get('/comment/page/1').then((res) => render(res.payload));
+      api.subscribe('/comment/last', {}, (message) => render([message]));
+    });
 
-    //     api.subscribe('/comment/last', {}, (message) => {
-    //       render([message]);
-    //     });
-    //   })
-
-
-    // const ws = new WebSocket('ws://localhost:3000/api');
-
-    // ws.onopen = () => {
-    //   ws.send(JSON.stringify({
-    //     'GET /comment/page/1': {},
-    //     'SUBSCRIBE /comment/last': {}
-    //   }));
-    // };
-
-    // ws.onmessage = (msg) => {
-    //   const data = JSON.parse(msg.data);
-    //   for (const [req, res] of Object.entries(data)) {
-    //     let messages;
-    //     if (req === 'GET /comment/page/1') {
-    //       messages = [...res.payload];
-    //       messages.reverse();
-    //     } else if (req.indexOf('?') !== -1) {
-    //       messages = [res];
-    //     } else {
-    //       return console.log(res);
-    //     }
-
-    //     for (const msg of messages) {
-    //       document.getElementById('messages').innerHTML += `
-    //         <div><b>${msg.id}:</b> ${msg.text}</div>
-    //       `;
-    //     }
-    //   }
-    // }
-
-    // const post = () => {
-    //   ws.send(JSON.stringify({
-    //     'POST /comment': { text: document.getElementById('text').value }
-    //   }))
-    // }
+    window.post = () => {
+      api.post('/comment', { text: document.getElementById('text').value });
+    };
   </script>
 </head>
 
