@@ -11,13 +11,25 @@ export default class State {
    * @category Metadata
    */
   $type: string = null;
-  /** An HTTP status code describing the response. */
+  /**
+   * An HTTP status code describing the response.
+   * @category Metadata
+   */
   $status: number;
-  /** A string describing the response. */
+  /**
+   * A string describing the response.
+   * @category Metadata
+   */
   $message: string = '';
-  /** An HTTP query string representing the requested _path_ and validated arguments. */
+  /**
+   * An HTTP query string representing the requested _path_ and validated arguments.
+   * @category Metadata
+   */
   $query: string = null;
-  /** An array of _paths_ upon which the response data depends. */
+  /**
+   * An array of _paths_ upon which the response data depends.
+   * @category Metadata
+   */
   $dependencies: Array<string> = [];
 
   /**

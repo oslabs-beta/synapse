@@ -8,7 +8,7 @@ import { parseEndpoint } from '../utility';
 
 /** Creates an ```express``` middleware function to handle requests for SSE subscriptions (simply GET requests with the appropriate headers set).
  */
-export default (router: Router, callback: Function): Function => {
+const sse = (router: Router, callback: Function): Function => {
   return async (req: any, res: any, next: Function) => {
     if (req.get('Accept') !== 'text/event-stream') {
       return next();
@@ -48,3 +48,5 @@ export default (router: Router, callback: Function): Function => {
     return client(endpoint, state, false);
   };
 };
+
+export default sse;

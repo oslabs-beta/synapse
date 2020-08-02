@@ -5,7 +5,7 @@ import { Resource, State } from '../../lib';
 import decorators from '../../lib/abstract/@';
 import { Id, Text, Integer } from '../../lib/fields';
 
-const { field, endpoint, schema, affects, uses } = decorators;
+const { field, endpoint, schema, uses } = decorators;
 
 const pageSize = 10;
 const ledger = [];
@@ -15,6 +15,7 @@ export default class Comment extends Resource {
   @field(new Text()) text: string;
 
   @endpoint('GET /last')
+  @uses('/')
   static Last() {
     if (!ledger[ledger.length - 1]) {
       return State.NOT_FOUND();
@@ -36,12 +37,11 @@ export default class Comment extends Resource {
   @uses('/')
   static List({ index }) {
     const start = ledger.length - pageSize * index;
-    return Comment.collection(ledger.slice(start, start + pageSize).reverse());
+    return Comment.collection(ledger.slice(start, start + pageSize));
   }
 
   @endpoint('POST /')
   @schema(Comment.schema.select('text'))
-  @affects('/last')
   static async Post({ text }) {
     const comment = await Comment.create({ id: `${ledger.length}`, text });
     ledger.push(comment.export());
